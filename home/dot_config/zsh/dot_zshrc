@@ -4,7 +4,7 @@
 # | SETOPTS |
 # +---------+
 
-source $ZDOTDIR/setopt.zsh
+source $ZDOTDIR/options.zsh
 
 # +---------+
 # | ALIASES |
