@@ -19,6 +19,7 @@ command = [
   "htop"
 ]
 vcs = [
+  "diff-so-fancy",
   "gh",
   "git-delta",
   "lazygit"
