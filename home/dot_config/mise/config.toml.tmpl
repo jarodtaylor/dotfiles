@@ -1,14 +1,10 @@
 [tools]
-{{- range $lang, $content := .mise }}
-  {{- if $content.enabled }}
-    {{- range $ver := $content.versions }}
-      {{ $lang }} = { version = {{ $ver | quote }}
-      {{- if and $content.options (ne $content.options nil) }}
-        {{- range $key, $value := $content.options }}, {{ $key }} = {{ $value | quote }}{{- end }}
-      {{- end }}
-      }
-    {{- end }}
-  {{- end }}
+{{- range $lang, $content := .mise -}}
+{{- if $content.enabled -}}
+{{- range $ver := $content.versions -}}
+{{ $lang }} = { version = {{ $ver | quote }}{{- if hasKey $content "options" }}{{- range $key, $value := $content.options }}, {{ $key }} = {{ $value | quote }}{{- end }}{{- end }} }
+{{- end -}}
+{{- end -}}
 {{- end }}
 
 # supports everything you can do with .tool-versions currently
@@ -22,5 +18,3 @@
 # specify a custom repo url
 # note this will only be used if the plugin does not already exist
 # python = 'https://github.com/asdf-community/asdf-python'
-
-# {{ template "settings.toml.tmpl" . }}
