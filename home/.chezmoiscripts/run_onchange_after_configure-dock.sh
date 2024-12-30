@@ -19,9 +19,6 @@ declare -a remove_labels=(
 	Freeform
 	TV
 	Music
-	Keynote
-	Numbers
-	Pages
 	"App Store"
 )
 
