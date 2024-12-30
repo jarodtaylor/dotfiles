@@ -3,7 +3,7 @@
   email = "jarodrtaylor@gmail.com"
   signingkey = {{ onepasswordRead "op://Personal/jt_gh_ssh_key/public_key" }}
 
-[includeIf "gitdir:~/src/work/"]
+[includeIf "gitdir:{{ .work_dir }}/"]
   path = config-work.tmpl
 
 [gpg]

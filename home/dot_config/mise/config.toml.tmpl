@@ -25,7 +25,7 @@ plugin_autoupdate_last_check_duration = '1 week' # set to 0 to disable updates
 
 # config files with these prefixes will be trusted by default
 trusted_config_paths = [
-    '~/Code/',
+  '{{ .code_dir }}',
 ]
 
 verbose = false       # set to true to see full installation output, see `MISE_VERBOSE`
