@@ -1,0 +1,28 @@
+[mise.node]
+enabled = true
+versions = ["22"]
+options = { postinstall = "npx corepack enable" }
+
+[mise.deno]
+enabled = true
+versions = ["2"]
+
+[mise.erlang]
+enabled = true
+versions = ["27"]
+
+[mise.elixir]
+enabled = true
+versions = ["1.18"]
+
+[mise.go]
+enabled = true
+versions = ["latest"]
+
+[mise.python]
+enabled = true
+versions = ["3.13"]
+
+[mise.ruby]
+enabled = true
+versions = ["3.3"]
