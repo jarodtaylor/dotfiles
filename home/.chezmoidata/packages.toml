@@ -28,7 +28,7 @@ editor = [
 ]
 database = [
   "pgcli",
-  "postgres@15",
+  "postgresql@15",
   "redis"
 ]
 runtime = [
@@ -43,11 +43,10 @@ tools = [
 
 [packages.cask]
 browser = [
-  "firefox-developer-edition",
+  "firefox@developer-edition",
   "google-chrome"
 ]
 security = [
-  "1password",
   "1password-cli",
   "expressvpn"
 ]
