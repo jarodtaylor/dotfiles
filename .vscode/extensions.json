@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "timonwong.shellcheck",
+        "mads-hartmann.bash-ide-vscode",
+        "golang.go-template",
+        "tamasfe.even-better-toml",
+        "foxundermoon.shell-format"
+    ]
+} 
