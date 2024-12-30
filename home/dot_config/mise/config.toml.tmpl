@@ -1,7 +1,7 @@
 [tools]
 {{- range $lang, $content := .mise -}}
 {{- if $content.enabled -}}
-{{- range $ver := $content.versions -}}
+{{- range $ver := $content.versions }}
 {{ $lang }} = { version = {{ $ver | quote }}{{- if hasKey $content "options" }}{{- range $key, $value := $content.options }}, {{ $key }} = {{ $value | quote }}{{- end }}{{- end }} }
 {{- end -}}
 {{- end -}}
