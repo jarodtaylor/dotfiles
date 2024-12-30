@@ -1,17 +1,6 @@
 # Personal Dotfiles
 
-This repository contains my personal dotfiles, managed with [Chezmoi](https://www.chezmoi.io/). It's designed to streamline the setup of new macOS development machines, whether for personal or professional use.
-
-## Pre-Testing TODOs
-
-### 1. Configuration Management
-- [ ] SSH and Git configuration for multiple GitHub identities
-- [ ] Verify all template variables are consistent
-
-### 2. 1Password Integration
-- [ ] Ensure vault names are consistent across scripts
-- [ ] Standardize SSH key naming convention
-- [ ] Verify signing key paths in Git config
+This repository contains my personal dotfiles, managed with [Chezmoi](https://www.chezmoi.io/).
 
 ## Quick Start
 1. Install 1Password and sign in
