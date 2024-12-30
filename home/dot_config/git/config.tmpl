@@ -1,0 +1,50 @@
+[user]
+  name  = "Jarod Taylor"
+  email = "jarodrtaylor@gmail.com"
+  signingkey = {{ onepasswordRead "op://Personal/jt_gh_ssh_key/public_key" }}
+
+[includeIf "gitdir:~/src/work/"]
+  path = config-work.tmpl
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[commit]
+  gpgsign = true
+
+[include]
+  path = conf.d/delta.conf
+
+[color]
+  ui = true
+  diff = auto
+  status = auto
+  branch = auto
+
+[init]
+	defaultBranch = main
+
+[branch]
+  autosetuprebase = always
+
+[core]
+  editor = vim
+
+[remote]
+  pushDefault = origin
+
+[fetch]
+  prune = true
+
+[merge]
+  branchdesc = true
+  log = true
+
+[push]
+  default = current
+
+[pull]
+  ff = only

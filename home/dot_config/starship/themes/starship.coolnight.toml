@@ -1,0 +1,60 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+[](bg:#030B16 fg:#7DF9AA)[󰀵 ](bg:#7DF9AA fg:#090c0c)\
+[](fg:prev_bg bg:#1C3A5E)$directory\
+$git_branch\
+[](fg:prev_bg bg:none)\
+$fill\
+${custom.git_user}
+"""
+
+add_newline = true
+
+# [palettes.coolnight]
+# color_bg0 = '#030B16'
+# color_fg0 = '#7DF9AA'
+
+# palette = 'gruvbox_dark'
+
+# [palettes.gruvbox_dark]
+# color_fg0 = '#fbf1c7'
+# color_bg1 = '#3c3836'
+# color_bg3 = '#665c54'
+# color_blue = '#458588'
+# color_aqua = '#689d6a'
+# color_green = '#98971a'
+# color_orange = '#d65d0e'
+# color_purple = '#b16286'
+# color_red = '#cc241d'
+# color_yellow = '#d79921'
+
+[fill]
+symbol = ' '
+
+[custom.left_end]
+format = '[](fg:prev_bg bg:none)'
+
+[directory]
+format = "[ $path ]($style)"
+truncate_to_repo = false
+home_symbol = "~"
+style = "bg:#1C3A5E fg:#8DFBD2"
+
+[git_branch]
+format = '[](fg:prev_bg bg:#3B76F0)[ $symbol$branch(:$remote_branch) ]($style)'
+symbol = " "
+style = "fg:#E4E4E4 bg:#3B76F0"
+
+[custom.git_email]
+command = "git config user.email"
+when = "git rev-parse --git-dir 2> /dev/null"
+format = "by [$output]($style) "
+style = "bright-yellow bold"
+
+[custom.git_user]
+command = "git config user.name"
+when = "git rev-parse --git-dir 2> /dev/null"
+symbol = ""
+format = "[$symbol $output]($style) "
+style = "bright-yellow bold"

@@ -1,0 +1,12 @@
+{{- $brew_prefix := "" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   if eq .chezmoi.arch "arm64" -}}
+{{-     $brew_prefix = "/opt/homebrew" -}}
+{{-   else if eq .chezmoi.arch "amd64" -}}
+{{-     $brew_prefix = "/usr/local" -}}
+{{-   end -}}
+{{- end -}}
+
+[data.cmd]
+copy     = "pbcopy"
+paste    = "pbpaste"

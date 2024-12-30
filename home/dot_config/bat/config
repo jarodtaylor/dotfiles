@@ -1,0 +1,18 @@
+--style "numbers,changes,header"
+--style="full"
+--color="auto"
+--theme="Catppuccin Mocha"
+
+--map-syntax .dockerignore:'Git Ignore'
+--map-syntax .eslintignore:'Git Ignore'
+--map-syntax .eslintrc:JSON
+--map-syntax .lua-format:YAML
+--map-syntax .luacheckrc:Lua
+--map-syntax .prettierignore:'Git Ignore'
+--map-syntax .prettierrc:JSON
+--map-syntax .stylelintrc:JSON
+--map-syntax .tslintrc:JSON
+--map-syntax .yamllint:YAML
+--map-syntax .yaml-lint:YAML
+--map-syntax .yml-lint:YAML
+--map-syntax .zshrc:Zsh

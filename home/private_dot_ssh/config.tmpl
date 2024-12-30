@@ -1,0 +1,17 @@
+Host github.com
+  HostName github.com
+  User git
+  AddKeysToAgent yes
+  UseKeychain yes
+  PreferredAuthentications publickey
+  IdentitiesOnly yes
+  IdentityFile ~/.ssh/private_id_ed25519
+
+Host github.com-work
+  HostName github.com
+  User git
+  AddKeysToAgent yes
+  UseKeychain yes
+  PreferredAuthentications publickey
+  IdentitiesOnly yes
+  IdentityFile ~/.ssh/private_elc_id_ed25519

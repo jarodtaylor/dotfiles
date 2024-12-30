@@ -1,0 +1,35 @@
+{{- range .packages.cask.browser }}
+cask {{ . | quote }}
+{{- end }}
+
+{{- range .packages.cask.security }}
+cask {{ . | quote }}
+{{- end }}
+
+{{- range .packages.cask.development }}
+cask {{ . | quote }}
+{{- end }}
+
+{{- range .packages.cask.productivity }}
+cask {{ . | quote }}
+{{- end }}
+
+{{- range .packages.cask.communication }}
+cask {{ . | quote }}
+{{- end }}
+
+{{- range .packages.cask.media }}
+cask {{ . | quote }}
+{{- end }}
+
+{{- range .packages.cask.font }}
+cask {{ . | quote }}
+{{- end }}
+
+{{- range .packages.cask.terminal }}
+cask {{ . | quote }}
+{{- end }}
+
+{{- range .packages.cask.design }}
+cask {{ . | quote }}
+{{- end }}

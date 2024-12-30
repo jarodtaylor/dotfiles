@@ -1,0 +1,32 @@
+#!/usr/bin/env zsh
+
+# +---------+
+# | SETOPTS |
+# +---------+
+
+source $ZDOTDIR/setopt.zsh
+
+# +---------+
+# | ALIASES |
+# +---------+
+
+source $ZDOTDIR/aliases.zsh
+
+# +-------------+
+# | COMPLETION |
+# +-------------+
+
+autoload -U compinit; compinit
+
+# +-----------------+
+# | INITIALIZATION |
+# +----------------+
+
+# Initialize mise
+eval "$(/opt/homebrew/bin/mise activate zsh)"
+
+# Initialize starship
+eval "$(starship init zsh)"
+
+# Initialize 1Password
+eval "$(op completion zsh)"; compdef _op op
