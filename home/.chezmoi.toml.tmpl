@@ -11,6 +11,8 @@
 brew_prefix = {{ $brew_prefix | quote }}
 code_dir = "~/Code"
 work_dir = "~/Code/work"
+ssh_key = "{{- onepasswordRead "op://Personal/jt_gh_ssh_key/public_key" -}}"
+work_ssh_key = "{{- onepasswordRead "op://Personal/elc_gh_ssh_key/public_key" -}}"
 
 [diff]
 command = "delta"
