@@ -4,7 +4,7 @@
   signingkey = {{ .ssh_key }}
 
 [includeIf "gitdir:{{ .work_dir }}/"]
-  path = config-work.tmpl
+  path = config-work
 
 [gpg]
   format = ssh
