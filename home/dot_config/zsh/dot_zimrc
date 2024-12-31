@@ -14,6 +14,6 @@ zmodule zsh-users/zsh-history-substring-search # Fish-like history search (up ar
 zmodule zsh-users/zsh-autosuggestions          # Fish-like autosuggestions for Zsh.
 
 ## Custom modules
-zmodule eza # must be sourced after "utility"
+zmodule exa # must be sourced after "utility"
 zmodule fzf
 # zmodule olets/zsh-abbr # Fish-like auto-expanding abbreviations.

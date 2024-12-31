@@ -17,23 +17,46 @@ source $ZDOTDIR/aliases.zsh
 # +----------------+
 # The prefix for the alias from zim builtin git module
 # zstyle ':zim:zmodule' use 'degit'
+# export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"
+# export ZIM_HOME="${XDG_CACHE_HOME}/zim"
+
+# # Download zimfw plugin manager if missing.
+# if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
+#   curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+#     https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+# fi
+
+# # Install missing modules and update ${ZIM_HOME}/init.zsh if missing or outdated.
+# if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
+#   source ${ZIM_HOME}/zimfw.zsh init -q
+# fi
+
+# # Initialize modules.
+# source ${ZIM_HOME}/init.zsh
+
 export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"
 export ZIM_HOME="${XDG_CACHE_HOME}/zim"
 
 # Download zimfw plugin manager if missing.
 if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
-  curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
-    https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+  echo "Downloading zimfw plugin manager..."
+  if ! curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+    https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh; then
+    echo "Failed to download zimfw. Check your internet connection or the URL."
+    return 1
+  fi
 fi
 
 # Install missing modules and update ${ZIM_HOME}/init.zsh if missing or outdated.
-[[ ~/.zimrc -nt ~/.zim/init.zsh ]] && source ~/.zim/zimfw.zsh init -q
+if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
+  source ${ZIM_HOME}/zimfw.zsh init -q
+fi
 
 # Initialize modules.
 source ${ZIM_HOME}/init.zsh
 
 ## init zsh-abbr
-source ${ZIM_HOME}/modules/zsh-abbr/zsh-abbr.zsh
+# source ${ZIM_HOME}/modules/zsh-abbr/zsh-abbr.zsh
 
 # +-----------------+
 # | INITIALIZATION |
@@ -49,5 +72,5 @@ eval "$(/opt/homebrew/bin/mise activate zsh)"
 eval "$(starship init zsh)"
 
 # Initialize 1Password
-eval "$(op completion zsh)"
-compdef _op op
+# eval "$(op completion zsh)"
+# compdef _op op
