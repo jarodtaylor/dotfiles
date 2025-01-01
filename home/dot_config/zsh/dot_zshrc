@@ -1,38 +1,15 @@
-#!/usr/bin/env zsh
 
-# +---------+
-# | SETOPTS |
-# +---------+
-
-source $ZDOTDIR/options.zsh
-
-# +---------+
-# | ALIASES |
-# +---------+
-
-source $ZDOTDIR/aliases.zsh
+# History
+export HISTFILE="$XDG_STATE_HOME/zsh/history"
+export HISTSIZE=10000
+export SAVEHIST=10000
 
 # +-----------------+
 # | ZIM FRAMEWORK |
 # +----------------+
 # The prefix for the alias from zim builtin git module
 # zstyle ':zim:zmodule' use 'degit'
-# export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"
-# export ZIM_HOME="${XDG_CACHE_HOME}/zim"
-
-# # Download zimfw plugin manager if missing.
-# if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
-#   curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
-#     https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-# fi
-
-# # Install missing modules and update ${ZIM_HOME}/init.zsh if missing or outdated.
-# if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
-#   source ${ZIM_HOME}/zimfw.zsh init -q
-# fi
-
-# # Initialize modules.
-# source ${ZIM_HOME}/init.zsh
+zstyle ':zim:input' double-dot-expand yes
 
 export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"
 export ZIM_HOME="${XDG_CACHE_HOME}/zim"
@@ -56,7 +33,13 @@ fi
 source ${ZIM_HOME}/init.zsh
 
 ## init zsh-abbr
-# source ${ZIM_HOME}/modules/zsh-abbr/zsh-abbr.zsh
+source ${ZIM_HOME}/modules/zsh-abbr/zsh-abbr.zsh
+
+# +-----------------+
+# | INPUT CONFIG   |
+# +-----------------+
+# Set editor default keymap to emacs (`-e`) or vi (`-v`)
+bindkey -v
 
 # +-----------------+
 # | INITIALIZATION |
@@ -65,12 +48,6 @@ source ${ZIM_HOME}/init.zsh
 # Initialize fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 
-# Initialize mise
-eval "$(/opt/homebrew/bin/mise activate zsh)"
-
-# Initialize starship
-eval "$(starship init zsh)"
-
-# Initialize 1Password
-# eval "$(op completion zsh)"
-# compdef _op op
+for file in "$ZDOTDIR"/functions/*.zsh; do
+  source "$file"
+done
