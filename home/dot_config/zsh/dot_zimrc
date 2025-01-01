@@ -16,4 +16,4 @@ zmodule zsh-users/zsh-autosuggestions          # Fish-like autosuggestions for Z
 ## Custom modules
 zmodule exa # must be sourced after "utility"
 zmodule fzf
-zmodule olets/zsh-abbr # Fish-like auto-expanding abbreviations.
+zmodule olets/zsh-abbr --name zsh-abbr # Fish-like auto-expanding abbreviations.

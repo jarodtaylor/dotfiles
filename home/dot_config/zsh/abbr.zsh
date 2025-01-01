@@ -7,3 +7,7 @@ abbr gsb="git status --short --branch"
 abbr gl="git log --graph -all"
 abbr gd="git diff"
 abbr gds="git diff --staged"
+
+## Directory
+abbr cwd="pwd | {{ .cmd.copy }}"
+abbr mkdir="mkdir -pv"

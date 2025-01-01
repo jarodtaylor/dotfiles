@@ -1,9 +1,4 @@
 
-# History
-export HISTFILE="$XDG_STATE_HOME/zsh/history"
-export HISTSIZE=10000
-export SAVEHIST=10000
-
 # +-----------------+
 # | ZIM FRAMEWORK |
 # +----------------+
@@ -39,7 +34,7 @@ source ${ZIM_HOME}/modules/zsh-abbr/zsh-abbr.zsh
 # | INPUT CONFIG   |
 # +-----------------+
 # Set editor default keymap to emacs (`-e`) or vi (`-v`)
-bindkey -v
+# bindkey -v
 
 # +-----------------+
 # | INITIALIZATION |
