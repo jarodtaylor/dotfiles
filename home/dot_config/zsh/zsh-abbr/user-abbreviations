@@ -1,13 +1,21 @@
+# +-----------------+
+# | OLETS/ZSH-ABBR |
+# +----------------+
+
 ## Git
 abbr lg="lazygit"
 abbr g="git "
 abbr gs="git status"
 abbr gss="git status --short"
 abbr gsb="git status --short --branch"
-abbr gl="git log --graph -all"
+abbr gl="git log"
 abbr gd="git diff"
-abbr gd--="git diff -- **" # don't know if this will work but saving in case
+abbr gdd="git diff -- **"
+abbr gdo='git diff origin/"%"'
 abbr gds="git diff --staged"
+
+abbr gcm="git commit -m '%'"
+abbr git m="commit -m '%'"
 
 ## Directory
 abbr cwd="pwd | {{ .cmd.copy }}"

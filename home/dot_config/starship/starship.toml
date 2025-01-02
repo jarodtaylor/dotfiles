@@ -25,6 +25,8 @@ style = 'fg:surface0'
 
 [character]
 format = "$symbol "
+vimcmd_symbol = '[ N:](bold green) '
+vimcmd_replace_one_symbol = '[ R:](bold blue) '
 
 [custom.directory_type]
 description = "Display a github icon if in a git repo"
