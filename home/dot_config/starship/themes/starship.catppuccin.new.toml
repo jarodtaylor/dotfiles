@@ -29,15 +29,27 @@ format = " $symbol "
 
 [custom.directory_type]
 command = """
-if [[ $(basename "$(echo "$PWD" | sed -e "s|^$HOME/||" -e "s|/.*||")") == "Code" ]]; then
-  echo ""
-else
+if [[ git rev-parse --is-inside-work-tree &>/dev/null]]; then 
+  echo "'"
+else 
   echo " "
 fi
 """
 when = "true"
 format = "[ $output ]($style)"
 style = "bg:surface1 fg:text"
+
+# [custom.directory_type]
+# command = """
+# if [[ $(basename "$(echo "$PWD" | sed -e "s|^$HOME/||" -e "s|/.*||")") == "Code" ]]; then
+#   echo ""
+# else
+#   echo " "
+# fi
+# """
+# when = "true"
+# format = "[ $output ]($style)"
+# style = "bg:surface1 fg:text"
 
 [directory]
 format = "[ $path ]($style)"

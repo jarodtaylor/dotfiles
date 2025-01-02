@@ -1,75 +1,82 @@
-# Get editor completions based on the config schema
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
-[░▒▓](bg:none fg:surface1)${custom.directory_type}[](fg:prev_bg bg:surface2)\
+[░▒▓](bg:none fg:surface0)${custom.directory_type}\
+[](fg:base bg:prev_bg)\
+[](fg:prev_bg bg:base)\
 $directory\
 $git_branch${custom.git_uncommitted}\
-$git_commit\
-$hg_branch\
-[](fg:prev_bg bg:none)\
+[](fg:prev_bg bg:base)\
+$git_state\
 $fill\
-${custom.git_user}
+${custom.git_url}\
+${custom.git_email}\
+[](fg:surface0 bg:base)\
+[](fg:base bg:surface0)[   ](bg:surface0 fg:text)[▓▒░](bg:none fg:surface0)
 $line_break\
 $character
 """
 
-add_newline = true
+# [](fg:surface1 bg:prev_bg)[   ](bg:surface1 fg:text)[▓▒░](bg:none fg:surface1)
+# [█](fg:prev_bg bg:none)\
 
-# Sets user-defined palette
-# Palettes must be defined _after_ this line
+
+add_newline = true
 palette = "catppuccin_mocha"
 
-# Starship modules
 [fill]
-symbol = ' '
+symbol = '█'
+style = 'fg:surface0'
+
+[character]
+format = " $symbol "
 
 [custom.directory_type]
 command = """
-if [[ $(basename "$(echo "$PWD" | sed -e "s|^$HOME/||" -e "s|/.*||")") == "dev" ]]; then
-  echo ""
-else
-  echo " "
+if "git rev-parse --git-dir 2> /dev/null"; then 
+  echo "'"
+else 
+  echo " "
 fi
 """
 when = "true"
 format = "[ $output ]($style)"
-style = "bg:surface1 fg:text"
+style = "bg:surface0 fg:text"
 
 [directory]
-format = "[ $path ]($style)"
-# before_repo_root_style = "bg:surface2 fg:text"
-# repo_root_style = "bg:surface2 fg:text"
-# repo_root_format = "[$before_root_path]($before_repo_root_style) [$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style) "
+format = "[ $path ]($style)[](fg:base bg:prev_bg)"
 truncate_to_repo = false
+truncation_length = 2
+truncation_symbol = "../"
 home_symbol = "~"
-style = "bg:surface2 fg:text"
+style = "bg:surface0 fg:text"
 
 [git_branch]
-format = '[](fg:prev_bg bg:overlay0)[ $symbol$branch(:$remote_branch) ]($style)'
+format = '[](fg:prev_bg bg:base)[ $symbol$branch(:$remote_branch) ]($style)'
 symbol = " "
-style = "fg:text bg:overlay0"
+style = "fg:text bg:surface0"
 
 [custom.git_uncommitted]
 description = "Display the number of uncommitted changed files"
 command = "git status --porcelain | wc -l"
 when = "git rev-parse --git-dir 2> /dev/null"
-format = '[󰦒$output]($style)'
-style = "fg:text bg:overlay0"
+symbol = "󰦒"
+format = '[$symbol$output ]($style)[](fg:base bg:prev_bg)'
+style = "fg:text bg:surface0"
 
 [custom.git_email]
 description = "Display the git user email"
 command = "git config user.email"
 when = "git rev-parse --git-dir 2> /dev/null"
-format = "by [$output]($style) "
-style = "bright-yellow bold"
+symbol = "  "
+format = "[](fg:surface0 bg:base)[](fg:base bg:surface0)[$symbol $output ](bg:surface0 fg:subtext0)"
 
-[custom.git_user]
-description = "Display the git user name"
-command = "git config user.name"
-when = "git rev-parse --git-dir 2> /dev/null"
-symbol = ""
-format = "[](fg:surface1 bg:none)[$symbol $output ](bg:surface1 fg:text)[▓▒░](bg:none fg:surface1)"
+[custom.git_url]
+description = "Display the git remote url"
+command = "git config --get remote.origin.url | sed -E 's#(git@|https://)([^:/]+)[:/]##'"
+when = "git config --get remote.origin.url > /dev/null 2>&1"
+symbol = "  "
+format = "[](fg:surface0 bg:base)[](fg:base bg:surface0)[$symbol $output ](bg:surface0 fg:subtext0)"
 
 # Palette definitions
 [palettes.catppuccin_mocha]
