@@ -11,12 +11,12 @@ $git_state\
 $fill\
 ${custom.git_url}\
 ${custom.git_email}\
-${custom.directory_type}
-$line_break\
+${custom.directory_type}\
+$line_break
 $character
 """
 
-add_newline = true
+add_newline = false
 palette = "catppuccin_mocha"
 
 [fill]
@@ -24,7 +24,7 @@ symbol = '█'
 style = 'fg:surface0'
 
 [character]
-format = " $symbol "
+format = "$symbol "
 
 [custom.directory_type]
 description = "Display a github icon if in a git repo"

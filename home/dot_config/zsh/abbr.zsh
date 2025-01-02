@@ -6,6 +6,7 @@ abbr gss="git status --short"
 abbr gsb="git status --short --branch"
 abbr gl="git log --graph -all"
 abbr gd="git diff"
+abbr gd--="git diff -- **" # don't know if this will work but saving in case
 abbr gds="git diff --staged"
 
 ## Directory

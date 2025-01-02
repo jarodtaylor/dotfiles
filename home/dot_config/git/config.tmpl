@@ -22,10 +22,19 @@
   path = conf.d/delta.conf
 
 [color]
-  ui = true
+  ui = auto
   diff = auto
   status = auto
   branch = auto
+
+[color "status"]
+  added = blue
+  updated = green
+  changed = yellow
+  untracked = cyan
+  branch = magenta
+  nobranch = normal
+  unmerged = red
 
 [init]
 	defaultBranch = main
