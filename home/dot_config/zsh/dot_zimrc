@@ -1,7 +1,7 @@
 # Zim modules: https://zimfw.sh/docs/modules/
 zmodule environment # Sets sane Zsh built-in environment options.
 zmodule input       # Applies correct bindkeys for input events.
-zmodule utility     # Utility aliases and functions. Adds colour to ls, grep and less.
+# zmodule utility     # Utility aliases and functions. Adds colour to ls, grep and less.
 
 ## Completion
 zmodule zsh-users/zsh-completions --fpath src
@@ -18,4 +18,4 @@ zmodule zsh-users/zsh-autosuggestions          # Fish-like autosuggestions for Z
 ## Custom modules
 zmodule exa # must be sourced after "utility"
 zmodule fzf
-zmodule olets/zsh-abbr --name zsh-abbr # Fish-like auto-expanding abbreviations.
+zmodule olets/zsh-abbr --name zsh-abbr
