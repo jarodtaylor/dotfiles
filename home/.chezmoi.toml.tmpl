@@ -10,6 +10,7 @@
 [data]
 brew_prefix = {{ $brew_prefix | quote }}
 ssh_key = "{{- onepasswordRead "op://Personal/jt_gh_ssh_key/public_key" -}}"
+work_ssh_key = "{{- onepasswordRead "op://Personal/elc_gh_ssh_key/public_key" -}}"
 code_dir = "~/Code"
 work_dir = "~/Code/work"
 
@@ -20,6 +21,14 @@ code_dir = "~/Code/personal"
 email = "jarodrtaylor@gmail.com"
 name = "Jarod Taylor"
 ssh_key = "{{- onepasswordRead "op://Personal/jt_gh_ssh_key/public_key" -}}"
+create_directory = true
+
+[[data.profiles]]
+id = "work"
+code_dir = "~/Code/work"
+email = "jartaylo@estee.com"
+name = "Jarod Taylor"
+ssh_key = "{{- onepasswordRead "op://Personal/elc_gh_ssh_key/public_key" -}}"
 create_directory = true
 
 [diff]

@@ -9,3 +9,12 @@ Host github.com
   PreferredAuthentications publickey
   IdentitiesOnly yes
   IdentityFile ~/.ssh/id
+
+Host github.com-work
+  HostName github.com
+  User git
+  AddKeysToAgent yes
+  UseKeychain yes
+  PreferredAuthentications publickey
+  IdentitiesOnly yes
+  IdentityFile ~/.ssh/elc_id
