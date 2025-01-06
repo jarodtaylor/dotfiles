@@ -1,0 +1,99 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+[░▒▓](bg:none fg:surface0)[ ](bg:surface0 fg:text)\
+[](fg:base bg:prev_bg)\
+[](fg:prev_bg bg:base)\
+$directory\
+$git_branch${custom.git_uncommitted}\
+[](fg:prev_bg bg:base)\
+$git_state\
+$fill\
+${custom.git_url}\
+${custom.git_email}\
+${custom.directory_type}\
+$line_break
+$character
+"""
+
+add_newline = false
+palette = "catppuccin_mocha"
+
+[fill]
+symbol = '█'
+style = 'fg:surface0'
+
+[character]
+format = "$symbol "
+vimcmd_symbol = '[ N:](bold green) '
+vimcmd_replace_one_symbol = '[ R:](bold blue) '
+
+[custom.directory_type]
+description = "Display a github icon if in a git repo"
+command = "echo 'inside git repo'"
+when = "git rev-parse --is-inside-work-tree > /dev/null 2>&1"
+format = "[](fg:surface0 bg:base)[](fg:base bg:surface0)[   ](bg:surface0 fg:text)[▓▒░](bg:none fg:surface0)"
+
+[directory]
+format = "[ $path ]($style)[](fg:base bg:prev_bg)"
+truncate_to_repo = false
+truncation_length = 2
+truncation_symbol = "../"
+home_symbol = "~"
+style = "bg:surface0 fg:text"
+
+[git_branch]
+format = '[](fg:prev_bg bg:base)[ $symbol$branch(:$remote_branch) ]($style)'
+symbol = " "
+style = "fg:text bg:surface0"
+
+[custom.git_uncommitted]
+description = "Display the number of uncommitted changed files"
+command = "git status --porcelain | wc -l"
+when = "git rev-parse --git-dir 2> /dev/null"
+symbol = "󰦒"
+format = '[$symbol$output ]($style)[](fg:base bg:prev_bg)'
+style = "fg:text bg:surface0"
+
+[custom.git_email]
+description = "Display the git user email"
+command = "git config user.email"
+when = "git rev-parse --git-dir 2> /dev/null"
+symbol = "  "
+format = "[](fg:surface0 bg:base)[](fg:base bg:surface0)[$symbol $output ](bg:surface0 fg:subtext0)"
+
+[custom.git_url]
+description = "Display the git remote url"
+command = "git config --get remote.origin.url | sed -E 's#(git@|https://)([^:/]+)[:/]##'"
+when = "git config --get remote.origin.url > /dev/null 2>&1"
+symbol = "  "
+format = "[](fg:surface0 bg:base)[](fg:base bg:surface0)[$symbol $output ](bg:surface0 fg:subtext0)"
+
+# Palette definitions
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"

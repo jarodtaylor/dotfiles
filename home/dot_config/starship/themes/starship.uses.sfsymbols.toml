@@ -1,0 +1,68 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = false
+format = "${custom.show_jobs}${custom.ssh_emoji}${custom.directory}$git_branch${custom.describe}$git_state$git_status${custom.subdir} $character"
+palette = "blueorange"
+
+[custom.describe]
+command="git describe --contains --all HEAD 2> /dev/null"
+format = '\([\($output\)]($style) '
+require_repo = true
+style = 'red'
+when = '[ -z "$(git branch --show-current)" ]'
+
+[custom.ssh_emoji]
+command = """
+    case $(basename $(hostname) .local) in
+    "Trident")
+    echo "🔱 ";;
+    "Umbra")
+    echo "🗡️ ";;
+    "F2MCXVH2HW")
+    echo "🗂️ ";;
+    *)
+    echo "💼 ";;
+    esac
+"""
+when = '[ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]'
+
+[custom.subdir]
+command = 'echo ${PWD/$(git rev-parse --show-toplevel 2>\/dev\/null)}'
+when = true
+require_repo = true
+style = ""
+
+[custom.directory]
+format = '[$output]($style)'
+command = 'basename $(git rev-parse --show-toplevel 2>\/dev\/null) 2>/dev/null || print ${PWD//"$HOME"/\~caleb}'
+when = true
+style = "bold"
+
+[git_branch]
+format = '\([$branch]($style) '
+only_attached = true
+style = "green"
+
+[git_commit]
+format = '\([$hash]($style)'
+style = "red"
+
+[git_status]
+ahead = " [􀾕 ](green)"
+behind = " [􀾔 ](red)"
+conflicted = "[􀄐 ](red)"
+deleted = '[􀈑 ](red)'
+diverged = '[􁅥 ](red)'
+format = '$all_status $ahead_behind\)'
+modified = '[􀋾 ](red)'
+renamed = "[􁁀 ](blue)"
+staged = '[􀈧 ](blue)'
+stashed = '[􀈄 ](blue)'
+untracked = '[􀣗 ](red)'
+up_to_date = "􀆀 "
+
+[palettes.blueorange]
+red = '#d29922'
+green = '#4493f8'
+# blue = '#c94241'
+blue = '#8d96a0'

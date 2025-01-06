@@ -1,0 +1,104 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+[░▒▓](bg:none fg:surface1)${custom.directory_type}[](fg:prev_bg bg:surface2)\
+$directory\
+$git_branch${custom.git_uncommitted}\
+$git_commit\
+$hg_branch\
+[](fg:prev_bg bg:none)\
+$fill\
+${custom.git_email}
+$line_break\
+$character
+"""
+
+add_newline = true
+
+# Sets user-defined palette
+# Palettes must be defined _after_ this line
+palette = "catppuccin_mocha"
+
+# Starship modules
+[fill]
+symbol = ' '
+
+[character]
+format = " $symbol "
+
+[custom.directory_type]
+command = """
+if [[ $(basename "$(echo "$PWD" | sed -e "s|^$HOME/||" -e "s|/.*||")") == "Code" ]]; then
+  echo ""
+else
+  echo " "
+fi
+"""
+when = "true"
+format = "[ $output ]($style)"
+style = "bg:surface1 fg:text"
+
+[directory]
+format = "[ $path ]($style)"
+# before_repo_root_style = "bg:surface2 fg:text"
+# repo_root_style = "bg:surface2 fg:text"
+# repo_root_format = "[$before_root_path]($before_repo_root_style) [$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style) "
+truncate_to_repo = true
+home_symbol = "~"
+style = "bg:surface2 fg:text"
+
+[git_branch]
+format = '[](fg:prev_bg bg:overlay0)[ $symbol$branch(:$remote_branch) ]($style)'
+symbol = " "
+style = "fg:text bg:overlay0"
+
+[custom.git_uncommitted]
+description = "Display the number of uncommitted changed files"
+command = "git status --porcelain | wc -l"
+when = "git rev-parse --git-dir 2> /dev/null"
+format = '[󰦒$output]($style)'
+style = "fg:text bg:overlay0"
+
+[custom.git_email]
+description = "Display the git user email"
+command = "git config user.email"
+when = "git rev-parse --git-dir 2> /dev/null"
+symbol = ""
+format = "[](fg:surface1 bg:none)[$symbol $output ](bg:surface1 fg:text)[▓▒░](bg:none fg:surface1)"
+
+[custom.git_user]
+description = "Display the git user name"
+command = "git config user.name"
+when = "git rev-parse --git-dir 2> /dev/null"
+symbol = ""
+format = "[](fg:surface1 bg:none)[$symbol $output ](bg:surface1 fg:text)[▓▒░](bg:none fg:surface1)"
+
+# Palette definitions
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"

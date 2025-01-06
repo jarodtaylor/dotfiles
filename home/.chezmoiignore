@@ -1,0 +1,25 @@
+# ~/.config/.local/share/chezmoi/.chezmoiignore
+# =============================================================================
+# Read by chezmoi when choosing repository files to copy to home directory.
+#
+# This list defines globs to ignore, and supports Go's text/template language.
+# See https://www.chezmoi.io/docs/reference/#chezmoiignore
+
+# Repository files
+LICENSE
+README.md
+install.sh
+
+# macOS flies
+**/.DS_Store
+.CFUserTextEncoding
+.Trash
+
+## Rust
+.cargo/*
+!.cargo/config.toml
+!.cargo/env
+.rustup
+
+# Editor
+.vscode/

@@ -1,0 +1,63 @@
+[user]
+  name  = "Jarod Taylor"
+  email = "jarodrtaylor@gmail.com"
+  signingkey = {{ .ssh_key }}
+
+[includeIf "gitdir:{{ .work_dir }}/"]
+  path = config-work
+
+[url "git@github.com:"]
+  insteadOf = https://github.com/
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[commit]
+  gpgsign = true
+
+[include]
+  path = conf.d/delta.conf
+
+[color]
+  ui = auto
+  diff = auto
+  status = auto
+  branch = auto
+
+[color "status"]
+  added = blue
+  updated = green
+  changed = yellow
+  untracked = cyan
+  branch = magenta
+  nobranch = normal
+  unmerged = red
+
+[init]
+	defaultBranch = main
+
+[branch]
+  autosetuprebase = always
+
+[core]
+  editor = vim
+
+[remote]
+  pushDefault = origin
+
+[fetch]
+  prune = true
+
+[merge]
+  conflictStyle = zdiff3
+  branchdesc = true
+  log = true
+
+[push]
+  default = current
+
+[pull]
+  ff = only

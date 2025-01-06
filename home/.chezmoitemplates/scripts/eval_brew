@@ -1,0 +1,4 @@
+#!/bin/bash
+
+{{- /* Check if brew exists and evaluate its environment */ -}}
+[ -f {{ .brew_prefix }}/bin/brew ] && eval "$({{ .brew_prefix }}/bin/brew shellenv)"

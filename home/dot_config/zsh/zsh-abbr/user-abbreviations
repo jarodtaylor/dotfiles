@@ -1,0 +1,29 @@
+# +-----------------+
+# | OLETS/ZSH-ABBR |
+# +----------------+
+
+export ABBR_SET_EXPANSION_CURSOR=1
+
+## Git
+abbr lg="lazygit"
+abbr g="git "
+abbr gs="git status"
+abbr gss="git status --short"
+abbr gsb="git status --short --branch"
+abbr gl="git log"
+abbr gd="git diff"
+abbr gdd="git diff -- **"
+abbr gdo='git diff origin/"%"'
+abbr gds="git diff --staged"
+abbr gco="git checkout"
+abbr gcm='git commit -m "%"'
+abbr git m='commit -m "%"'
+
+## Directory
+abbr cwd="pwd | {{ .cmd.copy }}"
+abbr mkdir="mkdir -pv"
+
+## Chezmoi
+abbr cz="chezmoi"
+abbr dots="cd ~/.local/share/chezmoi"
+

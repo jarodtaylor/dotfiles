@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+# Clear dock icon cache (kitty custom icon)
+# Check if the icon cache file exists before attempting to remove it
+if find /var/folders/*/*/*/com.apple.dock.iconcache -type f 2>/dev/null | grep -q '.'; then
+    rm /var/folders/*/*/*/com.apple.dock.iconcache
+else
+    echo "No dock icon cache file found, skipping removal."
+fi
+
+# Restart the Dock
+killall Dock
+
+# Create symbolic link for the entire .obsidian directory
+ln -sfn "$XDG_CONFIG_HOME/obsidian" "Documents/Obsidian Vault/.obsidian"

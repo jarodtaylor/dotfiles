@@ -1,0 +1,18 @@
+# Track if the shell has just started
+ZSH_FIRST_PROMPT=true
+
+add_newline_after_command() {
+    # Skip adding a newline on the first prompt
+    if [[ "$ZSH_FIRST_PROMPT" = true ]]; then
+        ZSH_FIRST_PROMPT=false
+        return
+    fi
+
+    # Add a newline only after a command with output
+    if [[ -n "$(fc -ln -1)" ]]; then
+        print -n "\n"
+    fi
+}
+
+# Hook the newline function to the precmd hook
+precmd_functions+=(add_newline_after_command)

@@ -1,0 +1,51 @@
+
+# +-----------------+
+# | ZIM FRAMEWORK |
+# +----------------+
+# The prefix for the alias from zim builtin git module
+# zstyle ':zim:zmodule' use 'degit'
+zstyle ':zim:input' double-dot-expand yes
+
+export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"
+export ZIM_HOME="${XDG_CACHE_HOME}/zim"
+export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+
+# Download zimfw plugin manager if missing.
+if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
+  echo "Downloading zimfw plugin manager..."
+  if ! curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+    https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh; then
+    echo "Failed to download zimfw. Check your internet connection or the URL."
+    return 1
+  fi
+fi
+
+# Install missing modules and update ${ZIM_HOME}/init.zsh if missing or outdated.
+if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
+  source ${ZIM_HOME}/zimfw.zsh init -q
+fi
+
+# Initialize modules.
+source ${ZIM_HOME}/init.zsh
+
+## init zsh-abbr
+source ${ZIM_HOME}/modules/zsh-abbr/zsh-abbr.zsh
+
+# +-----------------+
+# | INPUT CONFIG   |
+# +-----------------+
+# Set editor default keymap to emacs (`-e`) or vi (`-v`)
+# bindkey -v
+bindkey "ç" fzf-cd-widget
+
+
+# +-----------------+
+# | INITIALIZATION |
+# +----------------+
+
+# Initialize fzf key bindings and fuzzy completion
+source <(fzf --zsh)
+
+for file in "$ZDOTDIR"/functions/*.zsh; do
+  source "$file"
+done

@@ -1,0 +1,44 @@
+#!/bin/bash
+set -eo pipefail
+
+{{ template "scripts/keep_sudo_alive" . }}
+
+# Enable Touch ID for sudo
+LINE="auth       sufficient     pam_tid.so"
+FILE="/etc/pam.d/sudo"
+if ! grep -qF "$LINE" "$FILE"; then
+  sudo sed -i.bak "1s|^|$LINE\n|" "$FILE"
+  echo "Touch ID enabled for sudo."
+else
+  echo "Touch ID is already enabled for sudo."
+fi
+
+# Install and enable pam-watchid
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/logicer16/pam-watchid/HEAD/install.sh)" -- enable
+
+# Check for Xcode Command Line Tools and install them if not present
+xcode-select -p &>/dev/null
+if [ $? -ne 0 ]; then
+  echo "Installing Xcode Command Line Tools ..."
+  xcode-select --install
+else
+  echo "XCode Command Line Tools already installed"
+fi
+
+# Accept Xcode license
+echo "before accepting license"
+xcode_version=$(xcodebuild -version | grep '^Xcode\s' | sed -E 's/^Xcode[[:space:]]+([0-9\.]+)/\1/')
+accepted_license_version=$(defaults read /Library/Preferences/com.apple.dt.Xcode 2>/dev/null | grep IDEXcodeVersionForAgreedToGMLicense | cut -d '"' -f 2)
+if [ "$xcode_version" != "$accepted_license_version" ]; then
+  sudo xcodebuild -license accept
+fi
+
+{{- if eq .chezmoi.arch "arm64" }}
+# Check that Rosetta 2 is installed
+if ! pgrep -q oahd; then
+  echo "Installing Rosetta 2"
+  sudo softwareupdate --install-rosetta --agree-to-license
+else
+  echo "Rosetta2 already installed"
+fi
+{{- end }}

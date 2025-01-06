@@ -1,0 +1,80 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+{{ template "scripts/eval_brew" . }}
+{{ template "scripts/helper" . }}
+{{ template "scripts/keep_sudo_alive" . }}
+
+{{ $brews := list
+  "bat"
+  "diff-so-fancy"
+  "fzf"
+  "gh"
+  "git"
+  "git-delta"
+  "btop"
+  "jq"
+  "lazygit"
+  "mas"
+  "mise"
+  "neovim"
+  "pgcli"
+  "postgresql@15"
+  "redis"
+  "ripgrep"
+  "ruby-build"
+  "rustup"
+  "starship"
+  "tree"
+  "zsh" -}}
+
+{{ $casks := list
+  "1password-cli"
+  "nikitabobko/tap/aerospace"
+  "adobe-creative-cloud"
+  "beekeeper-studio"
+  "cleanshot"
+  "cursor"
+  "dash"
+  "discord"
+  "docker"
+  "expressvpn"
+  "firefox@developer-edition"
+  "font-fira-code-nerd-font"
+  "font-fira-sans"
+  "font-jetbrains-mono-nerd-font"
+  "google-chrome"
+  "karabiner-elements"
+  "notion"
+  "microsoft-outlook"
+  "microsoft-teams"
+  "obsidian"
+  "postman"
+  "raycast"
+  "sf-symbols"
+  "shortcat"
+  "slack"
+  "spotify"
+  "telegram"
+  "visual-studio-code"
+  "warp"
+  "wezterm"
+  "zed"
+  "zoom" -}}
+
+if ! command_exists brew; then
+  echo "🍺 Installing Homebrew"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+  echo "🍺 Homebrew is already installed."
+fi
+
+brew bundle --no-lock --file=/dev/stdin <<EOF
+{{ range ($brews | sortAlpha | uniq) -}}
+brew "{{ . }}"
+{{ end -}}
+{{ range ($casks | sortAlpha | uniq) -}}
+cask "{{ . }}"
+{{ end -}}
+EOF
