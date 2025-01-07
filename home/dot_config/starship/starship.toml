@@ -1,12 +1,12 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
-[░▒▓](bg:none fg:surface0)[ ](bg:surface0 fg:text)\
-[](fg:base bg:prev_bg)\
-[](fg:prev_bg bg:base)\
+[░▒▓](bg:none fg:mantle)[ ](bg:mantle fg:text)\
+[](fg:crust bg:prev_bg)\
+[](fg:prev_bg bg:crust)\
 $directory\
 $git_branch${custom.git_uncommitted}\
-[](fg:prev_bg bg:base)\
+[](fg:prev_bg bg:crust)\
 $git_state\
 $fill\
 ${custom.git_url}\
@@ -21,7 +21,7 @@ palette = "catppuccin_mocha"
 
 [fill]
 symbol = '█'
-style = 'fg:surface0'
+style = 'fg:mantle'
 
 [character]
 format = "$symbol "
@@ -32,42 +32,42 @@ vimcmd_replace_one_symbol = '[ R:](bold blue) '
 description = "Display a github icon if in a git repo"
 command = "echo 'inside git repo'"
 when = "git rev-parse --is-inside-work-tree > /dev/null 2>&1"
-format = "[](fg:surface0 bg:base)[](fg:base bg:surface0)[   ](bg:surface0 fg:text)[▓▒░](bg:none fg:surface0)"
+format = "[](fg:mantle bg:crust)[](fg:crust bg:mantle)[   ](bg:mantle fg:text)[▓▒░](bg:none fg:mantle)"
 
 [directory]
-format = "[ $path ]($style)[](fg:base bg:prev_bg)"
+format = "[ $path ]($style)[](fg:crust bg:prev_bg)"
 truncate_to_repo = false
 truncation_length = 2
 truncation_symbol = "../"
 home_symbol = "~"
-style = "bg:surface0 fg:text"
+style = "bg:mantle fg:text"
 
 [git_branch]
-format = '[](fg:prev_bg bg:base)[ $symbol$branch(:$remote_branch) ]($style)'
+format = '[](fg:prev_bg bg:crust)[ $symbol$branch(:$remote_branch) ]($style)'
 symbol = " "
-style = "fg:text bg:surface0"
+style = "fg:text bg:mantle"
 
 [custom.git_uncommitted]
 description = "Display the number of uncommitted changed files"
 command = "git status --porcelain | wc -l"
 when = "git rev-parse --git-dir 2> /dev/null"
 symbol = "󰦒"
-format = '[$symbol$output ]($style)[](fg:base bg:prev_bg)'
-style = "fg:text bg:surface0"
+format = '[$symbol$output ]($style)[](fg:crust bg:prev_bg)'
+style = "fg:text bg:mantle"
 
 [custom.git_email]
 description = "Display the git user email"
 command = "git config user.email"
 when = "git rev-parse --git-dir 2> /dev/null"
 symbol = "  "
-format = "[](fg:surface0 bg:base)[](fg:base bg:surface0)[$symbol $output ](bg:surface0 fg:subtext0)"
+format = "[](fg:mantle bg:crust)[](fg:crust bg:mantle)[$symbol $output ](bg:mantle fg:subtext0)"
 
 [custom.git_url]
 description = "Display the git remote url"
 command = "git config --get remote.origin.url | sed -E 's#(git@|https://)([^:/]+)[:/]##'"
 when = "git config --get remote.origin.url > /dev/null 2>&1"
 symbol = "  "
-format = "[](fg:surface0 bg:base)[](fg:base bg:surface0)[$symbol $output ](bg:surface0 fg:subtext0)"
+format = "[](fg:mantle bg:crust)[](fg:crust bg:mantle)[$symbol $output ](bg:mantle fg:subtext0)"
 
 # Palette definitions
 [palettes.catppuccin_mocha]

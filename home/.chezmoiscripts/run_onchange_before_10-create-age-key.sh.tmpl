@@ -1,0 +1,14 @@
+#!/bin/bash
+set -eo pipefail
+
+# age key location and name defined in chezmoi config
+ageKeyFile="{{ .ageKeyFile }}"
+
+# Generate age key if it doesn't exist
+if [ ! -f "$ageKeyFile" ]; then
+  echo "Generating new age key..."
+  age-keygen -o "$ageKeyFile"
+  echo "Age key created at $ageKeyFile"
+else
+  echo "Age key already exists at $ageKeyFile"
+fi

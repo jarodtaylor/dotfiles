@@ -7,13 +7,15 @@ set -eufo pipefail
 {{ template "scripts/keep_sudo_alive" . }}
 
 {{ $brews := list
+  "age"
   "bat"
+  "btop"
   "diff-so-fancy"
+  "fastfetch"
   "fzf"
   "gh"
   "git"
   "git-delta"
-  "btop"
   "jq"
   "lazygit"
   "mas"

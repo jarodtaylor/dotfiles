@@ -6,18 +6,6 @@
 [includeIf "gitdir:{{ .work_dir }}/"]
   path = config-work
 
-[url "git@github.com:"]
-  insteadOf = https://github.com/
-
-[gpg]
-  format = ssh
-
-[gpg "ssh"]
-  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-
-[commit]
-  gpgsign = true
-
 [include]
   path = conf.d/delta.conf
 
