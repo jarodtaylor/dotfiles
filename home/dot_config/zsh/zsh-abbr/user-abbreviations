@@ -4,6 +4,9 @@
 
 export ABBR_SET_EXPANSION_CURSOR=1
 
+# General
+abbr reload="source ~/.config/.zshrc"
+
 ## Git
 abbr lg="lazygit"
 abbr g="git "
@@ -22,6 +25,8 @@ abbr git m='commit -m "%"'
 ## Directory
 abbr cwd="pwd | {{ .cmd.copy }}"
 abbr mkdir="mkdir -pv"
+abbr cdh="cd $HOME"
+abbr elc="cd $CODEDIR/work/elc"
 
 ## Chezmoi
 abbr cz="chezmoi"

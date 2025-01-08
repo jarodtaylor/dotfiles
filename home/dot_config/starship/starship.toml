@@ -1,7 +1,7 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
-[░▒▓](bg:none fg:mantle)[ ](bg:mantle fg:text)\
+[  ](bg:mantle fg:text)\
 [](fg:crust bg:prev_bg)\
 [](fg:prev_bg bg:crust)\
 $directory\
@@ -9,9 +9,11 @@ $git_branch${custom.git_uncommitted}\
 [](fg:prev_bg bg:crust)\
 $git_state\
 $fill\
-${custom.git_url}\
+${elixir}\
+${custom.react}\
+${nodejs}\
+${ruby}\
 ${custom.git_email}\
-${custom.directory_type}\
 $line_break
 $character
 """
@@ -28,24 +30,18 @@ format = "$symbol "
 vimcmd_symbol = '[ N:](bold green) '
 vimcmd_replace_one_symbol = '[ R:](bold blue) '
 
-[custom.directory_type]
-description = "Display a github icon if in a git repo"
-command = "echo 'inside git repo'"
-when = "git rev-parse --is-inside-work-tree > /dev/null 2>&1"
-format = "[](fg:mantle bg:crust)[](fg:crust bg:mantle)[   ](bg:mantle fg:text)[▓▒░](bg:none fg:mantle)"
-
 [directory]
 format = "[ $path ]($style)[](fg:crust bg:prev_bg)"
 truncate_to_repo = false
 truncation_length = 2
-truncation_symbol = "../"
+# truncation_symbol = "../"
 home_symbol = "~"
-style = "bg:mantle fg:text"
+style = "bg:mantle fg:subtext0"
 
 [git_branch]
 format = '[](fg:prev_bg bg:crust)[ $symbol$branch(:$remote_branch) ]($style)'
 symbol = " "
-style = "fg:text bg:mantle"
+style = "fg:subtext0 bg:mantle"
 
 [custom.git_uncommitted]
 description = "Display the number of uncommitted changed files"
@@ -53,21 +49,34 @@ command = "git status --porcelain | wc -l"
 when = "git rev-parse --git-dir 2> /dev/null"
 symbol = "󰦒"
 format = '[$symbol$output ]($style)[](fg:crust bg:prev_bg)'
-style = "fg:text bg:mantle"
+style = "fg:subtext0 bg:mantle"
 
 [custom.git_email]
 description = "Display the git user email"
 command = "git config user.email"
 when = "git rev-parse --git-dir 2> /dev/null"
-symbol = "  "
+symbol = "  "
 format = "[](fg:mantle bg:crust)[](fg:crust bg:mantle)[$symbol $output ](bg:mantle fg:subtext0)"
 
-[custom.git_url]
-description = "Display the git remote url"
-command = "git config --get remote.origin.url | sed -E 's#(git@|https://)([^:/]+)[:/]##'"
-when = "git config --get remote.origin.url > /dev/null 2>&1"
-symbol = "  "
-format = "[](fg:mantle bg:crust)[](fg:crust bg:mantle)[$symbol $output ](bg:mantle fg:subtext0)"
+[nodejs]
+symbol = " "
+version_format = "${major}.${minor}"
+format = "[](fg:mantle bg:crust)[](fg:crust bg:mantle)[$symbol( $version )]($style)"
+style = "bg:mantle fg:subtext0"
+
+[elixir]
+symbol = " "
+version_format = "${major}.${minor}"
+format = "[](fg:mantle bg:crust)[](fg:crust bg:mantle)[$symbol( $version )]($style)"
+style = "bg:mantle fg:subtext0"
+
+[custom.react]
+description = "Detects and shows React version"
+command = "jq -r '.dependencies.react // .devDependencies.react' package.json | sed -E 's/[^0-9.]//g' | cut -d. -f1,2"
+when = "test -f package.json"
+symbol = " "
+format = "[](fg:mantle bg:crust)[](fg:crust bg:mantle)[$symbol( $output )]($style)"
+style = "bg:mantle fg:subtext0"
 
 # Palette definitions
 [palettes.catppuccin_mocha]
