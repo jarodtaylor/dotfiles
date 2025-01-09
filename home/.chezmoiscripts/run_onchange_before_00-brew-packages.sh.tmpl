@@ -35,7 +35,6 @@ set -eufo pipefail
   "zsh" -}}
 
 {{ $casks := list
-  "1password-cli"
   "nikitabobko/tap/aerospace"
   "adobe-creative-cloud"
   "beekeeper-studio"
@@ -67,13 +66,6 @@ set -eufo pipefail
   "wezterm"
   "zed"
   "zoom" -}}
-
-if ! command_exists brew; then
-  echo "🍺 Installing Homebrew"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-else
-  echo "🍺 Homebrew is already installed."
-fi
 
 brew bundle --no-lock --file=/dev/stdin <<EOF
 {{ range ($brews | sortAlpha | uniq) -}}

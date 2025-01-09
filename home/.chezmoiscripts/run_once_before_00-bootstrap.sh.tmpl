@@ -5,7 +5,7 @@ set -eo pipefail
 
 # Enable Touch ID for sudo
 LINE="auth       sufficient     pam_tid.so"
-FILE="/etc/pam.d/sudo"
+FILE="/etc/pam.d/sudo_local"
 if ! grep -qF "$LINE" "$FILE"; then
   sudo sed -i.bak "1s|^|$LINE\n|" "$FILE"
   echo "Touch ID enabled for sudo."
