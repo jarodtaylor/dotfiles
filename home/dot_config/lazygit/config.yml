@@ -3,6 +3,7 @@ os:
     notARepository: skip
     promptToReturnFromSubprocess: true
     confirmOnQuit: true
+    disableStartupPopups: true
 git:
     parseEmoji: true
     paging:
