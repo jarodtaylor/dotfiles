@@ -13,7 +13,7 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({ { import = "jarod.plugins" }, { import = "jarod.plugins.lsp" } }, {
   ui = {
-    --border = "single",
+    border = "single",
   },
   checker = {
     enabled = true,

@@ -23,3 +23,7 @@ install.sh
 
 # Editor
 .vscode/
+
+# Vim / NeoVim files
+.viminfo
+.config/nvim/lazy-lock.json
