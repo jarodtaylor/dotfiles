@@ -46,7 +46,7 @@ fi
 # Function to install and apply Chezmoi
 install_and_apply_chezmoi() {
   echo "Installing Chezmoi and applying dotfiles..."
-  sh -c "$(curl -fsLS get.chezmoi.io)" -- init --verbose --apply jarodtaylor
+  sh -c "$(curl -fsLS get.chezmoi.io)" -- init --ssh --verbose --apply jarodtaylor
 }
 
 # Run Chezmoi to apply dotfiles
