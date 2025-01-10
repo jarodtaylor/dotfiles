@@ -21,8 +21,8 @@ export HISTFILE="$ZDOTDIR/.zhistory" # History filepath
 export HISTSIZE=10000                # Maximum events for internal history
 export SAVEHIST=10000                # Maximum events in history file
 
-export MISE_DATA_DIR="$XDG_DATA_HOME/mise"
-export MISE_CONFIG_FILE="$XDG_CONFIG_HOME/mise/config.toml"
+export MISE_DATA_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/mise"
+export MISE_CONFIG_FILE="${XDG_CONFIG_HOME:-${HOME}/.config}/mise/config.toml"
 export MISE_TRUSTED_CONFIG_PATHS="$MISE_CONFIG_FILE"
 export MISE_LOG_LEVEL="info"
 export MISE_FETCH_REMOTE_VERSIONS_TIMEOUT="1800 s"
