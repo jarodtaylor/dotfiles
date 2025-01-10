@@ -1,14 +1,10 @@
 return {
   "goolord/alpha-nvim",
   event = "VimEnter",
-  -- dependencies = {
-  --   "catppuccin/nvim",
-  -- },
   config = function()
     local alpha = require("alpha")
     local dashboard = require("alpha.themes.dashboard")
     local utils = require("jarod.utils")
-    -- local mocha = require("catppuccin.paletttes").get_palette "mocha"
     -- local header = require("jarod.plugins.alpha-headers.neovim")
     local function footer()
       local plugins_count = utils.get_lazy_plugin_count()
@@ -18,10 +14,14 @@ return {
       -- local fortune = require("alpha.fortune")
       return datetime .. "   Plugins " .. plugins_count .. nvim_version_info
     end
+
+    dashboard.config.opts = {
+      margin = 10
+    }
+
     -- Set the header
     --dashboard.section.header.val = header.ascii
     dashboard.section.header.val = "Jarod is awesome!"
-    -- dashboard.section.header.opts.hl = "red"
 
     dashboard.section.buttons.val = {
       dashboard.button("e", "  New File", "<cmd>ene<CR>"),
@@ -33,6 +33,13 @@ return {
     }
 
     dashboard.section.footer.val = footer()
+    -- COLORS
+    -- dashboard.section.shortcut.opts.hl = "AlphaShortcut"
+    dashboard.section.header.opts.hl = "AlphaHeader"
+    -- dashboard.section.header.label.opts.hl = "AlphaHeaderLabel"
+    dashboard.section.buttons.opts.hl = "AlphaButtons"
+    dashboard.section.footer.opts.hl = "AlphaFooter"
+    print(dashboard.opts)
 
     alpha.setup(dashboard.opts)
     vim.cmd([[autocmd FileType alpha setlocal nofoldenable]])
