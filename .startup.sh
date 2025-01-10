@@ -43,13 +43,17 @@ if ! command -v op &>/dev/null; then
   brew install --cask 1password/tap/1password-cli
 fi
 
-# Run Chezmoi to apply dotfiles
-if command -v chezmoi &>/dev/null; then
-  echo "Reapplying chezmoi configuration..."
-  chezmoi state delete && chezmoi init && chezmoi apply
-else
-  echo "Chezmoi is not installed. Installing Chezmoi and applying dotfiles..."
+# Function to install and apply Chezmoi
+install_and_apply_chezmoi() {
+  echo "Installing Chezmoi and applying dotfiles..."
   sh -c "$(curl -fsLS get.chezmoi.io)" -- init --verbose --apply jarodtaylor
+}
+
+# Run Chezmoi to apply dotfiles
+if command -v chezmoi &>/dev/null && [ -d "$HOME/.local/share/chezmoi" ]; then
+  echo "Reapplying chezmoi configuration..."
+  chezmoi apply
+else
+  echo "Chezmoi is not fully set up. Installing and applying configuration..."
+  install_and_apply_chezmoi
 fi
-
-
