@@ -27,3 +27,13 @@
 **/*.swp
 **/*.pem
 .fetch
+
+# From LazyVim
+tt.*
+.tests
+doc/tags
+debug
+.repro
+foo.*
+*.log
+data
