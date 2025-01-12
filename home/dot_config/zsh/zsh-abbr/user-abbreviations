@@ -29,6 +29,6 @@ abbr cdh="cd $HOME"
 abbr elc="cd $CODEDIR/work/elc"
 
 ## Chezmoi
-abbr cz="chezmoi"
+abbr ch="chezmoi"
 abbr dots="cd ~/.local/share/chezmoi"
 
