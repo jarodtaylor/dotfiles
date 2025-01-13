@@ -6,8 +6,12 @@ return {
   {
     "catppuccin",
     opts = {
-      transparent_background = true,
+      -- transparent_background = true,
     },
+  },
+  {
+    "rose-pine/neovim",
+    name = "rose-pine",
   },
   {
     "nvim-lualine/lualine.nvim",

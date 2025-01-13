@@ -19,6 +19,10 @@ versions = ["1.18"]
 enabled = true
 versions = ["latest"]
 
+[mise.lua]
+enabled = true
+versions = ["5.1"]
+
 [mise.python]
 enabled = true
 versions = ["3.13"]
