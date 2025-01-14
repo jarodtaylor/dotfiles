@@ -36,55 +36,32 @@ manage_extensions() {
     fi
     {{- end }}
 
-    while true; do
-    read -p "Do you want to continue? (y/n): " answer
-      case "$answer" in
-        [Yy]* ) 
-            echo "Continuing..."
-            break
-            ;;
-        [Nn]* ) 
-            echo "Exiting..."
-            exit 0
-            ;;
-        * ) 
-            echo "Invalid response. Please enter y or n."
-            ;;
-      esac
-    done
-
     # Remove extensions that are not in our list
-    echo "$installed_extensions" | while read ext; do
+    IFS=$'\n' # Set internal field separator to newline
+    for ext in $installed_extensions; do
       if [[ -n "$ext" ]]; then  # Skip empty lines
         local found=0
         {{- range .extensions.vscode }}
         [[ "{{ . }}" == "$ext" ]] && found=1
         {{- end }}
         if [[ $found -eq 0 ]]; then
-          echo "Do something"
-          # while true; do
-          # read -p "Do you want to continue? (y/n): " answer
-          #   case "$answer" in
-          #     [Yy]* ) 
-          #         echo "Continuing..."
-          #         break
-          #         ;;
-          #     [Nn]* ) 
-          #         echo "Exiting..."
-          #         exit 0
-          #         ;;
-          #     * ) 
-          #         echo "Invalid response. Please enter y or n."
-          #         ;;
-          #   esac
-          # done
-          # read -p "Extension '$ext' found in $editor_name but not in extensions file. Uninstall? [y/N] " yn
-          # if [[ $yn == [Yy]* ]]; then
-          #   log_debug "Removing unlisted extension: $ext"
-          #   $cmd --uninstall-extension "$ext"
-          # else
-          # log_warning "Skipped uninstall of: $ext. Add it to your extensions file to keep it."
-          # fi
+          echo "Extension '$ext' found installed in$editor_name but not in your extensions file."
+          while true; do
+            read -p "Do you want to uninstall it? (y/n): " answer
+            case "$answer" in
+              [Yy]* ) 
+                  $cmd --uninstall-extension "$ext"
+                  break
+                  ;;
+              [Nn]* ) 
+                  echo "Skipping uninstall of '$ext'. Add it to your extensions file to keep it."
+                  break
+                  ;;
+              * ) 
+                  echo "Invalid response. Please enter y or n."
+                  ;;
+            esac
+          done
         fi
       fi
     done
