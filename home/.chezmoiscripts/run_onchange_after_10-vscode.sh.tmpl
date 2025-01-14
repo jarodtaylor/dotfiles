@@ -15,30 +15,47 @@ for dir in "$HOME/Library/Application Support/Code/User" "$HOME/Library/Applicat
   fi
 done
 
-# Function to install extensions for a specific editor
-install_extensions() {
+# Function to manage extensions for a specific editor
+manage_extensions() {
   local cmd=$1
   local editor_name=$2
 
   if command -v $cmd >/dev/null; then
-    log_info "Installing ${editor_name} extensions..."
+    log_info "Managing ${editor_name} extensions..."
     
-    # Install extensions using chezmoi templating
+    # Get currently installed extensions
+    local installed_extensions=$($cmd --list-extensions)
+    
+    # Install missing extensions
     {{- range .extensions.vscode }}
-    if ! $cmd --list-extensions | grep -q "^{{ . }}$"; then
+    if ! echo "$installed_extensions" | grep -q "^{{ . }}$"; then
       log_debug "Installing {{ . }}..."
       $cmd --install-extension "{{ . }}"
     else
       log_debug "Extension {{ . }} is already installed"
     fi
     {{- end }}
+    
+    # Remove extensions that are not in our list
+    echo "$installed_extensions" | while read ext; do
+      if [[ -n "$ext" ]]; then  # Skip empty lines
+        local found=0
+        {{- range .extensions.vscode }}
+        [[ "{{ . }}" == "$ext" ]] && found=1
+        {{- end }}
+        if [[ $found -eq 0 ]]; then
+          log_debug "Removing unlisted extension: $ext"
+          $cmd --uninstall-extension "$ext"
+        fi
+      fi
+    done
   else
-    log_warning "${editor_name} is not installed. Skipping extension installation."
+    log_warning "${editor_name} is not installed. Skipping extension management."
   fi
 }
 
-# Install extensions for both editors
-install_extensions "code" "VSCode"
-install_extensions "cursor" "Cursor"
+# Manage extensions for both editors
+manage_extensions "code" "VSCode"
+manage_extensions "cursor" "Cursor"
 
 log_info "VSCode/Cursor configuration complete!" 
