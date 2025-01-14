@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eufo pipefail
+set -euo pipefail
 
 {{ template "scripts/helper" . }}
 
@@ -35,7 +35,24 @@ manage_extensions() {
       log_debug "Extension {{ . }} is already installed"
     fi
     {{- end }}
-    
+
+    while true; do
+    read -p "Do you want to continue? (y/n): " answer
+      case "$answer" in
+        [Yy]* ) 
+            echo "Continuing..."
+            break
+            ;;
+        [Nn]* ) 
+            echo "Exiting..."
+            exit 0
+            ;;
+        * ) 
+            echo "Invalid response. Please enter y or n."
+            ;;
+      esac
+    done
+
     # Remove extensions that are not in our list
     echo "$installed_extensions" | while read ext; do
       if [[ -n "$ext" ]]; then  # Skip empty lines
@@ -44,8 +61,30 @@ manage_extensions() {
         [[ "{{ . }}" == "$ext" ]] && found=1
         {{- end }}
         if [[ $found -eq 0 ]]; then
-          log_debug "Removing unlisted extension: $ext"
-          $cmd --uninstall-extension "$ext"
+          echo "Do something"
+          # while true; do
+          # read -p "Do you want to continue? (y/n): " answer
+          #   case "$answer" in
+          #     [Yy]* ) 
+          #         echo "Continuing..."
+          #         break
+          #         ;;
+          #     [Nn]* ) 
+          #         echo "Exiting..."
+          #         exit 0
+          #         ;;
+          #     * ) 
+          #         echo "Invalid response. Please enter y or n."
+          #         ;;
+          #   esac
+          # done
+          # read -p "Extension '$ext' found in $editor_name but not in extensions file. Uninstall? [y/N] " yn
+          # if [[ $yn == [Yy]* ]]; then
+          #   log_debug "Removing unlisted extension: $ext"
+          #   $cmd --uninstall-extension "$ext"
+          # else
+          # log_warning "Skipped uninstall of: $ext. Add it to your extensions file to keep it."
+          # fi
         fi
       fi
     done
