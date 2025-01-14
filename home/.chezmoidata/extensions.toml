@@ -1,0 +1,12 @@
+[extensions]
+vscode = [
+    # Themes
+    "catppuccin.catppuccin-vsc",
+    # Formatting & Linting
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    # Language Support
+    "bungcip.better-toml",
+    "elixir-tools.elixir-tools",
+]
+

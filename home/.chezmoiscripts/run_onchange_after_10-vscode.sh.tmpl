@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+{{ template "scripts/helper" . }}
+
+log_info "Configuring VSCode and Cursor..."
+
+# Create required directories if they don't exist.
+# This is needed for symlinking the keybindings, settings, etc.
+for dir in "$HOME/Library/Application Support/Code/User" "$HOME/Library/Application Support/Cursor/User"; do
+  if [ ! -d "$dir" ]; then
+    log_debug "Creating directory: $dir"
+    mkdir -p "$dir"
+  fi
+done
+
+# Function to install extensions for a specific editor
+install_extensions() {
+  local cmd=$1
+  local editor_name=$2
+
+  if command -v $cmd >/dev/null; then
+    log_info "Installing ${editor_name} extensions..."
+    
+    # Install extensions using chezmoi templating
+    {{- range .extensions.vscode }}
+    if ! $cmd --list-extensions | grep -q "^{{ . }}$"; then
+      log_debug "Installing {{ . }}..."
+      $cmd --install-extension "{{ . }}"
+    else
+      log_debug "Extension {{ . }} is already installed"
+    fi
+    {{- end }}
+  else
+    log_warning "${editor_name} is not installed. Skipping extension installation."
+  fi
+}
+
+# Install extensions for both editors
+install_extensions "code" "VSCode"
+install_extensions "cursor" "Cursor"
+
+log_info "VSCode/Cursor configuration complete!" 

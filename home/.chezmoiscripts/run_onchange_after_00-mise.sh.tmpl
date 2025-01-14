@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Check if the mise.toml file has changed
+# mise.toml hash: {{ include ".chezmoidata/mise.toml" | sha256sum }}
+
 set -eo pipefail
 
 mise trust $HOME/.config/mise/config.toml

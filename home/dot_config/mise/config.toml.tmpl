@@ -1,11 +1,14 @@
 [tools]
 {{- range $lang, $content := .mise -}}
 {{- if $content.enabled -}}
-{{- range $ver := $content.versions }}
-{{ $lang }} = { version = {{ $ver | quote }}{{- if hasKey $content "options" }}{{- range $key, $value := $content.options }}, {{ $key }} = {{ $value | quote }}{{- end }}{{- end }} }
-{{- end -}}
+{{- if gt (len $content.versions) 1 }}
+{{ $lang }} = { version = [{{- range $i, $ver := $content.versions }}{{ if $i }}, {{ end }}{{ $ver | quote }}{{- end }}]{{- if hasKey $content "options" }}{{- range $key, $value := $content.options }}, {{ $key }} = {{ $value | quote }}{{- end }}{{- end }} }
+{{- else }}
+{{ $lang }} = { version = {{ index $content.versions 0 | quote }}{{- if hasKey $content "options" }}{{- range $key, $value := $content.options }}, {{ $key }} = {{ $value | quote }}{{- end }}{{- end }} }
+{{- end }}
 {{- end -}}
 {{- end }}
+
 
 [settings]
 # plugins can read the versions files used by other version managers (if enabled by the plugin)

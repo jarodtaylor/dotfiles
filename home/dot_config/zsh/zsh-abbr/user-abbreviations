@@ -23,7 +23,7 @@ abbr gcm='git commit -m "%"'
 abbr git m='commit -m "%"'
 
 ## Directory
-abbr cwd="pwd | {{ .cmd.copy }}"
+# abbr cwd="pwd | {{ .cmd.copy }}"
 abbr mkdir="mkdir -pv"
 abbr cdh="cd $HOME"
 abbr elc="cd $CODEDIR/work/elc"
@@ -31,4 +31,10 @@ abbr elc="cd $CODEDIR/work/elc"
 ## Chezmoi
 abbr ch="chezmoi"
 abbr dots="cd ~/.local/share/chezmoi"
+
+## Sync VSCode Extension installs with Chezmoi
+# ... existing abbreviations ...
+
+# VSCode
+abbr vss="code --list-extensions | jq -R -s 'split(\"\n\")[:-1] | {\"extensions\": .}' > ~/.local/share/chezmoi/home/dot_config/Code/User/extensions.json && chezmoi add ~/.local/share/chezmoi/home/dot_config/Code/User/extensions.json"
 
