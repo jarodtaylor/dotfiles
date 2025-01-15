@@ -27,3 +27,6 @@ install.sh
 # Vim / NeoVim files
 .viminfo
 .config/nvim/lazy-lock.json
+
+# Obsidian
+~/.obsidian/workspace.json

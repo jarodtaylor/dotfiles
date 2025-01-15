@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+# Create symbolic link for the entire .obsidian directory
+ln -sf "$XDG_CONFIG_HOME/obsidian" "$HOME/Documents/ObsidianVaults/Second Brain/.obsidian"
+
