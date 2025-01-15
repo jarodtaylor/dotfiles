@@ -6,6 +6,9 @@ go = { version = "latest" }
 node = { version = "22" }
 ruby = { version = "3.3" }
 
+[env]
+MISE_RUBY_DEFAULT_PACKAGES_FILE = "~/.config/mise/.default-gems"
+MISE_NODE_DEFAULT_PACKAGES_FILE = "~/.config/mise/.default-npm-packages"
 
 [settings]
 # plugins can read the versions files used by other version managers (if enabled by the plugin)
@@ -42,7 +45,6 @@ experimental = true # enable experimental features
 
 # configure messages displayed when entering directories with config files
 # status = { missing_tools = "if_other_versions_installed", show_env = false, show_tools = false }
-
 
 [plugins]
 # specify a custom repo url
