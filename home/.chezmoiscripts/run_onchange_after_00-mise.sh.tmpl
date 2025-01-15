@@ -1,9 +1,26 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# Check if the mise.toml file has changed
-# mise.toml hash: {{ include ".chezmoidata/mise.toml" | sha256sum }}
+# Check if the mise configs have changed
+# config.toml.tmpl hash: {{ includeTemplate "dot_config/mise/config.toml.tmpl" | sha256sum }}
+# dot_default-npm-packages.tmpl hash: {{ includeTemplate "dot_config/mise/dot_default-npm-packages.tmpl" | sha256sum }}
+# dot_default-gems.tmpl hash: {{ includeTemplate "dot_config/mise/dot_default-gems.tmpl" | sha256sum }}
 
 set -eo pipefail
 
-mise trust $HOME/.config/mise/config.toml
-mise install
+{{ template "scripts/helper" . }}
+
+if command_exists mise; then
+    mise upgrade
+    # Capture the list of prunable items
+    prunable_items=$(mise ls --prunable)
+
+    # Check if there are any prunable items
+    if [ -n "$prunable_items" ]; then
+        for item in $prunable_items; do
+            log_debug "You removed $item from your config.toml. Pruning it..."
+            mise prune "$item"
+        done
+    fi
+else
+    echo "mise not installed. Please make sure mise is installed."
+fi

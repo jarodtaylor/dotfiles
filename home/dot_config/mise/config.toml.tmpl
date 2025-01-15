@@ -1,20 +1,17 @@
 [tools]
-{{- range $lang, $content := .mise -}}
-{{- if $content.enabled -}}
-{{- if gt (len $content.versions) 1 }}
-{{ $lang }} = { version = [{{- range $i, $ver := $content.versions }}{{ if $i }}, {{ end }}{{ $ver | quote }}{{- end }}]{{- if hasKey $content "options" }}{{- range $key, $value := $content.options }}, {{ $key }} = {{ $value | quote }}{{- end }}{{- end }} }
-{{- else }}
-{{ $lang }} = { version = {{ index $content.versions 0 | quote }}{{- if hasKey $content "options" }}{{- range $key, $value := $content.options }}, {{ $key }} = {{ $value | quote }}{{- end }}{{- end }} }
-{{- end }}
-{{- end -}}
-{{- end }}
+deno = { version = "2" }
+elixir = { version = "1.18" }
+erlang = { version = "27" }
+go = { version = "latest" }
+node = { version = "22" }
+ruby = { version = "3.3" }
 
 
 [settings]
 # plugins can read the versions files used by other version managers (if enabled by the plugin)
 # for example, .nvmrc in the case of node's nvm
 idiomatic_version_file = true                     # enabled by default (unlike asdf)
-#idiomatic_version_file_disable_tools = ['python']  disable for specific tools
+#idiomatic_version_file_disable_tools = []  disable for specific tools
 
 # configure `mise install` to always keep the downloaded archive
 always_keep_download = false        # deleted after install by default
@@ -24,12 +21,6 @@ always_keep_install = false         # deleted on failure by default
 # this is updated whenever a new runtime is installed
 # (note: this isn't currently implemented but there are plans to add it: https://github.com/jdx/mise/issues/128)
 plugin_autoupdate_last_check_duration = '1 week' # set to 0 to disable updates
-
-
-# config files with these prefixes will be trusted by default
-trusted_config_paths = [
-  '{{ .code_dir }}',
-]
 
 verbose = false       # set to true to see full installation output, see `MISE_VERBOSE`
 http_timeout = "30s"  # set the timeout for http requests as duration string, see `MISE_HTTP_TIMEOUT`

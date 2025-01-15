@@ -4,6 +4,9 @@ set -euo pipefail
 
 {{ template "scripts/helper" . }}
 
+# Cursor uses the same extensions as VSCode.
+# We can manage them together.
+
 log_info "Configuring VSCode and Cursor..."
 
 # Create required directories if they don't exist.
@@ -45,7 +48,7 @@ manage_extensions() {
         [[ "{{ . }}" == "$ext" ]] && found=1
         {{- end }}
         if [[ $found -eq 0 ]]; then
-          echo "Extension '$ext' found installed in$editor_name but not in your extensions file."
+          echo "Extension '$ext' found installed in $editor_name but not in your extensions file."
           while true; do
             read -p "Do you want to uninstall it? (y/n): " answer
             case "$answer" in
