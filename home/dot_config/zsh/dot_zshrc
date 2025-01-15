@@ -2,6 +2,9 @@ if [[ -e /opt/homebrew/bin/mise ]]; then
   eval "$(mise activate zsh)"
 fi
 
+export MISE_NODE_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/mise/.default-npm-packages"
+export MISE_RUBY_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/mise/.default-gems"
+
 # +-----------------+
 # | ZIM FRAMEWORK |
 # +----------------+
