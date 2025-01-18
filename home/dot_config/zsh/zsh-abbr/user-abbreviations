@@ -22,6 +22,8 @@ abbr gco="git checkout"
 abbr gcm='git commit -m "%"'
 abbr git m='commit -m "%"'
 
+abbr l="l --icons=auto --color=auto --header --links --time-style='+%b %d %l:%S %p'"
+
 ## Directory
 # abbr cwd="pwd | {{ .cmd.copy }}"
 abbr mkdir="mkdir -pv"
@@ -33,8 +35,7 @@ abbr ch="chezmoi"
 abbr dots="cd ~/.local/share/chezmoi"
 
 ## Sync VSCode Extension installs with Chezmoi
-# ... existing abbreviations ...
-
-# VSCode
 abbr vss="code --list-extensions | jq -R -s 'split(\"\n\")[:-1] | {\"extensions\": .}' > ~/.local/share/chezmoi/home/dot_config/Code/User/extensions.json && chezmoi add ~/.local/share/chezmoi/home/dot_config/Code/User/extensions.json"
 
+## Nvim Configs
+abbr jvim="NVIM_APPNAME=nvim-jvim nvim"

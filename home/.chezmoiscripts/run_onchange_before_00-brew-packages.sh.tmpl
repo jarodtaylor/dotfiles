@@ -4,7 +4,7 @@ set -eufo pipefail
 
 {{ template "scripts/eval_brew" . }}
 {{ template "scripts/helper" . }}
-{{ template "scripts/keep_sudo_alive" . }}
+{{ template "scripts/keepalive_sudo" . }}
 
 {{ $brews := list
   "age"
@@ -25,6 +25,7 @@ set -eufo pipefail
   "mas"
   "mise"
   "neovim"
+  "pam-reattach"
   "pgcli"
   "pnpm"
   "poppler"
@@ -74,6 +75,7 @@ set -eufo pipefail
   "slack"
   "spotify"
   "telegram"
+  "ubersicht"
   "visual-studio-code"
   "warp"
   "wezterm"

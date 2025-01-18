@@ -1,0 +1,30 @@
+#!/bin/bash
+
+function keepalive_sudo() {
+    # Name or ID of the 1Password item containing your sudo password
+    OP_ITEM_NAME="sudo_jtmbp"
+
+    # Fetch the password from 1Password
+    SUDO_PASSWORD=$(op item get "$OP_ITEM_NAME" --field password)
+
+    # Create a temporary askpass script
+    SUDO_ASKPASS_SCRIPT=$(mktemp)
+    echo "#!/bin/sh" > "$SUDO_ASKPASS_SCRIPT"
+    echo "echo '$SUDO_PASSWORD'" >> "$SUDO_ASKPASS_SCRIPT"
+    chmod +x "$SUDO_ASKPASS_SCRIPT"
+
+    # Export the SUDO_ASKPASS variable
+    export SUDO_ASKPASS="$SUDO_ASKPASS_SCRIPT"
+
+    # Run a background process to keep sudo alive
+    while true; do
+        sudo -A -n true
+        sleep 60
+        kill -0 "$$" || exit
+    done 2>/dev/null &
+
+    # Ensure cleanup of the temporary script on exit
+    trap "rm -f '$SUDO_ASKPASS_SCRIPT'" EXIT
+}
+
+keepalive_sudo

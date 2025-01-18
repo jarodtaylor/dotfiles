@@ -2,18 +2,30 @@ if [[ -e /opt/homebrew/bin/mise ]]; then
   eval "$(mise activate zsh)"
 fi
 
+# ########################################
+# ENVIRONMENT VARIABLES                  #
+# ########################################
+
 export MISE_NODE_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/mise/.default-npm-packages"
 export MISE_RUBY_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/mise/.default-gems"
-
-# +-----------------+
-# | ZIM FRAMEWORK |
-# +----------------+
-# The prefix for the alias from zim builtin git module
-# zstyle ':zim:zmodule' use 'degit'
-zstyle ':zim:input' double-dot-expand yes
-
 export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"
 export ZIM_HOME="${XDG_CACHE_HOME}/zim"
+
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+# ########################################
+# ZIM STYLE CONFIGURATION                # 
+# ########################################
+
+ #Use degit to install zim modules instead of git (faster)
+zstyle ':zim:zmodule' use 'degit'                                                  
+#Use g as prefix for git aliases instead of G
+zstyle ':zim:git' aliases-prefix 'g'
+zstyle ':zim:input' double-dot-expand yes
+
+# ##########################################
+# ZIM INITIALIZSTION & AUTOUPDATE MODULES  #
+# ##########################################
 
 # Download zimfw plugin manager if missing.
 if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
@@ -28,24 +40,23 @@ fi
 # Install missing modules and update ${ZIM_HOME}/init.zsh if missing or outdated.
 if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
   source ${ZIM_HOME}/zimfw.zsh init -q
-fi
+fi                                       
 
-# Initialize modules.
 source ${ZIM_HOME}/init.zsh
 
-## init zsh-abbr
-source ${ZIM_HOME}/modules/zsh-abbr/zsh-abbr.zsh
-
-# +-----------------+
-# | INPUT CONFIG   |
-# +-----------------+
+# ##########################################
+# BINDKEYS CONFIGURATION                   #
+# ##########################################
 # Set editor default keymap to emacs (`-e`) or vi (`-v`)
 # bindkey -v
 bindkey "ç" fzf-cd-widget
 
-# +-----------------+
-# | INITIALIZATION |
-# +----------------+
+# ##########################################
+# SOURCE FUNCTIONS                         #
+# ##########################################
+
+## init zsh-abbr
+source ${ZIM_HOME}/modules/zsh-abbr/zsh-abbr.zsh
 
 # Initialize fzf key bindings and fuzzy completion
 source <(fzf --zsh)
