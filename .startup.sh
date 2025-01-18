@@ -90,12 +90,15 @@ configure_pam() {
   LINE_WATCHID="auth       sufficient     pam_watchid.so"
 
   # Read the current file into an array
-  mapfile -t lines < "$SUDO_LOCAL_FILE"
+  readarray=()
+  while IFS= read -r line; do
+    readarray+=("$line")
+  done < "$SUDO_LOCAL_FILE"
 
   # Function to check if a line exists in the file
   line_exists() {
     local line="$1"
-    for existing_line in "${lines[@]}"; do
+    for existing_line in "${readarray[@]}"; do
       if [[ "$existing_line" == "$line" ]]; then
         return 0
       fi
