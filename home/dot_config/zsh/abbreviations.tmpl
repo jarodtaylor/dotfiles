@@ -1,3 +1,26 @@
+# Abbreviations for modern command-line tools:
+#
+# Core tools used:
+# - fzf: Interactive fuzzy finder
+#   https://github.com/junegunn/fzf
+#   Purpose: Provides interactive filtering and selection
+#
+# - ripgrep (rg): Modern grep replacement
+#   https://github.com/BurntSushi/ripgrep
+#   Purpose: Fast content searching with better defaults
+#
+# - fd: Modern find replacement
+#   https://github.com/sharkdp/fd
+#   Purpose: Simpler, faster file finding
+#
+# - bat: Modern cat replacement
+#   https://github.com/sharkdp/bat
+#   Purpose: Syntax highlighting and Git integration
+#
+# - eza: Modern ls replacement
+#   https://github.com/eza-community/eza
+#   Purpose: Better file listing with Git integration
+
 # Git
 abbr lg="lazygit"
 
@@ -23,4 +46,36 @@ vss='code --list-extensions | jq -R -s '\''split("\n")[:-1] | {"extensions": .}'
 # macOS specific
 abbr showfiles="defaults write com.apple.finder AppleShowAllFiles YES; killall Finder"
 abbr hidefiles="defaults write com.apple.finder AppleShowAllFiles NO; killall Finder"
-{{ end }} 
+{{ end }}
+
+# FZF Enhanced Functions
+abbr fe="fe"             # Quick file search and edit
+abbr fif="fif"           # Search in file contents (great for finding code)
+abbr fbr="fbr"           # Interactive git branch switching
+abbr fco="fco"           # Browse and checkout git commits
+abbr fdc="fdc"           # Manage docker containers interactively
+
+# Ripgrep - Modern grep alternative
+abbr rg="rg --smart-case"          # Case-insensitive if pattern is all lowercase
+abbr rgf="rg --files"              # List files that would be searched
+abbr rgi="rg -i"                   # Force case-insensitive search
+abbr rgc="rg --count"              # Count matches instead of showing them
+abbr rgl="rg -l"                   # Only show filenames of matches
+
+# fd - Modern find alternative
+abbr fd="fd --hidden --follow"     # Include hidden files and follow symlinks
+abbr fdf="fd --type f"             # Only find files
+abbr fdd="fd --type d"             # Only find directories
+abbr fdx="fd --type x"             # Only find executables
+
+# bat - Modern cat alternative with syntax highlighting
+abbr bat="bat --style=numbers,changes"  # Show line numbers and Git changes
+abbr batp="bat -p"                      # Plain mode (no line numbers, etc.)
+abbr batl="bat --list-languages"        # List supported languages
+abbr batt="bat --list-themes"           # List available themes
+
+# Combined tools - Powerful combinations
+# Search in files and interactively browse results
+abbr rgfzf="rg --line-number --no-heading . | fzf --ansi"
+# Find files and preview them with bat
+abbr fdfzf="fd --type f | fzf --preview 'bat --color=always {}'" 

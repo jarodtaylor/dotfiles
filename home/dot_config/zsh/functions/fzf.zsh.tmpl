@@ -1,3 +1,30 @@
+# Required tools and their purposes:
+# - fzf (Fuzzy Finder): Interactive filtering tool for command-line
+#   https://github.com/junegunn/fzf
+#   Used for: Interactive selection, preview windows, and fuzzy searching
+#
+# - fd (Find Alternative): Modern replacement for 'find'
+#   https://github.com/sharkdp/fd
+#   Used for: Fast file searching, respects .gitignore by default
+#
+# - bat (Cat Alternative): Cat clone with syntax highlighting
+#   https://github.com/sharkdp/bat
+#   Used for: Syntax-highlighted previews in fzf windows
+#
+# - ripgrep (rg): Modern grep alternative
+#   https://github.com/BurntSushi/ripgrep
+#   Used for: Fast content searching in files
+#
+# - eza: Modern replacement for ls
+#   https://github.com/eza-community/eza
+#   Used for: Directory tree previews in fzf
+
+# Core FZF configuration
+# Uses: fd for file finding
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
+
 #default use bat for previewing fzf results
 #fzp fzf --preview='bat --color=always {}'
 
@@ -8,19 +35,85 @@
 #fzm export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p -lman'"
 # man 2 selectConfigures fzf for faster fetching of files and directories names.
 
-export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
-
+# Catppuccin Mocha theme configuration
 export FZF_DEFAULT_OPTS=" \
 --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
 --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
 --color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+--border rounded \
+--preview-window 'right:60%' \
+--bind 'ctrl-/:toggle-preview' \
+--bind 'ctrl-y:execute-silent(echo {} | pbcopy)' \
 --multi"
 
-# Setup fzf previews
-export FZF_CTRL_T_OPTS="--preview 'bat --color=always -n --line-range :500 {}'"
-export FZF_ALT_C_OPTS="--preview 'eza --icons=always --tree --color=always {} | head -200'"
+# Enhanced preview options
+# CTRL-T configuration: Preview file contents with bat
+export FZF_CTRL_T_OPTS="
+  --preview 'bat --style=numbers --color=always {}' \
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+
+# ALT-C configuration: Preview directory tree with eza
+export FZF_ALT_C_OPTS="
+  --preview 'eza --tree --level=2 --color=always {}' \
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+
+# Custom functions
+
+# fe (Find and Edit): Quickly find and open files in your editor
+# Usage: fe <optional-search-term>
+# Example: fe config  # Search for files with 'config' in the name
+fe() {
+  local file
+  file=$(fd --type f --hidden --follow --exclude .git | fzf \
+    --preview 'bat --style=numbers --color=always {}' \
+    --bind 'ctrl-/:change-preview-window(down|hidden|)') && \
+  ${EDITOR:-nvim} "$file"
+}
+
+# fif (Find in Files): Search through file contents and open matches in editor
+# Usage: fif <search-term>
+# Example: fif "TODO:"  # Find all TODO comments in your codebase
+fif() {
+  local file line
+  rg --color=always --line-number --no-heading "$@" |
+    fzf --ansi \
+        --delimiter : \
+        --preview 'bat --style=numbers --color=always --highlight-line {2} {1}' \
+        --preview-window 'up,60%,border-bottom,+{2}+3/3,~3' |
+    awk -F: '{print $1 " +" $2}' |
+    xargs -o ${EDITOR:-nvim}
+}
+
+# fbr (Fuzzy Branch): Interactive git branch switching with preview
+# Usage: fbr
+# Shows branch history preview and switches to selected branch
+fbr() {
+  local branches branch
+  branches=$(git branch --all | grep -v HEAD) &&
+  branch=$(echo "$branches" |
+           fzf --ansi --preview 'git log --oneline --graph --date=short --color=always --pretty="format:%C(auto)%cd %h%d %s" $(sed "s/.* //" <<< {})' |
+           sed "s/.* //") &&
+  git checkout $(sed "s#^remotes/[^/]*/##" <<< "$branch")
+}
+
+# fco (Fuzzy Checkout): Interactive git commit browser
+# Usage: fco
+# Shows commit details in preview and checks out the selected commit
+fco() {
+  local commits commit
+  commits=$(git log --pretty=oneline --abbrev-commit --reverse) &&
+  commit=$(echo "$commits" | fzf --ansi --preview 'git show --color=always {1}' --preview-window up,60%,border-bottom) &&
+  git checkout $(echo "$commit" | sed "s/ .*//")
+}
+
+# fdc (Fuzzy Docker Container): Interactive docker container management
+# Usage: fdc [optional-container-name]
+# Example: fdc mysql  # Filter and connect to MySQL container
+fdc() {
+  local cid
+  cid=$(docker ps -a | sed 1d | fzf -1 -q "$1" | awk '{print $1}')
+  [ -n "$cid" ] && docker start "$cid" && docker exec -it "$cid" /bin/bash
+}
 
 # fzf preview for tmux
 # export FZF_TMUX_OPTS=" -p90%,70% "  
