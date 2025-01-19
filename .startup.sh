@@ -146,9 +146,11 @@ configure_pam
 # ##########################################
 
 # Install 1Password
-if ! brew list --cask 1password &>/dev/null; then
+if [ ! -d "/Applications/1Password.app" ]; then
   echo "Installing 1Password..."
   brew install --cask 1password
+else
+  echo "1Password is already installed"
 fi
 
 if ! command -v op &>/dev/null; then
