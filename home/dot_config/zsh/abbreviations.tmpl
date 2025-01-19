@@ -1,0 +1,26 @@
+# Git
+abbr lg="lazygit"
+
+# Directory
+abbr mkdir="mkdir -pv"
+abbr rd="rmdir"
+
+# Chezmoi
+abbr ch="chezmoi"
+alias dots="cd ~/.local/share/chezmoi"
+
+# Node/NPM/PNPM
+abbr pn="pnpm"
+abbr pni="pnpm install"
+abbr pna="pnpm add"
+abbr pnd="pnpm dev"
+abbr pnb="pnpm build"
+
+#VSCode
+vss='code --list-extensions | jq -R -s '\''split("\n")[:-1] | {"extensions": .}'\'' > ~/.local/share/chezmoi/home/dot_config/Code/User/extensions.json && chezmoi add ~/.local/share/chezmoi/home/dot_config/Code/User/extensions.json'
+
+{{ if eq .chezmoi.os "darwin" }}
+# macOS specific
+abbr showfiles="defaults write com.apple.finder AppleShowAllFiles YES; killall Finder"
+abbr hidefiles="defaults write com.apple.finder AppleShowAllFiles NO; killall Finder"
+{{ end }} 

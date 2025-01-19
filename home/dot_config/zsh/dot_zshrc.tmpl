@@ -14,7 +14,7 @@ export ZIM_HOME="${XDG_CACHE_HOME}/zim"
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 # ########################################
-# ZIM STYLE CONFIGURATION                # 
+# ZIM STYLE CONFIGURATION                #
 # ########################################
 
  #Use degit to install zim modules instead of git (faster)
@@ -42,6 +42,11 @@ if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} 
   source ${ZIM_HOME}/zimfw.zsh init -q
 fi                                       
 
+# Add zsh-abbr FPATH before Zim initialization
+if type brew &>/dev/null; then
+    FPATH="$(brew --prefix)/share/zsh-abbr:$FPATH"
+fi
+
 source ${ZIM_HOME}/init.zsh
 
 # ##########################################
@@ -64,6 +69,20 @@ source <(fzf --zsh)
 for file in "$ZDOTDIR"/functions/*.zsh; do
   source "$file"
 done
+
+# ##########################################
+# ZSH-ABBR                                 #
+# ##########################################
+
+# Set abbreviations file location
+export ABBR_USER_ABBREVIATIONS_FILE="${XDG_CONFIG_HOME}/zsh/abbreviations"
+
+# Load zsh-abbr and its autosuggestions strategy
+source /opt/homebrew/share/zsh-abbr/zsh-abbr.zsh
+source /opt/homebrew/share/zsh-autosuggestions-abbreviations-strategy/zsh-autosuggestions-abbreviations-strategy.zsh
+
+# Configure autosuggestions strategy
+ZSH_AUTOSUGGEST_STRATEGY=(abbreviations history completion)
 
 # ##########################################
 # ALIASES                                 #

@@ -4,9 +4,9 @@ zmodule input                                                                   
 
 zmodule archive                                                                     #Provides archive and unarchive functions for easy archive manipulation.
 
-zmodule joke/zim-chezmoi --name zim-chezmoi                                         #Sets up chezmoi in Zsh.
+zmodule joke/zim-chezmoi                                                             #Sets up chezmoi in Zsh.
 
-zmodule joke/zim-mise --name zim-mise                                               #Sets up mise in Zsh.
+zmodule joke/zim-mise                                                               #Sets up mise in Zsh.
 
 zmodule exa                                                                         #Adds aliases and better defaults for exa/eza.  (Must be sourced after utility)
 
@@ -14,15 +14,15 @@ zmodule fzf                                                                     
 
 zmodule git                                                                         #Provides nice git aliases and functions.
 
-zmodule joke/zim-starship --name zim-starship                                       #Sets up starship in Zsh.
+zmodule joke/zim-starship                                                           #Sets up starship in Zsh.
 
 zmodule zsh-users/zsh-completions --name zsh-completions --fpath src                #Enables and configures smart and extensive tab completion. (must be sourced after all modules that add completion definitions)
 
 zmodule completion                                                                  #Enables and configures smart and extensive tab completion. (must be sourced after all modules that add completion definitions)
 
-zmodule zsh-users/zsh-syntax-highlighting --name zsh-syntax-highlighting            #Fish-like syntax highlighting for Zsh.
+zmodule zsh-users/zsh-syntax-highlighting                                           #Fish-like syntax highlighting for Zsh.
 
-zmodule zsh-users/zsh-history-substring-search --name zsh-history-substring-search  #Fish-like history search (up arrow) for Zsh.
+zmodule zsh-users/zsh-history-substring-search                                      #Fish-like history search (up arrow) for Zsh.
 
-zmodule zsh-users/zsh-autosuggestions --name zsh-autosuggestions                    #Fish-like autosuggestions for Zsh.
+zmodule zsh-users/zsh-autosuggestions                                               #Fish-like autosuggestions for Zsh.
 
