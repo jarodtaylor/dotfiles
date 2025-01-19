@@ -33,7 +33,7 @@ config-file = ghostty-theme
 # custom-shader = shaders/bloom075.glsl
 # custom-shader = shaders/bloom060.glsl
 # custom-shader = shaders/bloom050.glsl
-custom-shader = shaders/bloom025.glsl
+# custom-shader = shaders/bloom025.glsl
 # custom-shader = shaders/bloom050.glsl
 # custom-shader = shaders/bloom060.glsl
 # custom-shader = shaders/bloom075.glsl
@@ -99,7 +99,7 @@ custom-shader = shaders/bloom025.glsl
 # echo '' >>~/.zprofile && echo '# Configure shell for brew' >>~/.zprofile && echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>~/.zprofile && eval "$(/opt/homebrew/bin/brew shellenv)"
 #
 # This assumes you installed tmux through brew if using macos
-command = zsh --login -c "if command -v tmux >/dev/null 2>&1; then tmux attach || tmux; else zsh; fi"
+# command = zsh --login -c "if command -v tmux >/dev/null 2>&1; then tmux attach || tmux; else zsh; fi"
 
 # Horizontal window padding. This applies padding between the terminal cells
 # and the left and right window borders. The value is in points, meaning that
@@ -156,7 +156,17 @@ font-size = 15
 # 
 # macOS: To hide the titlebar without removing the native window borders
 #        or rounded corners, use `macos-titlebar-style = hidden` instead.
-macos-titlebar-style = hidden
+# macos-titlebar-style = hidden
+
+# Background color for the window titlebar. This only takes effect if
+# window-theme is set to ghostty. Currently only supported in the GTK app
+# runtime.
+window-titlebar-background = #1e1e2e
+
+# Foreground color for the window titlebar. This only takes effect if
+# window-theme is set to ghostty. Currently only supported in the GTK app
+# runtime.
+window-titlebar-foreground = #cdd6f4
 
 # Confirms that a surface should be closed before closing it. This defaults to
 # true. If set to false, surfaces will close without any confirmation.
@@ -208,7 +218,7 @@ keybind = cmd+s=toggle_quick_terminal
 # will be treated as *Alt* regardless of this setting. (i.e. `alt+ctrl+a`).
 # 
 # This does not work with GLFW builds.
-macos-option-as-alt = right
+macos-option-as-alt = left
 
 # Duration (in seconds) of the quick terminal enter and exit animation.
 # Set it to 0 to disable animation completely. This can be changed at

@@ -48,12 +48,12 @@ abbr showfiles="defaults write com.apple.finder AppleShowAllFiles YES; killall F
 abbr hidefiles="defaults write com.apple.finder AppleShowAllFiles NO; killall Finder"
 {{ end }}
 
-# FZF Enhanced Functions
-abbr fe="fe"             # Quick file search and edit
-abbr fif="fif"           # Search in file contents (great for finding code)
-abbr fbr="fbr"           # Interactive git branch switching
-abbr fco="fco"           # Browse and checkout git commits
-abbr fdc="fdc"           # Manage docker containers interactively
+# FZF Enhanced Functions (see functions/fzf.zsh.tmpl)
+abbr fe="find_and_edit"             # Quick file search and edit
+abbr fif="find_in_files"           # Search in file contents (great for finding code)
+abbr fcb="find_and_checkout_git_branch"           # Interactive git branch switching
+abbr fcc="find_and_checkout_git_commit"           # Browse and checkout git commits
+abbr fdc="find_and_start_docker_container"           # Manage docker containers interactively
 
 # Ripgrep - Modern grep alternative
 abbr rg="rg --smart-case"          # Case-insensitive if pattern is all lowercase

@@ -31,10 +31,6 @@ export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
 #use nvim for previewing and editing fzf results
 #fzn nvim $(fzf --preview='bat --color=always {}' --preview-window=right:50%:wrap)
 
-#use bat for man pages
-#fzm export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p -lman'"
-# man 2 selectConfigures fzf for faster fetching of files and directories names.
-
 # Catppuccin Mocha theme configuration
 export FZF_DEFAULT_OPTS=" \
 --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
@@ -59,10 +55,8 @@ export FZF_ALT_C_OPTS="
 
 # Custom functions
 
-# fe (Find and Edit): Quickly find and open files in your editor
-# Usage: fe <optional-search-term>
-# Example: fe config  # Search for files with 'config' in the name
-fe() {
+# Use fd, fzf, and bat to find, preview, and edit a file in nvim
+find_and_edit() {
   local file
   file=$(fd --type f --hidden --follow --exclude .git | fzf \
     --preview 'bat --style=numbers --color=always {}' \
@@ -70,10 +64,8 @@ fe() {
   ${EDITOR:-nvim} "$file"
 }
 
-# fif (Find in Files): Search through file contents and open matches in editor
-# Usage: fif <search-term>
-# Example: fif "TODO:"  # Find all TODO comments in your codebase
-fif() {
+# Use rg, fzf, and bat to find, preview, and edit a file in nvim
+find_in_files() {
   local file line
   rg --color=always --line-number --no-heading "$@" |
     fzf --ansi \
@@ -84,10 +76,8 @@ fif() {
     xargs -o ${EDITOR:-nvim}
 }
 
-# fbr (Fuzzy Branch): Interactive git branch switching with preview
-# Usage: fbr
-# Shows branch history preview and switches to selected branch
-fbr() {
+# Use fzf to interactively switch git branches
+find_and_checkout_git_branch() {
   local branches branch
   branches=$(git branch --all | grep -v HEAD) &&
   branch=$(echo "$branches" |
@@ -96,20 +86,16 @@ fbr() {
   git checkout $(sed "s#^remotes/[^/]*/##" <<< "$branch")
 }
 
-# fco (Fuzzy Checkout): Interactive git commit browser
-# Usage: fco
-# Shows commit details in preview and checks out the selected commit
-fco() {
+# Use fzf to interactively checkout a git commit
+find_and_checkout_git_commit() {
   local commits commit
   commits=$(git log --pretty=oneline --abbrev-commit --reverse) &&
   commit=$(echo "$commits" | fzf --ansi --preview 'git show --color=always {1}' --preview-window up,60%,border-bottom) &&
   git checkout $(echo "$commit" | sed "s/ .*//")
 }
 
-# fdc (Fuzzy Docker Container): Interactive docker container management
-# Usage: fdc [optional-container-name]
-# Example: fdc mysql  # Filter and connect to MySQL container
-fdc() {
+# Use fzf to interactively start a docker container
+find_and_start_docker_container() {
   local cid
   cid=$(docker ps -a | sed 1d | fzf -1 -q "$1" | awk '{print $1}')
   [ -n "$cid" ] && docker start "$cid" && docker exec -it "$cid" /bin/bash
