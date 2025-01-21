@@ -39,6 +39,9 @@ abbr pna="pnpm add"
 abbr pnd="pnpm dev"
 abbr pnb="pnpm build"
 
+# Ghostty
+abbr ghc="ghostty +show-config --default --docs | bat"
+
 #VSCode
 vss='code --list-extensions | jq -R -s '\''split("\n")[:-1] | {"extensions": .}'\'' > ~/.local/share/chezmoi/home/dot_config/Code/User/extensions.json && chezmoi add ~/.local/share/chezmoi/home/dot_config/Code/User/extensions.json'
 
