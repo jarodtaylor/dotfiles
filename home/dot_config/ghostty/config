@@ -10,13 +10,13 @@ window-padding-x = 0
 window-padding-y = 0
 
 font-family = "JetBrainsMono Nerd Font"
-font-size = 16
+font-size = 14
 font-thicken = true
-adjust-cell-height = 11%
+# adjust-cell-height = 1%
 
 background-opacity = 0.90
 background-blur-radius = 20
-unfocused-split-opacity = 0.1
+# unfocused-split-opacity = 0.1
 
 # The color to dim the unfocused split. Unfocused splits are dimmed by
 # rendering a semi-transparent rectangle over the split. This sets the color of
@@ -62,9 +62,15 @@ keybind = cmd+s=toggle_quick_terminal
 macos-option-as-alt = left
 mouse-hide-while-typing = true
 quick-terminal-animation-duration = 0.08
+quick-terminal-autohide = true
+quick-terminal-screen = main
 
 keybind = super+i=inspector:toggle
 keybind = super+r=reload_config
 
 # This doesn't work when in tmux, if outside tmux the regular ctrl+l works
 # keybind = super+k=clear_screen
+
+# Add these if you want to customize the quick terminal further
+keybind = global:cmd+grave_accent=toggle_quick_terminal
+

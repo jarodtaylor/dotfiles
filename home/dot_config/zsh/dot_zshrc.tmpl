@@ -21,7 +21,7 @@ alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
  #Use degit to install zim modules instead of git (faster)
 zstyle ':zim:zmodule' use 'degit'                                                  
 #Use g as prefix for git aliases instead of G
-zstyle ':zim:git' aliases-prefix 'g'
+#zstyle ':zim:git' aliases-prefix 'g'
 zstyle ':zim:input' double-dot-expand yes
 
 # ##########################################
@@ -88,4 +88,3 @@ ZSH_AUTOSUGGEST_STRATEGY=(abbreviations history completion)
 # ##########################################
 # ALIASES                                 #
 # ##########################################
-{{ include "dot_config/zsh/aliases.tmpl" }}
