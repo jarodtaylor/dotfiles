@@ -62,12 +62,30 @@ on-focus-changed = "move-mouse window-lazy-center"
 #                 Monitor pattern is the same as for 'workspace-to-monitor-force-assignment'.
 #                 See: https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
 [gaps]
-inner.horizontal = 16
-inner.vertical = 16
-outer.left = 16
-outer.bottom = 16
-outer.top = 60
-outer.right = 16
+inner.horizontal = [
+    { monitor."built-in retina display" = 8 },
+    16
+]
+inner.vertical = [
+    { monitor."built-in retina display" = 8 },
+    16
+]
+outer.left = [
+    { monitor."built-in retina display" = 8 },
+    16
+]
+outer.bottom = [
+    { monitor."built-in retina display" = 8 },
+    16
+]
+outer.top = [
+    { monitor."built-in retina display" = 30 },  # Smaller top gap for laptop
+    60  # Larger top gap for external monitors
+]
+outer.right = [
+    { monitor."built-in retina display" = 8 },
+    16
+]
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -245,7 +263,7 @@ run = "move-node-to-workspace Z"
 if.app-id = 'com.tinyspeck.slackmacgap'
 run = "move-node-to-workspace Z"
 
-# This should be the only instance of these configurations in your file
+# Workspace assignments that work in both setups
 [workspace-to-monitor-force-assignment]
-"B" = "secondary" # Will go to DELL U2720QM (1) - your left monitor
-"Z" = "secondary" # Will go to DELL U2720QM (1) - your left monitor
+"B" = ["secondary", "built-in retina display"]  # Browser workspace
+"Z" = ["secondary", "built-in retina display"]  # Communication workspace
