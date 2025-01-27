@@ -1,6 +1,5 @@
 return {
   { "akinsho/bufferline.nvim", enabled = false },
-  { "alker0/chezmoi.vim", enabled = false },
   -- Plugin Configurations
   {
     "catppuccin",

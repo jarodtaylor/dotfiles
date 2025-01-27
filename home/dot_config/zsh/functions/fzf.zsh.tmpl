@@ -76,30 +76,16 @@ find_in_files() {
     xargs -o ${EDITOR:-nvim}
 }
 
-# Use fzf to interactively switch git branches
-find_and_checkout_git_branch() {
-  local branches branch
-  branches=$(git branch --all | grep -v HEAD) &&
-  branch=$(echo "$branches" |
-           fzf --ansi --preview 'git log --oneline --graph --date=short --color=always --pretty="format:%C(auto)%cd %h%d %s" $(sed "s/.* //" <<< {})' |
-           sed "s/.* //") &&
-  git checkout $(sed "s#^remotes/[^/]*/##" <<< "$branch")
+function frg {
+  result=$(rg --ignore-case --color=always --line-number --no-heading "$@" |
+    fzf --ansi \
+        --color 'hl:-1:underline,hl+:-1:underline:reverse' \
+        --delimiter ':' \
+        --preview "bat --color=always {1} --theme='Catppuccin Mocha' --highlight-line {2}" \
+        --preview-window 'up,60%,border-bottom,+{2}+3/3,~3')
+  file=${result%%:*}
+  linenumber=$(echo "${result}" | cut -d: -f2)
+  if [[ -n "$file" ]]; then
+          $EDITOR +"${linenumber}" "$file"
+  fi
 }
-
-# Use fzf to interactively checkout a git commit
-find_and_checkout_git_commit() {
-  local commits commit
-  commits=$(git log --pretty=oneline --abbrev-commit --reverse) &&
-  commit=$(echo "$commits" | fzf --ansi --preview 'git show --color=always {1}' --preview-window up,60%,border-bottom) &&
-  git checkout $(echo "$commit" | sed "s/ .*//")
-}
-
-# Use fzf to interactively start a docker container
-find_and_start_docker_container() {
-  local cid
-  cid=$(docker ps -a | sed 1d | fzf -1 -q "$1" | awk '{print $1}')
-  [ -n "$cid" ] && docker start "$cid" && docker exec -it "$cid" /bin/bash
-}
-
-# fzf preview for tmux
-# export FZF_TMUX_OPTS=" -p90%,70% "  
