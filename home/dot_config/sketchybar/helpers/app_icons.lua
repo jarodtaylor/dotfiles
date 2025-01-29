@@ -147,6 +147,7 @@ return {
   ["Logseq"] = ":logseq:",
   ["Reeder"] = ":reeder5:",
   ["Code"] = ":code:",
+  ["Cursor"] = ":cursor:",
   ["Code - Insiders"] = ":code:",
   ["Notion"] = ":notion:",
   ["Final Cut Pro"] = ":final_cut_pro:",
