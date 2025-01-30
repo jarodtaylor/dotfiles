@@ -3,6 +3,9 @@
 
 # It's not necessary to copy all keys to your config.
 # If the key is missing in your config, "default-config.toml" will serve as a fallback
+#
+# Start AeroSpace at login
+start-at-login = true
 
 # You can use it to add commands that run after login to macOS user session.
 # 'start-at-login' needs to be 'true' for 'after-login-command' to work
@@ -12,19 +15,18 @@ after-login-command = []
 # You can use it to add commands that run after AeroSpace startup.
 # 'after-startup-command' is run after 'after-login-command'
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
-after-startup-command = [
-  'exec-and-forget sketchybar',
-  'exec-and-forget borders',
-]
+# after-startup-command = [
+#   'exec-and-forget sketchybar',
+#   'exec-and-forget borders',
+# ]
+#
+after-startup-command = ['/bin/bash', '-c', 'sketchybar --reload']
 
 exec-on-workspace-change = [
   '/bin/bash',
   '-c',
   'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE ACTIVE_MONITOR=$AEROSPACE_FOCUSED_MONITOR',
 ]
-
-# Start AeroSpace at login
-start-at-login = false
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -62,30 +64,15 @@ on-focus-changed = "move-mouse window-lazy-center"
 #                 Monitor pattern is the same as for 'workspace-to-monitor-force-assignment'.
 #                 See: https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
 [gaps]
-inner.horizontal = [
-    { monitor."built-in retina display" = 8 },
-    16
-]
-inner.vertical = [
-    { monitor."built-in retina display" = 8 },
-    16
-]
-outer.left = [
-    { monitor."built-in retina display" = 8 },
-    16
-]
-outer.bottom = [
-    { monitor."built-in retina display" = 8 },
-    16
-]
+inner.horizontal = [{ monitor."built-in retina display" = 8 }, 16]
+inner.vertical = [{ monitor."built-in retina display" = 8 }, 16]
+outer.left = [{ monitor."built-in retina display" = 8 }, 16]
+outer.bottom = [{ monitor."built-in retina display" = 8 }, 16]
 outer.top = [
-    { monitor."built-in retina display" = 30 },  # Smaller top gap for laptop
-    60  # Larger top gap for external monitors
+  { monitor."built-in retina display" = 30 }, # Smaller top gap for laptop
+  60,                                         # Larger top gap for external monitors
 ]
-outer.right = [
-    { monitor."built-in retina display" = 8 },
-    16
-]
+outer.right = [{ monitor."built-in retina display" = 8 }, 16]
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -265,5 +252,5 @@ run = "move-node-to-workspace Z"
 
 # Workspace assignments that work in both setups
 [workspace-to-monitor-force-assignment]
-"B" = ["secondary", "built-in retina display"]  # Browser workspace
-"Z" = ["secondary", "built-in retina display"]  # Communication workspace
+"B" = [1, "built-in retina display"] # Browser workspace
+"Z" = [1, "built-in retina display"] # Communication workspace

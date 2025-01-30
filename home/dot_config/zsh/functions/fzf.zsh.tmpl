@@ -21,9 +21,9 @@
 
 # Core FZF configuration
 # Uses: fd for file finding
-export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
+# export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
+# export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+# export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
 
 #default use bat for previewing fzf results
 #fzp fzf --preview='bat --color=always {}'
@@ -89,3 +89,97 @@ function frg {
           $EDITOR +"${linenumber}" "$file"
   fi
 }
+
+# fshow - git commit browser (enter for show, ctrl-d for diff, ` toggles sort)
+fshow() {
+  local out shas sha q k
+  while out=$(
+      git log --graph --color=always \
+          --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+      fzf --ansi --multi --no-sort --reverse --query="$q" \
+          --print-query --expect=ctrl-d --toggle-sort=\`); do
+    q=$(head -1 <<< "$out")
+    k=$(head -2 <<< "$out" | tail -1)
+    shas=$(sed '1,2d;s/^[^a-z0-9]*//;/^$/d' <<< "$out" | awk '{print $1}')
+    [ -z "$shas" ] && continue
+    if [ "$k" = ctrl-d ]; then
+      git diff --color=always $shas | less -R
+    else
+      for sha in $shas; do
+        git show --color=always $sha | less -R
+      done
+    fi
+  done
+}
+
+# fglg - Fuzzy git log to find
+# glg() {
+#   if [ -z "$1" ]; then
+#     echo "Usage: glg <search-pattern>"
+#     return 1
+#   fi
+#
+#   git log -p --pretty=format:"%H" | 
+#     awk -v pattern="$1" '/^[a-f0-9]{40}/ {commit=$1} $0 ~ pattern {print commit}' | 
+#     sort -u | 
+#     while read sha; do
+#       git show --name-only --pretty=format:"%H" "$sha" | awk 'NR==1 {commit=$0} NR>1 {print commit, $0}'
+#     done | 
+#     fzf --preview '
+#       set -- $(echo {} | awk "{print \$1, substr(\$0, index(\$0, \$2))}")
+#       git show $1:$2 | bat --color=always --style=numbers --paging=never --file-name=$2
+#     ' | awk '{print $1, $2}'
+# }
+#
+
+
+glg() {
+  if [ -z "$1" ]; then
+    echo "Usage: glg <search-pattern>"
+    return 1
+  fi
+
+  selection=$(
+    git log -p --pretty=format:"%H" | 
+      awk -v pattern="$1" '/^[a-f0-9]{40}/ {commit=$1} $0 ~ pattern {print commit}' | 
+      sort -u | 
+      while read sha; do
+        git show --name-only --pretty=format:"%H" "$sha" | awk 'NR==1 {commit=$0} NR>1 {print commit, $0}'
+      done | 
+      fzf --preview '
+        set -- $(echo {} | awk "{print \$1, substr(\$0, index(\$0, \$2))}")
+        git show -p --color=always $1:$2 | bat --color=always --style=numbers --paging=never --file-name=$2
+      '
+  )
+
+  if [ -z "$selection" ]; then
+    return 0
+  fi
+
+  sha=$(echo "$selection" | awk '{print $1}')
+  file=$(echo "$selection" | awk '{print substr($0, index($0, $2))}')
+
+  # Ask user what they want to do
+  echo "Selected: $sha $file"
+  echo "Options:"
+  echo "  [1] Show details (default)"
+  echo "  [2] Open in Neovim"
+  echo "  [3] Explore full repo at this commit (git worktree)"
+  echo "  [4] Exit"
+  echo -n "Choose an option: "
+  read choice
+
+  case "$choice" in
+    2) git show "$sha:$file" | nvim -R - ;;
+    3) 
+      worktree_path="/tmp/git-worktree-$sha"
+      echo "Creating worktree at: $worktree_path"
+      git worktree add "$worktree_path" "$sha"
+      cd "$worktree_path" || exit
+      echo "You are now in a read-only version of the repo at commit $sha."
+      echo "Use 'cd $worktree_path' to navigate."
+      ;;
+    *) echo "$sha $file";;
+  esac
+}
+
