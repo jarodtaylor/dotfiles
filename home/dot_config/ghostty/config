@@ -14,7 +14,7 @@ font-size = 14
 font-thicken = true
 # adjust-cell-height = 1%
 
-background-opacity = 0.90
+background-opacity = 0.70
 background-blur-radius = 20
 # unfocused-split-opacity = 0.1
 
@@ -25,7 +25,7 @@ background-blur-radius = 20
 # This will default to the background color.
 # unfocused-split-fill = 
 
-macos-titlebar-style = hidden
+# macos-titlebar-style = hidden
 # window-decoration = false
 # window-vsync = false
 window-save-state = always
