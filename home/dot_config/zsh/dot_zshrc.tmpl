@@ -85,3 +85,12 @@ source /opt/homebrew/share/zsh-autosuggestions-abbreviations-strategy/zsh-autosu
 # Configure autosuggestions strategy
 ZSH_AUTOSUGGEST_STRATEGY=(abbreviations history completion)
 
+# ##########################################
+# PNPM                                     #
+# ##########################################
+export PNPM_HOME="/Users/jarodtaylor/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+

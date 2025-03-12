@@ -19,6 +19,7 @@ set -eufo pipefail
   "felixkratz/formulae/sketchybar"
   "ffmpeg"
   "fzf"
+  "gatsby-cli"
   "gh"
   "git"
   "git-delta"
@@ -85,6 +86,7 @@ set -eufo pipefail
   "slack"
   "spotify"
   "telegram"
+  "todoist"
   "ubersicht"
   "visual-studio-code"
   "warp"
@@ -92,7 +94,7 @@ set -eufo pipefail
   "zen-browser"
   "zoom" -}}
 
-brew bundle --no-lock --file=/dev/stdin <<EOF
+brew bundle --file=/dev/stdin <<EOF
 {{ range ($brews | sortAlpha | uniq) -}}
 brew "{{ . }}"
 {{ end -}}
