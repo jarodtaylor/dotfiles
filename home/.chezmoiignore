@@ -21,9 +21,6 @@ install.sh
 !.cargo/env
 .rustup
 
-# Editor
-.vscode/
-
 # Vim / NeoVim files
 .viminfo
 .config/nvim/lazy-lock.json

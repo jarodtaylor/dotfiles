@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Respect XDG_CACHE_HOME fallback
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
+
+echo "Setting up antidote.lite.zsh in $CACHE_DIR..."
+
+mkdir -p "$CACHE_DIR/antidote.lite"
+
+curl -fsSL https://raw.githubusercontent.com/mattmc3/zsh_unplugged/refs/heads/main/antidote.lite.zsh \
+  -o "$CACHE_DIR/antidote.lite/antidote.lite.zsh"
