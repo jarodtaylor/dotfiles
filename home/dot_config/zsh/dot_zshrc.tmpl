@@ -28,8 +28,15 @@ zstyle ':zim:input' double-dot-expand yes
 # ZIM INITIALIZATION & AUTOUPDATE MODULES  #
 # ##########################################
 
+# Ensure ZIM_HOME is set
+if [[ -z "${ZIM_HOME}" ]]; then
+  echo "ZIM_HOME is not set, setting it now..."
+  export ZIM_HOME="${XDG_CACHE_HOME}/zim"
+fi
+
 # Create ZIM_HOME directory if it doesn't exist
 if [[ ! -d ${ZIM_HOME} ]]; then
+  echo "Creating ZIM_HOME directory at ${ZIM_HOME}..."
   mkdir -p ${ZIM_HOME}
 fi
 
@@ -45,6 +52,7 @@ fi
 
 # Install missing modules and update ${ZIM_HOME}/init.zsh if missing or outdated.
 if [[ ! -e ${ZIM_HOME}/init.zsh ]] || [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE} ]]; then
+  echo "Initializing Zim modules..."
   source ${ZIM_HOME}/zimfw.zsh init -q
 fi
 
@@ -53,7 +61,13 @@ if type brew &>/dev/null; then
   FPATH="$(brew --prefix)/share/zsh-abbr:$FPATH"
 fi
 
-source ${ZIM_HOME}/init.zsh
+# Source Zim initialization
+if [[ -f ${ZIM_HOME}/init.zsh ]]; then
+  echo "Sourcing Zim initialization..."
+  source ${ZIM_HOME}/init.zsh
+else
+  echo "Warning: ${ZIM_HOME}/init.zsh not found"
+fi
 
 # ##########################################
 # BINDKEYS CONFIGURATION                   #
