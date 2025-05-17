@@ -59,10 +59,8 @@ if command -v op &>/dev/null && op account list &>/dev/null; then
     
     # Update the data file
     cat > "{{ .chezmoi.sourceDir }}/.chezmoidata/ssh.toml.tmpl" << EOF
-# SSH configuration
+[ssh]
 use_1password = true
-
-# Keys from 1Password
 personal_key = {{ $personal_key | toJson }}
 work_key = {{ $work_key | toJson }}
 EOF
@@ -72,10 +70,8 @@ EOF
   else
     # Update the data file to indicate not using 1Password
     cat > "{{ .chezmoi.sourceDir }}/.chezmoidata/ssh.toml.tmpl" << EOF
-# SSH configuration
+[ssh]
 use_1password = false
-
-# These will be populated by the ssh-setup script
 personal_key = ""
 work_key = ""
 EOF
