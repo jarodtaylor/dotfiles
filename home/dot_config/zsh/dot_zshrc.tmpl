@@ -10,8 +10,6 @@ fi
 
 export MISE_NODE_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/mise/.default-npm-packages"
 export MISE_RUBY_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/mise/.default-gems"
-export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"
-export ZIM_HOME="${XDG_CACHE_HOME}/zim"
 
 export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p -lman'"
 alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"

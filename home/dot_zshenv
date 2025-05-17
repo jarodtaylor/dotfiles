@@ -16,6 +16,10 @@ export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 export ZDOTDIR="${XDG_CONFIG_HOME:-${HOME}/.config}/zsh"
 export CODEDIR="$HOME/Code"
 
+# Zim configuration
+export ZIM_HOME="${XDG_CACHE_HOME}/zim"
+export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"
+
 export HISTFILE="$ZDOTDIR/.zhistory" # History filepath
 export HISTSIZE=10000                # Maximum events for internal history
 export SAVEHIST=10000                # Maximum events in history file
