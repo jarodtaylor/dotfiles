@@ -6,6 +6,9 @@ set -eufo pipefail
 {{ template "scripts/helper" . }}
 {{ template "scripts/keepalive_sudo" . }}
 
+# Tap required repositories
+brew tap FelixKratz/formulae
+
 {{ $brews := list
   "age"
   "bat"
@@ -15,8 +18,8 @@ set -eufo pipefail
   "diff-so-fancy"
   "fastfetch"
   "fd"
-  "felixkratz/formulae/borders"
-  "felixkratz/formulae/sketchybar"
+  "borders"
+  "sketchybar"
   "ffmpeg"
   "fzf"
   "gatsby-cli"
