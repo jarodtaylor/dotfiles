@@ -44,7 +44,7 @@ fi
 if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
   echo "Downloading zimfw plugin manager..."
   if ! curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
-    https://raw.githubusercontent.com/zimfw/zimfw/v1.9.4/zimfw.zsh; then
+    https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh; then
     echo "Failed to download zimfw. Check your internet connection or the URL."
     return 1
   fi
