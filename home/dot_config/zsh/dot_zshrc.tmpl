@@ -20,15 +20,20 @@ alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
 # ZIM STYLE CONFIGURATION                #
 # ########################################
 
- #Use degit to install zim modules instead of git (faster)
-zstyle ':zim:zmodule' use 'degit'                                                  
-#Use g as prefix for git aliases instead of G
-#zstyle ':zim:git' aliases-prefix 'g'
+# Use degit to install zim modules instead of git (faster)
+zstyle ':zim:zmodule' use 'degit'
+# Use g as prefix for git aliases instead of G
+# zstyle ':zim:git' aliases-prefix 'g'
 zstyle ':zim:input' double-dot-expand yes
 
 # ##########################################
-# ZIM INITIALIZSTION & AUTOUPDATE MODULES  #
+# ZIM INITIALIZATION & AUTOUPDATE MODULES  #
 # ##########################################
+
+# Create ZIM_HOME directory if it doesn't exist
+if [[ ! -d ${ZIM_HOME} ]]; then
+  mkdir -p ${ZIM_HOME}
+fi
 
 # Download zimfw plugin manager if missing.
 if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
@@ -41,13 +46,13 @@ if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
 fi
 
 # Install missing modules and update ${ZIM_HOME}/init.zsh if missing or outdated.
-if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
+if [[ ! -e ${ZIM_HOME}/init.zsh ]] || [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE} ]]; then
   source ${ZIM_HOME}/zimfw.zsh init -q
-fi                                       
+fi
 
 # Add zsh-abbr FPATH before Zim initialization
 if type brew &>/dev/null; then
-    FPATH="$(brew --prefix)/share/zsh-abbr:$FPATH"
+  FPATH="$(brew --prefix)/share/zsh-abbr:$FPATH"
 fi
 
 source ${ZIM_HOME}/init.zsh
@@ -62,9 +67,6 @@ bindkey "ç" fzf-cd-widget
 # ##########################################
 # SOURCE FUNCTIONS                         #
 # ##########################################
-
-## init zsh-abbr
-# source ${ZIM_HOME}/modules/zsh-abbr/zsh-abbr.zsh
 
 # Initialize fzf key bindings and fuzzy completion
 source <(fzf --zsh)
@@ -81,8 +83,13 @@ done
 export ABBR_USER_ABBREVIATIONS_FILE="${XDG_CONFIG_HOME}/zsh/abbreviations"
 
 # Load zsh-abbr and its autosuggestions strategy
-source /opt/homebrew/share/zsh-abbr/zsh-abbr.zsh
-source /opt/homebrew/share/zsh-autosuggestions-abbreviations-strategy/zsh-autosuggestions-abbreviations-strategy.zsh
+if [[ -f /opt/homebrew/share/zsh-abbr/zsh-abbr.zsh ]]; then
+  source /opt/homebrew/share/zsh-abbr/zsh-abbr.zsh
+fi
+
+if [[ -f /opt/homebrew/share/zsh-autosuggestions-abbreviations-strategy/zsh-autosuggestions-abbreviations-strategy.zsh ]]; then
+  source /opt/homebrew/share/zsh-autosuggestions-abbreviations-strategy/zsh-autosuggestions-abbreviations-strategy.zsh
+fi
 
 # Configure autosuggestions strategy
 ZSH_AUTOSUGGEST_STRATEGY=(abbreviations history completion)
