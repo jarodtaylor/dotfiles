@@ -1,1 +1,5 @@
+{{- if .use_1password -}}
+{{- onepasswordRead "op://Personal/SSH Keys/personal.pub" -}}
+{{- else -}}
 {{ .ssh_key }}
+{{- end -}}
