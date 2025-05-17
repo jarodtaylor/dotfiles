@@ -1,0 +1,77 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+{{ template "scripts/eval_brew" . }}
+{{ template "scripts/helper" . }}
+{{ template "scripts/keepalive_sudo" . }}
+
+# Check if pam-reattach is installed, and install it if not
+if ! brew list pam-reattach &>/dev/null; then
+  echo "Installing pam-reattach..."
+  brew install pam-reattach
+else
+  echo "pam-reattach is already installed."
+fi
+
+# Check if /etc/pam.d/sudo_local exists, if not, create it from the template
+SUDO_LOCAL_FILE="/etc/pam.d/sudo_local"
+TEMPLATE_FILE="/etc/pam.d/sudo_local.template"
+
+if [ ! -f "$SUDO_LOCAL_FILE" ]; then
+  echo "Creating $SUDO_LOCAL_FILE from template..."
+  sudo cp "$TEMPLATE_FILE" "$SUDO_LOCAL_FILE"
+fi
+
+# Define the lines to add
+LINE_REATTACH="auth       optional       /opt/homebrew/lib/pam/pam_reattach.so"
+LINE_TOUCHID="auth       sufficient     pam_tid.so"
+LINE_WATCHID="auth       sufficient     pam_watchid.so"
+
+# Read the current file into an array
+readarray=()
+while IFS= read -r line; do
+  readarray+=("$line")
+done < "$SUDO_LOCAL_FILE"
+
+# Function to check if a line exists in the file
+line_exists() {
+  local line="$1"
+  for existing_line in "${readarray[@]}"; do
+    if [[ "$existing_line" == "$line" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Check and add lines if necessary
+modified=false
+
+if ! line_exists "$LINE_REATTACH"; then
+  echo "Adding pam-reattach line..."
+  sudo sed -i.bak "1s|^|$LINE_REATTACH\n|" "$SUDO_LOCAL_FILE"
+  modified=true
+else
+  echo "pam-reattach is already enabled."
+fi
+
+if ! line_exists "$LINE_TOUCHID"; then
+  echo "Adding pam_tid line..."
+  sudo sed -i.bak "/^#auth       sufficient     pam_tid.so/s|^#||" "$SUDO_LOCAL_FILE"
+  modified=true
+else
+  echo "pam_tid is already enabled."
+fi
+
+if ! line_exists "$LINE_WATCHID"; then
+  echo "Installing and enabling pam-watchid..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/logicer16/pam-watchid/HEAD/install.sh)" -- enable
+  modified=true
+else
+  echo "pam-watchid is already installed and enabled."
+fi
+
+if [ "$modified" = false ]; then
+  echo "No changes were made, all components are already configured."
+fi 
