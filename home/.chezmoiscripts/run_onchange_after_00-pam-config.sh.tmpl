@@ -2,8 +2,6 @@
 
 set -eufo pipefail
 
-{{ template "scripts/eval_brew" . }}
-{{ template "scripts/helper" . }}
 {{ template "scripts/keepalive_sudo" . }}
 
 # Check if pam-reattach is installed, and install it if not
@@ -14,74 +12,21 @@ else
   echo "pam-reattach is already installed."
 fi
 
-# Clean up existing sudo_local files
+# Create sudo_local file with required configuration
 SUDO_LOCAL_FILE="/etc/pam.d/sudo_local"
-TEMPLATE_FILE="/etc/pam.d/sudo_local.template"
 
-echo "Cleaning up existing sudo_local files..."
-if [ -f "$SUDO_LOCAL_FILE" ]; then
-  sudo rm "$SUDO_LOCAL_FILE"
-fi
-if [ -f "${SUDO_LOCAL_FILE}.bak" ]; then
-  sudo rm "${SUDO_LOCAL_FILE}.bak"
-fi
-if [ -f "${SUDO_LOCAL_FILE}.old" ]; then
-  sudo rm "${SUDO_LOCAL_FILE}.old"
-fi
+echo "Configuring sudo_local for Touch ID, Apple Watch, and tmux authentication..."
 
-# Create new sudo_local from template
-echo "Creating new $SUDO_LOCAL_FILE from template..."
-sudo cp "$TEMPLATE_FILE" "$SUDO_LOCAL_FILE"
+# Create the file with our desired configuration
+# Note: pam_reattach must be loaded first to properly handle authentication in tmux
+sudo tee "$SUDO_LOCAL_FILE" > /dev/null << 'EOF'
+# sudo_local: local config file which survives system update and is included for sudo
+# pam_reattach: reattaches to the user's security session when using sudo in tmux
+auth       optional       /opt/homebrew/lib/pam/pam_reattach.so
+# Touch ID: enables authentication using Touch ID
+auth       sufficient     pam_tid.so
+# Apple Watch: enables authentication using Apple Watch
+auth       sufficient     pam_watchid.so
+EOF
 
-# Define the lines to add
-LINE_REATTACH="auth       optional       /opt/homebrew/lib/pam/pam_reattach.so"
-LINE_TOUCHID="auth       sufficient     pam_tid.so"
-LINE_WATCHID="auth       sufficient     pam_watchid.so"
-
-# Read the current file into an array
-readarray=()
-while IFS= read -r line; do
-  readarray+=("$line")
-done < "$SUDO_LOCAL_FILE"
-
-# Function to check if a line exists in the file
-line_exists() {
-  local line="$1"
-  for existing_line in "${readarray[@]}"; do
-    if [[ "$existing_line" == "$line" ]]; then
-      return 0
-    fi
-  done
-  return 1
-}
-
-# Check and add lines if necessary
-modified=false
-
-if ! line_exists "$LINE_REATTACH"; then
-  echo "Adding pam-reattach line..."
-  sudo sed -i.bak "1s|^|$LINE_REATTACH\n|" "$SUDO_LOCAL_FILE"
-  modified=true
-else
-  echo "pam-reattach is already enabled."
-fi
-
-if ! line_exists "$LINE_TOUCHID"; then
-  echo "Adding pam_tid line..."
-  sudo sed -i.bak "/^#auth       sufficient     pam_tid.so/s|^#||" "$SUDO_LOCAL_FILE"
-  modified=true
-else
-  echo "pam_tid is already enabled."
-fi
-
-if ! line_exists "$LINE_WATCHID"; then
-  echo "Installing and enabling pam-watchid..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/logicer16/pam-watchid/HEAD/install.sh)" -- enable
-  modified=true
-else
-  echo "pam-watchid is already installed and enabled."
-fi
-
-if [ "$modified" = false ]; then
-  echo "No changes were made, all components are already configured."
-fi 
+echo "sudo_local configuration complete." 

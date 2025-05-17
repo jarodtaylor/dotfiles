@@ -14,6 +14,23 @@ if [ ! -t 0 ]; then
   exit 1
 fi
 
+# Function to prompt for yes/no
+prompt_yn() {
+  local prompt="$1"
+  local default="$2"
+  local response
+
+  while true; do
+    read -p "$prompt (y/n) [$default]: " response
+    response=${response:-$default}
+    case "$response" in
+      [Yy]* ) return 0;;
+      [Nn]* ) return 1;;
+      * ) echo "Please answer yes or no.";;
+    esac
+  done
+}
+
 # ########################################
 # INSTALL XCODE COMMAND LINE TOOLS       # 
 # ########################################
@@ -33,22 +50,6 @@ xcode_version=$(xcodebuild -version | grep '^Xcode\s' | sed -E 's/^Xcode[[:space
 accepted_license_version=$(defaults read /Library/Preferences/com.apple.dt.Xcode 2>/dev/null | grep IDEXcodeVersionForAgreedToGMLicense | cut -d '"' -f 2)
 if [ "$xcode_version" != "$accepted_license_version" ]; then
   sudo xcodebuild -license accept
-fi
-
-# ########################################
-# CLEAN UP PAM FILES                     #
-# ########################################
-
-echo "Cleaning up existing sudo_local files..."
-SUDO_LOCAL_FILE="/etc/pam.d/sudo_local"
-if [ -f "$SUDO_LOCAL_FILE" ]; then
-  sudo rm "$SUDO_LOCAL_FILE"
-fi
-if [ -f "${SUDO_LOCAL_FILE}.bak" ]; then
-  sudo rm "${SUDO_LOCAL_FILE}.bak"
-fi
-if [ -f "${SUDO_LOCAL_FILE}.old" ]; then
-  sudo rm "${SUDO_LOCAL_FILE}.old"
 fi
 
 # ########################################
@@ -86,6 +87,18 @@ elif is_brew_installed && ! is_brew_path_set; then
   set_brew_path
 else
   echo "Homebrew is not installed. Installing Homebrew..."
+  
+  # Check for existing sudo_local file that might interfere with installation
+  SUDO_LOCAL_FILE="/etc/pam.d/sudo_local"
+  if [ -f "$SUDO_LOCAL_FILE" ]; then
+    if prompt_yn "Found existing sudo_local file that might interfere with Homebrew installation. Remove it?" "y"; then
+      echo "Removing $SUDO_LOCAL_FILE..."
+      sudo rm "$SUDO_LOCAL_FILE"
+    else
+      echo "Keeping existing sudo_local file. Installation might fail if sudo access is required."
+    fi
+  fi
+
   # Check if we're running in a TTY
   if [ -t 0 ]; then
     # Interactive mode - proceed with normal installation
@@ -118,8 +131,12 @@ install_and_apply_chezmoi() {
 
 # Run Chezmoi to apply dotfiles
 if command -v chezmoi &>/dev/null && [ -d "$HOME/.local/share/chezmoi" ]; then
-  echo "Reapplying chezmoi configuration..."
-  chezmoi apply
+  if prompt_yn "Chezmoi is already installed. Reapply configuration?" "y"; then
+    echo "Reapplying chezmoi configuration..."
+    chezmoi apply
+  else
+    echo "Skipping Chezmoi configuration."
+  fi
 else
   echo "Chezmoi is not fully set up. Installing and applying configuration..."
   install_and_apply_chezmoi
