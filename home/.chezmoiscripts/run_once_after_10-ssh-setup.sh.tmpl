@@ -1,0 +1,97 @@
+#!/bin/bash
+
+set -eo pipefail
+
+# Function to handle key generation
+generate_key() {
+  local key_type=$1
+  local key_path=$2
+  local email=$3
+
+  echo "Generating new $key_type SSH key..."
+  ssh-keygen -t ed25519 -C "$email" -f "$key_path" -N ""
+  echo "Key generated at $key_path"
+  echo "Public key:"
+  cat "${key_path}.pub"
+}
+
+# Function to prompt for key setup
+setup_key() {
+  local key_type=$1
+  local key_path=$2
+  local default_email="$USER@$(hostname)"
+
+  echo "Setting up $key_type SSH key..."
+  read -p "Would you like to generate a new key? (y/n) [y]: " generate
+  generate=${generate:-y}
+
+  if [[ $generate =~ ^[Yy]$ ]]; then
+    read -p "Enter email for the key [$default_email]: " email
+    email=${email:-$default_email}
+    generate_key "$key_type" "$key_path" "$email"
+  else
+    echo "Please enter your existing public key:"
+    read -p "> " public_key
+    echo "$public_key" > "${key_path}.pub"
+    echo "Please ensure your private key is at $key_path"
+  fi
+}
+
+# Create .ssh directory if it doesn't exist
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+
+# Check if 1Password is installed and working
+if command -v op &>/dev/null && op account list &>/dev/null; then
+  read -p "Would you like to use 1Password for SSH keys? (y/n) [y]: " use_1password
+  use_1password=${use_1password:-y}
+  
+  # Update the data file with the user's choice
+  if [[ $use_1password =~ ^[Yy]$ ]]; then
+    echo "Using 1Password for SSH keys..."
+    # Read keys from 1Password
+    personal_key=$(op read "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key")
+    work_key=$(op read "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key")
+    
+    # Save keys to files
+    echo "$personal_key" > "$HOME/.ssh/id_ed25519.pub"
+    echo "$work_key" > "$HOME/.ssh/work_id_ed25519.pub"
+    
+    # Update the data file
+    cat > "{{ .chezmoi.sourceDir }}/.chezmoidata/ssh.toml.tmpl" << EOF
+# SSH configuration
+use_1password = true
+
+# Keys from 1Password
+personal_key = {{ $personal_key | toJson }}
+work_key = {{ $work_key | toJson }}
+EOF
+    
+    echo "SSH keys imported from 1Password"
+    exit 0
+  else
+    # Update the data file to indicate not using 1Password
+    cat > "{{ .chezmoi.sourceDir }}/.chezmoidata/ssh.toml.tmpl" << EOF
+# SSH configuration
+use_1password = false
+
+# These will be populated by the ssh-setup script
+personal_key = ""
+work_key = ""
+EOF
+  fi
+fi
+
+# Check if keys already exist
+if [ -f "$HOME/.ssh/id_ed25519" ] && [ -f "$HOME/.ssh/work_id_ed25519" ]; then
+  echo "SSH keys already exist, skipping generation"
+  exit 0
+fi
+
+# Setup personal key
+setup_key "personal" "$HOME/.ssh/id_ed25519"
+
+# Setup work key
+setup_key "work" "$HOME/.ssh/work_id_ed25519"
+
+echo "SSH key setup completed" 

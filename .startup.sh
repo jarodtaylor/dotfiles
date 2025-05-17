@@ -61,48 +61,9 @@ is_brew_installed() {
   [ -d "/opt/homebrew" ] || [ -d "/usr/local/Homebrew" ]
 }
 
-# Check if Homebrew is in the PATH
-is_brew_path_set() {
-  command -v brew &>/dev/null
-}
-
-# Set Homebrew in the PATH
-set_brew_path() {
-  if [ -d "/opt/homebrew/bin" ]; then
-    # For Apple Silicon Mac
-    echo "Apple Silicon Mac detected. Setting Homebrew path..."
-    # Set PATH directly
-    export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-    # Also use brew shellenv for other environment variables
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-    # Add to shell profile
-    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-    # Source both zshenv and zprofile to ensure all environment variables are set
-    [ -f ~/.zshenv ] && source ~/.zshenv
-    [ -f ~/.zprofile ] && source ~/.zprofile
-  elif [ -d "/usr/local/bin" ]; then
-    # For Intel Mac
-    echo "Intel Mac detected. Setting Homebrew path..."
-    # Set PATH directly
-    export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
-    # Also use brew shellenv for other environment variables
-    eval "$(/usr/local/bin/brew shellenv)"
-    # Add to shell profile
-    echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
-    # Source both zshenv and zprofile to ensure all environment variables are set
-    [ -f ~/.zshenv ] && source ~/.zshenv
-    [ -f ~/.zprofile ] && source ~/.zprofile
-  fi
-}
-
-# Install Homebrew if it is not installed or not in the PATH
-if is_brew_installed && is_brew_path_set; then
-  echo "Homebrew is installed and in the PATH."
-elif is_brew_installed && ! is_brew_path_set; then
-  echo "Homebrew is installed but not in the PATH."
-  set_brew_path
-else
-  echo "Homebrew is not installed. Installing Homebrew..."
+# Install Homebrew if not present
+if ! is_brew_installed; then
+  echo "Installing Homebrew..."
   
   # Check for existing sudo_local file that might interfere with installation
   SUDO_LOCAL_FILE="/etc/pam.d/sudo_local"
@@ -132,14 +93,6 @@ else
       exit 1
     fi
   fi
-  set_brew_path
-fi
-
-# Verify Homebrew is in PATH
-if ! command -v brew &>/dev/null; then
-  echo "Error: Homebrew is not in PATH. Please run:"
-  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"'
-  exit 1
 fi
 
 # ##########################################
@@ -149,7 +102,7 @@ fi
 # Function to install and apply Chezmoi
 install_and_apply_chezmoi() {
   echo "Installing Chezmoi and applying dotfiles..."
-  sh -c "$(curl -fsLS get.chezmoi.io)" -- init --ssh --verbose --apply jarodtaylor
+  sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply jarodtaylor
 }
 
 # Run Chezmoi to apply dotfiles

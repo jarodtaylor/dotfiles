@@ -9,8 +9,6 @@
 
 {{ $ageKeyFile := printf "%s/key.txt" .chezmoi.homeDir }}
 
-{{- $use_1password := promptBool "Do you want to use 1Password for SSH keys?" -}}
-
 encryption = "age"
 
 [age]
@@ -20,14 +18,6 @@ recipient = "age1mh2dqm4658zqnxethed0sw5hf0n28a8t4uw24w9akgwhgrzkwvssz90nst"
 [data]
 brew_prefix = {{ $brew_prefix | quote }}
 ageKeyFile = {{ $ageKeyFile | quote }}
-use_1password = {{ $use_1password | toJson }}
-{{- if $use_1password }}
-ssh_key = "{{- onepasswordRead "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" -}}"
-work_ssh_key = "{{- onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" -}}"
-{{- else }}
-ssh_key = {{ promptString "Enter your personal SSH public key" | toJson }}
-work_ssh_key = {{ promptString "Enter your work SSH public key" | toJson }}
-{{- end }}
 code_dir = "~/Code"
 work_dir = "~/Code/work"
 
@@ -36,26 +26,13 @@ id = "personal"
 code_dir = "~/Code/personal"
 email = "jarodrtaylor@gmail.com"
 name = "Jarod Taylor"
-{{- if $use_1password }}
-ssh_key = "{{- onepasswordRead "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" -}}"
-{{- else }}
-ssh_key = {{ promptString "Enter your personal SSH public key" | toJson }}
-{{- end }}
 create_directory = true
 
 [[data.profiles]]
 id = "work"
 code_dir = "~/Code/work"
-{{- if $use_1password }}
-work_ssh_key = "{{- onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" -}}"
-{{- else }}
-work_ssh_key = {{ promptString "Enter your work SSH public key" | toJson }}
-{{- end }}
 create_directory = true
 
 [diff]
 command = "delta"
 pager = "delta"
-
-[onepassword]
-prompt = true
