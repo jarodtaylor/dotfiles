@@ -58,18 +58,18 @@ if command -v op &>/dev/null && op account list &>/dev/null; then
     echo "$work_key" > "$HOME/.ssh/work_id_ed25519.pub"
     
     # Update the data file
-    cat > "{{ .chezmoi.sourceDir }}/.chezmoidata/ssh.toml.tmpl" << EOF
+    cat > "{{ .chezmoi.sourceDir }}/.chezmoidata/ssh.toml" << EOF
 [ssh]
 use_1password = true
-personal_key = {{ $personal_key | toJson }}
-work_key = {{ $work_key | toJson }}
+personal_key = "$personal_key"
+work_key = "$work_key"
 EOF
     
     echo "SSH keys imported from 1Password"
     exit 0
   else
     # Update the data file to indicate not using 1Password
-    cat > "{{ .chezmoi.sourceDir }}/.chezmoidata/ssh.toml.tmpl" << EOF
+    cat > "{{ .chezmoi.sourceDir }}/.chezmoidata/ssh.toml" << EOF
 [ssh]
 use_1password = false
 personal_key = ""

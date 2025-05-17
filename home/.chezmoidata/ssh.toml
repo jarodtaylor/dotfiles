@@ -1,0 +1,4 @@
+[ssh]
+use_1password = false
+personal_key = ""
+work_key = "" 
