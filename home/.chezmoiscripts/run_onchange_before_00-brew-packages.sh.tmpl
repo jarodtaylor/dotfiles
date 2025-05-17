@@ -9,6 +9,14 @@ set -eufo pipefail
 # Tap required repositories
 brew tap FelixKratz/formulae
 
+# Handle zsh-abbr installation separately to ensure version 6
+if brew list zsh-abbr &>/dev/null; then
+  brew unlink zsh-abbr
+  brew uninstall --force zsh-abbr
+fi
+brew install olets/tap/zsh-abbr@6
+brew link --overwrite zsh-abbr@6
+
 {{ $brews := list
   "age"
   "bat"
@@ -31,7 +39,6 @@ brew tap FelixKratz/formulae
   "lazygit"
   "libpq"
   "luarocks"
-  "olets/tap/zsh-abbr@6"
   "olets/tap/zsh-autosuggestions-abbreviations-strategy"
   "mas"
   "mise"
