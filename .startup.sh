@@ -36,6 +36,22 @@ if [ "$xcode_version" != "$accepted_license_version" ]; then
 fi
 
 # ########################################
+# CLEAN UP PAM FILES                     #
+# ########################################
+
+echo "Cleaning up existing sudo_local files..."
+SUDO_LOCAL_FILE="/etc/pam.d/sudo_local"
+if [ -f "$SUDO_LOCAL_FILE" ]; then
+  sudo rm "$SUDO_LOCAL_FILE"
+fi
+if [ -f "${SUDO_LOCAL_FILE}.bak" ]; then
+  sudo rm "${SUDO_LOCAL_FILE}.bak"
+fi
+if [ -f "${SUDO_LOCAL_FILE}.old" ]; then
+  sudo rm "${SUDO_LOCAL_FILE}.old"
+fi
+
+# ########################################
 # INSTALL HOMEBREW                       #
 # ########################################
 

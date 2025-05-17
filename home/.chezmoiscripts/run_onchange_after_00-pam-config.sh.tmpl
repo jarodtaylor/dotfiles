@@ -14,14 +14,24 @@ else
   echo "pam-reattach is already installed."
 fi
 
-# Check if /etc/pam.d/sudo_local exists, if not, create it from the template
+# Clean up existing sudo_local files
 SUDO_LOCAL_FILE="/etc/pam.d/sudo_local"
 TEMPLATE_FILE="/etc/pam.d/sudo_local.template"
 
-if [ ! -f "$SUDO_LOCAL_FILE" ]; then
-  echo "Creating $SUDO_LOCAL_FILE from template..."
-  sudo cp "$TEMPLATE_FILE" "$SUDO_LOCAL_FILE"
+echo "Cleaning up existing sudo_local files..."
+if [ -f "$SUDO_LOCAL_FILE" ]; then
+  sudo rm "$SUDO_LOCAL_FILE"
 fi
+if [ -f "${SUDO_LOCAL_FILE}.bak" ]; then
+  sudo rm "${SUDO_LOCAL_FILE}.bak"
+fi
+if [ -f "${SUDO_LOCAL_FILE}.old" ]; then
+  sudo rm "${SUDO_LOCAL_FILE}.old"
+fi
+
+# Create new sudo_local from template
+echo "Creating new $SUDO_LOCAL_FILE from template..."
+sudo cp "$TEMPLATE_FILE" "$SUDO_LOCAL_FILE"
 
 # Define the lines to add
 LINE_REATTACH="auth       optional       /opt/homebrew/lib/pam/pam_reattach.so"
