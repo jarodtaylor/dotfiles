@@ -8,6 +8,7 @@ set -eufo pipefail
 
 # Tap required repositories
 brew tap FelixKratz/formulae
+brew tap olets/tap
 
 {{ $brews := list
   "age"
@@ -31,8 +32,8 @@ brew tap FelixKratz/formulae
   "lazygit"
   "libpq"
   "luarocks"
-  "olets/tap/zsh-abbr"
-  "olets/tap/zsh-autosuggestions-abbreviations-strategy"
+  "olets/tap/zsh-abbr@6"
+  "olets/tap/zsh-autosuggestions-abbreviations-strategy@1"
   "mas"
   "mise"
   "neovim"
