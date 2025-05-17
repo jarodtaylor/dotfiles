@@ -61,39 +61,36 @@ is_brew_installed() {
   [ -d "/opt/homebrew" ] || [ -d "/usr/local/Homebrew" ]
 }
 
-# Install Homebrew if not present
-if ! is_brew_installed; then
-  echo "Installing Homebrew..."
-  
-  # Check for existing sudo_local file that might interfere with installation
-  SUDO_LOCAL_FILE="/etc/pam.d/sudo_local"
-  if [ -f "$SUDO_LOCAL_FILE" ]; then
-    if prompt_yn "Found existing sudo_local file that might interfere with Homebrew installation. Remove it?" "y"; then
-      echo "Removing $SUDO_LOCAL_FILE..."
-      sudo rm "$SUDO_LOCAL_FILE"
-    else
-      echo "Keeping existing sudo_local file. Installation might fail if sudo access is required."
-    fi
-  fi
+# Check if Homebrew is in the PATH
+is_brew_path_set() {
+  command -v brew &>/dev/null
+}
 
-  # Check if we're running in a TTY
-  if [ -t 0 ]; then
-    # Interactive mode - proceed with normal installation
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  else
-    # Non-interactive mode - try to install without sudo first
-    echo "Running in non-interactive mode. Attempting to install Homebrew without sudo..."
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
-    # If that fails, provide clear instructions
-    if [ $? -ne 0 ]; then
-      echo "Error: Homebrew installation failed in non-interactive mode."
-      echo "Please run this command instead:"
-      echo 'bash -c "$(curl -fsSL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/.startup.sh)"'
-      exit 1
-    fi
+# Set Homebrew in the PATH
+set_brew_path() {
+  if [ -d "/opt/homebrew/bin" ]; then
+    # For Apple Silicon Mac
+    echo "Apple Silicon Mac detected. Setting Homebrew path..."
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [ -d "/usr/local/bin" ]; then
+    # For Intel Mac
+    echo "Intel Mac detected. Setting Homebrew path..."
+    eval "$(/usr/local/bin/brew shellenv)"
   fi
+}
+
+# Install Homebrew if it is not installed or not in the PATH
+if is_brew_installed && is_brew_path_set; then
+  echo "Homebrew is installed and in the PATH."
+elif is_brew_installed && ! is_brew_path_set; then
+  echo "Homebrew is installed but not in the PATH."
+  set_brew_path
+else
+  echo "Homebrew is not installed. Installing Homebrew..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  set_brew_path
 fi
+
 
 # ##########################################
 # INSTALL CHEZMOI AND APPLY DOTFILES       #
