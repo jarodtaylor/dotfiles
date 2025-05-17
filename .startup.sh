@@ -2,6 +2,18 @@
 
 set -eo pipefail
 
+# Check if running in interactive mode
+if [ ! -t 0 ]; then
+  echo "Error: This script is being run in non-interactive mode."
+  echo "This can happen when piping the script directly to bash."
+  echo ""
+  echo "Please run the script using this command instead:"
+  echo 'bash -c "$(curl -sfL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/.startup.sh)"'
+  echo ""
+  echo "This will ensure proper TTY handling for sudo prompts and interactive elements."
+  exit 1
+fi
+
 # ########################################
 # INSTALL XCODE COMMAND LINE TOOLS       # 
 # ########################################
@@ -58,7 +70,23 @@ elif is_brew_installed && ! is_brew_path_set; then
   set_brew_path
 else
   echo "Homebrew is not installed. Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  # Check if we're running in a TTY
+  if [ -t 0 ]; then
+    # Interactive mode - proceed with normal installation
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  else
+    # Non-interactive mode - try to install without sudo first
+    echo "Running in non-interactive mode. Attempting to install Homebrew without sudo..."
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    
+    # If that fails, provide clear instructions
+    if [ $? -ne 0 ]; then
+      echo "Error: Homebrew installation failed in non-interactive mode."
+      echo "Please run this command instead:"
+      echo 'bash -c "$(curl -fsSL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/.startup.sh)"'
+      exit 1
+    fi
+  fi
   set_brew_path
 fi
 
