@@ -72,10 +72,18 @@ set_brew_path() {
     # For Apple Silicon Mac
     echo "Apple Silicon Mac detected. Setting Homebrew path..."
     eval "$(/opt/homebrew/bin/brew shellenv)"
+    # Add to shell profile
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+    # Source the profile to ensure it's available in this session
+    source ~/.zprofile
   elif [ -d "/usr/local/bin" ]; then
     # For Intel Mac
     echo "Intel Mac detected. Setting Homebrew path..."
     eval "$(/usr/local/bin/brew shellenv)"
+    # Add to shell profile
+    echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
+    # Source the profile to ensure it's available in this session
+    source ~/.zprofile
   fi
 }
 
@@ -117,6 +125,13 @@ else
     fi
   fi
   set_brew_path
+fi
+
+# Verify Homebrew is in PATH
+if ! command -v brew &>/dev/null; then
+  echo "Error: Homebrew is not in PATH. Please run:"
+  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"'
+  exit 1
 fi
 
 # ##########################################
