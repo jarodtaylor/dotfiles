@@ -1,7 +1,7 @@
 [user]
   name  = "Jarod Taylor"
   email = "jarodrtaylor@gmail.com"
-  signingkey = {{ .ssh_key }}
+  signingkey = {{ if .ssh.use_1password }}~/.ssh/id{{ else }}~/.ssh/id_ed25519{{ end }}
 
 [includeIf "gitdir:{{ .work_dir }}/"]
   path = config-work
