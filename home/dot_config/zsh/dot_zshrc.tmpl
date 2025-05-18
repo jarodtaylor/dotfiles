@@ -1,5 +1,3 @@
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
 if [[ -e /opt/homebrew/bin/mise ]]; then
   eval "$(mise activate zsh)"
 fi
@@ -18,26 +16,30 @@ alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
 # ZIM STYLE CONFIGURATION                #
 # ########################################
 
- #Use degit to install zim modules instead of git (faster)
-zstyle ':zim:zmodule' use 'degit'                                                  
+#Use degit to install zim modules instead of git (faster)
+#zstyle ':zim:zmodule' use 'degit'                                                  
 #Use g as prefix for git aliases instead of G
 #zstyle ':zim:git' aliases-prefix 'g'
-zstyle ':zim:input' double-dot-expand yes
+#zstyle ':zim:input' double-dot-expand yes
 
 # ##########################################
-# ZIM INITIALIZSTION & AUTOUPDATE MODULES  #
+# ZIM INITIALIZATION & AUTOUPDATE MODULES  #
 # ##########################################
 
 # Download zimfw plugin manager if missing.
 if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
-  curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
-      https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+  if (( ${+commands[curl]} )); then
+    curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+  else
+    mkdir -p ${ZIM_HOME} && wget -nv -O ${ZIM_HOME}/zimfw.zsh \
+        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+  fi
 fi
-
 # Install missing modules, and update ${ZIM_HOME}/init.zsh if missing or outdated.
-if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
-  source ${ZIM_HOME}/zimfw.zsh init -q
-fi                                     
+if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
+  source ${ZIM_HOME}/zimfw.zsh init
+fi
 
 # Add zsh-abbr FPATH before Zim initialization
 if type brew &>/dev/null; then
