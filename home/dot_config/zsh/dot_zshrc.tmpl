@@ -18,62 +18,33 @@ alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
 # ZIM STYLE CONFIGURATION                #
 # ########################################
 
-# Use degit to install zim modules instead of git (faster)
-zstyle ':zim:zmodule' use 'degit'
-# Use g as prefix for git aliases instead of G
-# zstyle ':zim:git' aliases-prefix 'g'
+ #Use degit to install zim modules instead of git (faster)
+zstyle ':zim:zmodule' use 'degit'                                                  
+#Use g as prefix for git aliases instead of G
+#zstyle ':zim:git' aliases-prefix 'g'
 zstyle ':zim:input' double-dot-expand yes
 
 # ##########################################
-# ZIM INITIALIZATION & AUTOUPDATE MODULES  #
+# ZIM INITIALIZSTION & AUTOUPDATE MODULES  #
 # ##########################################
-
-# Ensure ZIM_HOME is set
-if [[ -z "${ZIM_HOME}" ]]; then
-  echo "ZIM_HOME is not set, setting it now..."
-  export ZIM_HOME="${XDG_CACHE_HOME}/zim"
-fi
-
-# Create ZIM_HOME directory if it doesn't exist
-if [[ ! -d ${ZIM_HOME} ]]; then
-  echo "Creating ZIM_HOME directory at ${ZIM_HOME}..."
-  mkdir -p ${ZIM_HOME}
-fi
 
 # Download zimfw plugin manager if missing.
 if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
-  echo "Downloading zimfw plugin manager..."
-  if ! curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
-    https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh; then
-    echo "Failed to download zimfw. Check your internet connection or the URL."
-    return 1
-  fi
+  curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+      https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
 fi
 
-# Ensure .zimrc is properly linked
-if [[ ! -e ${HOME}/.zimrc ]]; then
-  echo "Linking .zimrc..."
-  ln -sf "${XDG_CONFIG_HOME}/zsh/dot_zimrc" "${HOME}/.zimrc"
-fi
-
-# Install missing modules and update ${ZIM_HOME}/init.zsh if missing or outdated.
-if [[ ! -e ${ZIM_HOME}/init.zsh ]] || [[ ! ${ZIM_HOME}/init.zsh -nt ${HOME}/.zimrc ]]; then
-  echo "Initializing Zim modules..."
+# Install missing modules, and update ${ZIM_HOME}/init.zsh if missing or outdated.
+if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
   source ${ZIM_HOME}/zimfw.zsh init -q
-fi
+fi                                     
 
 # Add zsh-abbr FPATH before Zim initialization
 if type brew &>/dev/null; then
-  FPATH="$(brew --prefix)/share/zsh-abbr:$FPATH"
+    FPATH="$(brew --prefix)/share/zsh-abbr:$FPATH"
 fi
 
-# Source Zim initialization
-if [[ -f ${ZIM_HOME}/init.zsh ]]; then
-  echo "Sourcing Zim initialization..."
-  source ${ZIM_HOME}/init.zsh
-else
-  echo "Warning: ${ZIM_HOME}/init.zsh not found"
-fi
+source ${ZIM_HOME}/init.zsh
 
 # ##########################################
 # BINDKEYS CONFIGURATION                   #
