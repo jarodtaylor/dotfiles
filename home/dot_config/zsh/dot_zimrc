@@ -12,8 +12,6 @@ zmodule exa                                                                     
 
 zmodule fzf                                                                         #Configures fzf for faster fetching of files and directories names.
 
-#zmodule joke/zim-starship                                                           #Sets up starship in Zsh.
-
 zmodule zsh-users/zsh-completions --name zsh-completions --fpath src                #Enables and configures smart and extensive tab completion. (must be sourced after all modules that add completion definitions)
 
 zmodule completion                                                                  #Enables and configures smart and extensive tab completion. (must be sourced after all modules that add completion definitions)

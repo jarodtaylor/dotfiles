@@ -10,14 +10,13 @@ export MISE_NODE_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/mise/.default-npm-pac
 export MISE_RUBY_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/mise/.default-gems"
 
 export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p -lman'"
-alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
 
 # ########################################
 # ZIM STYLE CONFIGURATION                #
 # ########################################
 
 #Use degit to install zim modules instead of git (faster)
-#zstyle ':zim:zmodule' use 'degit'                                                  
+zstyle ':zim:zmodule' use 'degit'                                                  
 #Use g as prefix for git aliases instead of G
 #zstyle ':zim:git' aliases-prefix 'g'
 #zstyle ':zim:input' double-dot-expand yes
@@ -27,28 +26,22 @@ alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
 # ##########################################
 
 # Download zimfw plugin manager if missing.
-#if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
-#  if (( ${+commands[curl]} )); then
-#    echo "Installing zimfw plugin manager"
-#    curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
-#        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-#  else
-#    mkdir -p ${ZIM_HOME} && wget -nv -O ${ZIM_HOME}/zimfw.zsh \
-#        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-#  fi
-#fi
+if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
+  curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+      https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+fi
+
 # Install missing modules, and update ${ZIM_HOME}/init.zsh if missing or outdated.
-#if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
-#  echo "Installing missing zimfw modules"
-#  source ${ZIM_HOME}/zimfw.zsh init
-#fi
+if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
+ source ${ZIM_HOME}/zimfw.zsh init
+fi
 
 # Add zsh-abbr FPATH before Zim initialization
 if type brew &>/dev/null; then
     FPATH="$(brew --prefix)/share/zsh-abbr:$FPATH"
 fi
 
-#source ${ZIM_HOME}/init.zsh
+source ${ZIM_HOME}/init.zsh
 
 # ##########################################
 # BINDKEYS CONFIGURATION                   #
@@ -76,8 +69,8 @@ done
 export ABBR_USER_ABBREVIATIONS_FILE="${XDG_CONFIG_HOME}/zsh/abbreviations"
 
 # Load zsh-abbr and its autosuggestions strategy
-if [[ -f /opt/homebrew/share/zsh-abbr/zsh-abbr.zsh ]]; then
-  source /opt/homebrew/share/zsh-abbr/zsh-abbr.zsh
+if [[ -f /opt/homebrew/share/zsh-abbr@6/zsh-abbr.zsh ]]; then
+  source /opt/homebrew/share/zsh-abbr@6/zsh-abbr.zsh
 fi
 
 if [[ -f /opt/homebrew/share/zsh-autosuggestions-abbreviations-strategy/zsh-autosuggestions-abbreviations-strategy.zsh ]]; then
