@@ -27,28 +27,28 @@ alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
 # ##########################################
 
 # Download zimfw plugin manager if missing.
-if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
-  if (( ${+commands[curl]} )); then
-    echo "Installing zimfw plugin manager"
-    curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
-        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-  else
-    mkdir -p ${ZIM_HOME} && wget -nv -O ${ZIM_HOME}/zimfw.zsh \
-        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-  fi
-fi
+#if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
+#  if (( ${+commands[curl]} )); then
+#    echo "Installing zimfw plugin manager"
+#    curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+#        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+#  else
+#    mkdir -p ${ZIM_HOME} && wget -nv -O ${ZIM_HOME}/zimfw.zsh \
+#        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+#  fi
+#fi
 # Install missing modules, and update ${ZIM_HOME}/init.zsh if missing or outdated.
-if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
-  echo "Installing missing zimfw modules"
-  source ${ZIM_HOME}/zimfw.zsh init
-fi
+#if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]]; then
+#  echo "Installing missing zimfw modules"
+#  source ${ZIM_HOME}/zimfw.zsh init
+#fi
 
 # Add zsh-abbr FPATH before Zim initialization
 if type brew &>/dev/null; then
     FPATH="$(brew --prefix)/share/zsh-abbr:$FPATH"
 fi
 
-source ${ZIM_HOME}/init.zsh
+#source ${ZIM_HOME}/init.zsh
 
 # ##########################################
 # BINDKEYS CONFIGURATION                   #
