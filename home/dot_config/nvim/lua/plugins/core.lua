@@ -1,20 +1,13 @@
 return {
-  { "akinsho/bufferline.nvim", enabled = false },
-  -- Plugin Configurations
   {
-    "catppuccin",
+    "folke/snacks.nvim",
     opts = {
-      transparent_background = true,
-    },
-  },
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    opts = {
-      filesystem = {
-        filtered_items = {
-          visible = true,
-          never_show = {
-            ".DS_Store",
+      picker = {
+        hidden = true, -- for hidden files
+        ignored = true, -- for .gitignore files
+        source = {
+          files = {
+            hidden = true, -- for file finder
           },
         },
       },
@@ -31,12 +24,6 @@ return {
           end,
         },
       },
-    },
-  },
-  {
-    "LazyVim/LazyVim",
-    opts = {
-      colorscheme = "catppuccin",
     },
   },
 }
