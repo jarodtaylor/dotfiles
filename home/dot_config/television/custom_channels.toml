@@ -1,0 +1,9 @@
+[[cable_channel]]
+name = "abbr"
+source_command = 'zsh -i -c abbr'
+interactive = true
+
+[[cable_channel]]
+name = "brew-list"
+source_command = 'brew list --versions'
+preview_command = 'brew info {0}'

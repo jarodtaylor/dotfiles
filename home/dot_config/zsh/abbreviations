@@ -1,0 +1,24 @@
+#Code Directory Navigation
+abbr elc="cd ~/Code/work/elc/%"
+abbr lpr="cd ~/Code/clients/localpro/%"
+
+# Git
+abbr lg="lazygit"
+
+# Directory
+abbr mkdir="mkdir -pv"
+abbr rd="rmdir"
+
+# Chezmoi
+abbr ch="chezmoi"
+abbr dots="cd ~/.local/share/chezmoi"
+
+# Ghostty
+abbr ghc="ghostty +show-config --default --docs | bat"
+
+abbr fe="find_and_edit"
+
+# Code folders
+abbr elc='cd ~/Code/work/elc/%'
+abbr lpr='cd ~/Code/clients/localpro/%'
+abbr jt='cd ~/Code/personal/%'

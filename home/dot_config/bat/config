@@ -15,4 +15,3 @@
 --map-syntax .yamllint:YAML
 --map-syntax .yaml-lint:YAML
 --map-syntax .yml-lint:YAML
---map-syntax .zshrc:Zsh

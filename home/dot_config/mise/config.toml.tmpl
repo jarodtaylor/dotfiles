@@ -5,11 +5,12 @@ erlang = "27"
 go = "latest"
 node = "22"
 ruby = "3.3"
+"npm:@anthropic-ai/claude-code" = "latest"
 
 [settings]
-idiomatic_version_file = true
+idiomatic_version_file = false
 
-plugin_autoupdate_last_check_duration = '1 week' # set to 0 to disable updates
+plugin_autoupdate_last_check_duration = '1 week'                # set to 0 to disable updates
 verbose = false
 http_timeout = "30s"
 jobs = 4
@@ -17,3 +18,4 @@ not_found_auto_install = true
 task_output = "prefix"
 paranoid = false
 experimental = true
+trusted_config_paths = ["**/.mise.toml", "**/.mise.local.toml"]
