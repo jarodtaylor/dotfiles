@@ -2,6 +2,8 @@ if [[ -e /opt/homebrew/bin/mise ]]; then
   eval "$(mise activate zsh)"
 fi
 
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
 # ########################################
 # ENVIRONMENT VARIABLES                  #
 # ########################################
