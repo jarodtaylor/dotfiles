@@ -70,5 +70,6 @@
 
   // Cursor-specific settings (AI features)
   "cursor.chat.enabled": true,
-  "cursor.composer.enabled": true
+  "cursor.composer.enabled": true,
+  "parallels-desktop.extension.path": "/Users/jarodtaylor/.parallels-desktop-vscode"
 }

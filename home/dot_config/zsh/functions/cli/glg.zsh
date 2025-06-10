@@ -53,11 +53,11 @@ glg() {
           subject=$(echo "$commit_info" | cut -d"|" -f4)
 
           # Display rich metadata header
-          echo "📅 Date: $date_iso ($date_rel)"
-          echo "👤 Author: $author"
-          echo "📝 Subject: $subject"
-          echo "📄 File: $file"
-          echo "🔗 Commit: $sha"
+          echo "Date: $date_iso ($date_rel)"
+          echo "Author: $author"
+          echo "Subject: $subject"
+          echo "File: $file"
+          echo "Commit: $sha"
           echo ""
           echo "═══════════════════════════════════════════"
           echo ""
@@ -70,11 +70,11 @@ glg() {
         else
           # File doesnt exist in this commit - show what changed instead
           echo "❌ File $file does not exist in commit $sha"
-          echo "📊 Showing changes made to this file in this commit:"
+          echo "Showing changes made to this file in this commit:"
           echo ""
           git show --color=always -p "$sha" -- "$file" 2>/dev/null || {
-            echo "ℹ️  No changes to $file in this commit."
-            echo "📋 Showing full commit diff:"
+            echo "No changes to $file in this commit."
+            echo "Showing full commit diff:"
             echo ""
             git show --color=always --stat "$sha"
           }

@@ -18,7 +18,7 @@ export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p
 # ########################################
 
 #Use degit to install zim modules instead of git (faster)
-zstyle ':zim:zmodule' use 'degit'                                                  
+zstyle ':zim:zmodule' use 'degit'
 #Use g as prefix for git aliases instead of G
 #zstyle ':zim:git' aliases-prefix 'g'
 #zstyle ':zim:input' double-dot-expand yes
@@ -59,8 +59,19 @@ bindkey "ç" fzf-cd-widget
 # Initialize fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 
-for file in "$ZDOTDIR"/functions/*.zsh; do
-  source "$file"
+# Source shell configuration first
+for file in "$ZDOTDIR"/functions/config/*.zsh; do
+  [[ -r "$file" ]] && source "$file"
+done
+
+# Source interactive CLI tools
+for file in "$ZDOTDIR"/functions/cli/*.zsh; do
+  [[ -r "$file" ]] && source "$file"
+done
+
+# Source system utilities (optional - these could be chezmoi scripts instead)
+for file in "$ZDOTDIR"/functions/system/*.zsh; do
+  [[ -r "$file" ]] && source "$file"
 done
 
 # ##########################################

@@ -23,6 +23,10 @@ install.sh
 
 # Editor
 .vscode/
+.config/Code/User/settings.json
+.config/Code/User/keybindings.json
+.config/Code/User/extensions-list.txt
+.config/Code/User/snippets/
 
 # Vim / NeoVim files
 .viminfo

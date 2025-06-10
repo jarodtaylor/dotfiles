@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# smoketest - Terminal display testing utility
+# Tests fonts, colors, and special characters
+
+main() {
+  local smoke_tests="Normal
+  \033[1mBold\033[22m
+  \033[3mItalic\033[23m
+  \033[3;1mBold Italic\033[0m
+  \033[4mUnderline\033[24m
+  == === !== >= <= =>
+  󰐊     󰄉      󰑓 󰒲  "
+
+  echo -e "${smoke_tests}"
+}
+
+# Show help if requested
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+  echo "smoketest - Terminal display testing utility"
+  echo ""
+  echo "Tests terminal font rendering, colors, and special characters."
+  echo "Useful for verifying Nerd Fonts and terminal configuration."
+  echo ""
+  echo "Usage: smoketest"
+  exit 0
+fi
+
+main "$@"
