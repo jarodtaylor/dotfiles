@@ -1,0 +1,22 @@
+# VS Code / Cursor Extensions List
+# Use this list to reinstall extensions after a fresh setup
+# Install with: cat extensions-list.txt | grep -v '^#' | xargs -L1 code --install-extension
+
+# Themes & Icons
+catppuccin.catppuccin-vsc
+catppuccin.catppuccin-vsc-icons
+
+# Language Support
+dbaeumer.vscode-eslint
+esbenp.prettier-vscode
+elixir-tools.elixir-tools
+tamasfe.even-better-toml
+
+# Development Tools
+ms-azuretools.vscode-docker
+ms-azuretools.vscode-containers
+ms-vscode-remote.remote-containers
+
+# macOS Integration
+j-f1.sf-symbols
+parallelsdesktop.parallels-desktop 

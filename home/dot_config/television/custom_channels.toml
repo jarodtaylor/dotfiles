@@ -9,14 +9,29 @@ source_command = 'brew list --versions'
 preview_command = 'brew info {0}'
 
 [[cable_channel]]
-name = "ports"
-source_command = "lsof -i -P -n | grep LISTEN | awk '{printf \"PID: %-8s CMD: %-20s USER: %-10s PORT: %-15s ADDR: %s\\n\", $2, $1, $3, $9, $10}'"
-preview_command = """
-echo "=== Process Details ==="
-ps -p {2} -o pid,ppid,user,start,command 2>/dev/null || echo 'Process not found'
-echo ""
-echo "=== Network Connections ==="
-lsof -p {2} -a -i 2>/dev/null | head -10
-"""
-on_selection = "kill -9 {2}"
-description = "Kill processes with detailed info"
+name = "functions"
+source_command = '''
+for file in ~/.config/zsh/functions/*.zsh; do
+  if [[ -f "$file" ]]; then
+    func_name=$(basename "$file" .zsh)
+    
+    # Extract purpose
+    desc=$(grep -m1 "^# Purpose:" "$file" | sed "s/^# Purpose: //" | head -1)
+    if [[ -z "$desc" ]]; then
+      desc="Custom shell function"
+    fi
+    
+    # Extract tags
+    tags=$(grep -m1 "^# Tags:" "$file" | sed "s/^# Tags: //" | head -1)
+    
+    # Format output with tags for searchability
+    if [[ -n "$tags" ]]; then
+      echo "$func_name - $desc [tags: $tags]"
+    else
+      echo "$func_name - $desc"
+    fi
+  fi
+done
+'''
+preview_command = 'cat ~/.config/zsh/functions/{0}.zsh | bat --language bash --color=always --style=numbers'
+interactive = true
