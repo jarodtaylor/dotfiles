@@ -1,0 +1,56 @@
+#!/bin/bash
+set -eo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}🏢 Work Configuration Setup${NC}"
+echo
+
+# Check current setup
+ONEPASSWORD_AVAILABLE=${ONEPASSWORD_AVAILABLE:-"false"}
+HAS_AGE_KEY=$([ -f "$HOME/key.txt" ] && echo "true" || echo "false")
+
+echo -e "${BLUE}Current configuration approach:${NC}"
+if [ "$ONEPASSWORD_AVAILABLE" = "true" ]; then
+    echo -e "${GREEN}🔒 Encrypted work config (1Password users)${NC}"
+    echo "Work config will be encrypted with age for security."
+    echo
+    if [ "$HAS_AGE_KEY" = "true" ]; then
+        echo -e "${GREEN}✅ Age key available${NC}"
+        echo "Work config should be properly encrypted/decrypted."
+    else
+        echo -e "${YELLOW}⚠️  Age key missing${NC}"
+        echo "Run 'chezmoi init' to generate age key."
+    fi
+    echo
+    echo -e "${BLUE}To update encrypted work config:${NC}"
+    echo "  re-encrypt-work-config"
+else
+    echo -e "${BLUE}📝 Plain text work config (simple setup)${NC}"
+    echo "Work config will be stored as plain text for easy editing."
+    echo
+    echo -e "${BLUE}To edit work config:${NC}"
+    echo "  chezmoi edit ~/.config/git/private_config-work"
+    echo "  chezmoi apply"
+fi
+
+echo
+echo -e "${BLUE}Current work config status:${NC}"
+WORK_CONFIG_PATH="$HOME/.config/git/private_config-work"
+if [ -f "$WORK_CONFIG_PATH" ]; then
+    echo -e "${GREEN}✅ Work config is active${NC}"
+    echo "Location: $WORK_CONFIG_PATH"
+    echo "Preview:"
+    head -5 "$WORK_CONFIG_PATH" | sed 's/^/  /' | head -3
+    if [ "$(wc -l < "$WORK_CONFIG_PATH")" -gt 3 ]; then
+        echo "  ..."
+    fi
+else
+    echo -e "${YELLOW}⚠️  No work config applied${NC}"
+    echo "This is normal for fresh setups. Edit and apply as needed."
+fi
