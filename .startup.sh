@@ -247,6 +247,18 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
     echo "✅ 1Password CLI already installed"
   fi
 
+  # Check if 1Password app is installed
+  onepassword_app_installed=false
+  if ! ls /Applications/1Password\ *.app &>/dev/null; then
+    echo "📥 Installing 1Password app..."
+    brew install --cask 1password
+    onepassword_app_installed=true
+    echo "✅ 1Password app installed"
+    echo "   Please set up 1Password app and add your account before continuing"
+  else
+    echo "✅ 1Password app already installed"
+  fi
+
   # Function to check if 1Password is properly authenticated
   check_1password_auth() {
     local accounts
@@ -258,9 +270,27 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
     fi
   }
 
-  # If we just installed it, it definitely won't be authenticated yet
-  if [[ $onepassword_cli_installed == true ]]; then
-    echo "🔑 New 1Password CLI installation detected - authentication required"
+  # If we just installed the app, user needs to set it up first
+  if [[ $onepassword_app_installed == true ]]; then
+    echo ""
+    echo "🎯 1Password App Setup Required"
+    echo "==============================="
+    echo "Since we just installed 1Password app, you need to set it up first:"
+    echo "1. Open 1Password app (it should launch automatically)"
+    echo "2. Sign in to your 1Password account"
+    echo "3. Complete the setup process"
+    echo ""
+    echo "Once you've signed in to the 1Password app, we can enable CLI integration."
+    echo ""
+    read -p "Press Enter when you've set up the 1Password app..."
+
+    # Open 1Password app
+    open -a "1Password 7 - Password Manager" 2>/dev/null || open -a "1Password" 2>/dev/null || true
+  fi
+
+  # If we just installed CLI or app, it definitely won't be authenticated yet
+  if [[ $onepassword_cli_installed == true || $onepassword_app_installed == true ]]; then
+    echo "🔑 New 1Password installation detected - authentication required"
     auth_needed=true
   elif check_1password_auth; then
     echo "✅ Already signed in to 1Password CLI"
@@ -276,30 +306,44 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
     echo "You need to sign in to 1Password CLI to continue."
     echo "This will enable automatic SSH key management."
     echo ""
-    echo "Choose your authentication method:"
-    echo "1. Use 1Password app integration (recommended)"
-    echo "2. Add account manually"
-    echo ""
 
-    read -p "Enter choice (1/2) [1]: " auth_choice
-    auth_choice=${auth_choice:-1}
-
-    if [[ $auth_choice == "1" ]]; then
+    # Check if app is available for integration
+    if ls /Applications/1Password\ *.app &>/dev/null; then
+      echo "Choose your authentication method:"
+      echo "1. Use 1Password app integration (recommended)"
+      echo "2. Add account manually"
       echo ""
-      echo "Please enable 1Password CLI integration in your 1Password app:"
-      echo "• Open 1Password app"
-      echo "• Go to Settings > Developer"
-      echo "• Enable 'Integrate with 1Password CLI'"
-      echo ""
-      read -p "Press Enter when you've enabled CLI integration..."
 
-      # Test if integration works
-      if check_1password_auth; then
-        echo "✅ 1Password CLI integration working"
+      read -p "Enter choice (1/2) [1]: " auth_choice
+      auth_choice=${auth_choice:-1}
+
+      if [[ $auth_choice == "1" ]]; then
+        echo ""
+        echo "🔗 Setting up 1Password app integration..."
+        echo "Please enable CLI integration in your 1Password app:"
+        echo "• Go to Settings > Developer"
+        echo "• Enable 'Integrate with 1Password CLI'"
+        echo ""
+        read -p "Press Enter when you've enabled CLI integration..."
+
+        # Test if integration works
+        if check_1password_auth; then
+          echo "✅ 1Password CLI integration working"
+        else
+          echo "❌ CLI integration not working, trying manual signin..."
+          op signin || {
+            echo "⚠️  1Password setup failed"
+            echo "   Continuing without 1Password integration..."
+            export ONEPASSWORD_AVAILABLE=false
+            echo ""
+            read -p "Press Enter to continue..."
+            return
+          }
+        fi
       else
-        echo "❌ CLI integration not working, trying manual signin..."
-        op signin || {
-          echo "⚠️  1Password setup failed"
+        echo "Adding 1Password account manually..."
+        op account add || {
+          echo "⚠️  Failed to add 1Password account"
           echo "   Continuing without 1Password integration..."
           export ONEPASSWORD_AVAILABLE=false
           echo ""
@@ -308,6 +352,7 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
         }
       fi
     else
+      echo "1Password app not found - using manual account setup only"
       echo "Adding 1Password account manually..."
       op account add || {
         echo "⚠️  Failed to add 1Password account"
