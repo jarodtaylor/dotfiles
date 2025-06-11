@@ -18,6 +18,15 @@ recipient = "age1mh2dqm4658zqnxethed0sw5hf0n28a8t4uw24w9akgwhgrzkwvssz90nst"
 [data]
 brew_prefix = {{ $brew_prefix | quote }}
 ageKeyFile = {{ $ageKeyFile | quote }}
+{{- if and (lookPath "op") (eq (env "ONEPASSWORD_AVAILABLE") "true") }}
+ssh_key = "{{- onepasswordRead "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" -}}"
+work_ssh_key = "{{- onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" -}}"
+onepassword_available = true
+{{- else }}
+ssh_key = ""
+work_ssh_key = ""
+onepassword_available = false
+{{- end }}
 code_dir = "~/Code"
 work_dir = "~/Code/work"
 
@@ -33,8 +42,9 @@ id = "work"
 code_dir = "~/Code/work"
 create_directory = true
 
-{{- if lookPath "delta" -}}
+{{- if lookPath "delta" }}
+
 [diff]
 command = "delta"
 pager = "delta"
-{{- end -}}
+{{- end }}

@@ -1,0 +1,3 @@
+{{- if and .onepassword_available .ssh_key -}}
+{{ .ssh_key }}
+{{- end -}}

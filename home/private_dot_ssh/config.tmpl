@@ -1,5 +1,7 @@
 Host *
+{{- if .onepassword_available }}
   IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+{{- end }}
 
 Host github.com
   HostName github.com
@@ -8,7 +10,11 @@ Host github.com
   UseKeychain yes
   PreferredAuthentications publickey
   IdentitiesOnly yes
+{{- if .onepassword_available }}
   IdentityFile ~/.ssh/id
+{{- else }}
+  IdentityFile ~/.ssh/id_ed25519
+{{- end }}
 
 Host github.com-work
   HostName github.com
@@ -17,4 +23,8 @@ Host github.com-work
   UseKeychain yes
   PreferredAuthentications publickey
   IdentitiesOnly yes
+{{- if .onepassword_available }}
   IdentityFile ~/.ssh/work_id
+{{- else }}
+  IdentityFile ~/.ssh/work_id_ed25519
+{{- end }}

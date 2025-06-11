@@ -147,11 +147,68 @@ echo "Installing essential CLI tools for dotfiles..."
 
 # Install 1Password CLI (required for secrets in chezmoi templates)
 if ! command -v op &>/dev/null; then
-  echo "Installing 1Password CLI..."
-  brew install --cask 1password-cli
-  echo "✅ 1Password CLI installed"
+  echo ""
+  echo "🔐 1Password Setup"
+  echo "=================="
+  echo "1Password CLI can be used to securely manage SSH keys and other secrets."
+  echo "This is optional but recommended for the full experience."
+  echo ""
+  read -p "Would you like to install and use 1Password CLI? (y/n) [y]: " use_1password
+  use_1password=${use_1password:-y}
+
+  if [[ $use_1password =~ ^[Yy]$ ]]; then
+    echo "Installing 1Password CLI..."
+    brew install --cask 1password-cli
+    echo "✅ 1Password CLI installed"
+
+    echo ""
+    echo "Please sign in to 1Password CLI to continue..."
+    echo "This will enable automatic SSH key management and git signing."
+    echo ""
+
+    # Attempt to sign in
+    if ! op account list &>/dev/null; then
+      echo "Opening 1Password sign-in..."
+      op signin || echo "⚠️  1Password sign-in skipped - you can sign in later with 'op signin'"
+    fi
+
+    # Verify it's working
+    if op account list &>/dev/null; then
+      echo "✅ 1Password CLI ready"
+      export ONEPASSWORD_AVAILABLE=true
+    else
+      echo "⚠️  1Password CLI installed but not signed in"
+      echo "   You can sign in later with: op signin"
+      export ONEPASSWORD_AVAILABLE=false
+    fi
+  else
+    echo "⏭️  Skipping 1Password CLI installation"
+    export ONEPASSWORD_AVAILABLE=false
+  fi
 else
   echo "✅ 1Password CLI already installed"
+  # Check if signed in
+  if op account list &>/dev/null; then
+    echo "✅ 1Password CLI ready"
+    export ONEPASSWORD_AVAILABLE=true
+  else
+    echo "⚠️  1Password CLI not signed in"
+    read -p "Would you like to sign in now? (y/n) [y]: " signin_now
+    signin_now=${signin_now:-y}
+
+    if [[ $signin_now =~ ^[Yy]$ ]]; then
+      op signin || echo "⚠️  1Password sign-in skipped"
+
+      if op account list &>/dev/null; then
+        echo "✅ 1Password CLI ready"
+        export ONEPASSWORD_AVAILABLE=true
+      else
+        export ONEPASSWORD_AVAILABLE=false
+      fi
+    else
+      export ONEPASSWORD_AVAILABLE=false
+    fi
+  fi
 fi
 
 # ##########################################
@@ -181,7 +238,7 @@ apply_dotfiles_config() {
     fi
 
     # Apply the configuration (use full path since chezmoi installs to ~/bin/)
-    if "$HOME/bin/chezmoi" init --apply jarodtaylor 2>/dev/null; then
+    if ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" init --apply jarodtaylor 2>/dev/null; then
       echo "✅ Development environment configured successfully!"
       return 0
     else
@@ -204,7 +261,7 @@ if [ -d "$HOME/.local/share/chezmoi" ] && command -v chezmoi &>/dev/null; then
   if prompt_yn "🔄 Development environment already configured. Refresh with latest updates?" "y"; then
     echo "🔄 Refreshing configuration..."
     cd "$HOME/.local/share/chezmoi" && git pull origin main &>/dev/null
-    if "$HOME/bin/chezmoi" apply || apply_dotfiles_config; then
+    if ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" apply || apply_dotfiles_config; then
       config_success=true
     fi
   else

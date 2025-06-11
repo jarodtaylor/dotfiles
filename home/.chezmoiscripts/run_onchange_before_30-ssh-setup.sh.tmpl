@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -eo pipefail
+
+# Create .ssh directory if it doesn't exist
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+
+{{- if .onepassword_available }}
+echo "✅ SSH keys managed by 1Password"
+echo "   Keys will be available via 1Password SSH agent"
+{{- else }}
+echo "🔑 Setting up SSH keys manually..."
+
+# Function to generate key if it doesn't exist
+generate_key_if_missing() {
+  local key_path=$1
+  local key_name=$2
+  local default_email="$USER@$(hostname)"
+
+  if [ ! -f "$key_path" ]; then
+    echo "Generating $key_name SSH key..."
+    read -p "Enter email for the $key_name key [$default_email]: " email
+    email=${email:-$default_email}
+    ssh-keygen -t ed25519 -C "$email" -f "$key_path" -N ""
+    echo "✅ $key_name key generated at $key_path"
+    echo "📋 Public key:"
+    cat "${key_path}.pub"
+    echo ""
+    echo "Add this public key to your GitHub account:"
+    echo "https://github.com/settings/ssh/new"
+    echo ""
+    read -p "Press Enter to continue..."
+  else
+    echo "✅ $key_name key already exists at $key_path"
+  fi
+}
+
+# Generate personal key
+generate_key_if_missing "$HOME/.ssh/id_ed25519" "personal"
+
+# Generate work key
+generate_key_if_missing "$HOME/.ssh/work_id_ed25519" "work"
+
+echo "✅ SSH key setup completed"
+{{- end }}
