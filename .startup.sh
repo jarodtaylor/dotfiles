@@ -2,6 +2,61 @@
 
 set -o pipefail
 
+# Debug function for troubleshooting chezmoi issues
+debug_chezmoi() {
+  echo "🔍 CHEZMOI DEBUG INFORMATION"
+  echo "============================="
+  echo ""
+
+  echo "📍 Environment:"
+  echo "  PWD: $(pwd)"
+  echo "  USER: $USER"
+  echo "  HOME: $HOME"
+  echo "  ONEPASSWORD_AVAILABLE: ${ONEPASSWORD_AVAILABLE:-not set}"
+  echo ""
+
+  echo "🛠️  Tool availability:"
+  echo "  chezmoi: $(command -v chezmoi || echo 'NOT FOUND')"
+  echo "  op: $(command -v op || echo 'NOT FOUND')"
+  echo "  git: $(command -v git || echo 'NOT FOUND')"
+  echo ""
+
+  if command -v chezmoi &>/dev/null; then
+    echo "📋 Chezmoi configuration:"
+    echo "  Source dir: $("$HOME/bin/chezmoi" source-path 2>/dev/null || echo 'ERROR')"
+    echo "  Config file: $("$HOME/bin/chezmoi" config-file 2>/dev/null || echo 'ERROR')"
+    echo ""
+
+    echo "📊 Chezmoi status:"
+    ONEPASSWORD_AVAILABLE="${ONEPASSWORD_AVAILABLE:-false}" "$HOME/bin/chezmoi" status 2>&1 || echo "❌ Status command failed"
+    echo ""
+
+    echo "🗂️  Source directory contents:"
+    if [ -d "$HOME/.local/share/chezmoi" ]; then
+      find "$HOME/.local/share/chezmoi/home" -type f | head -20
+    else
+      echo "❌ Source directory doesn't exist"
+    fi
+  fi
+
+  echo ""
+  echo "📁 Current ~/.config contents:"
+  find "$HOME/.config" -maxdepth 1 -type d 2>/dev/null | sort || echo "❌ Can't read ~/.config"
+
+  echo ""
+  echo "🔑 Key files status:"
+  for file in .zshrc .zshenv .ssh/config; do
+    if [ -f "$HOME/$file" ]; then
+      echo "  ✅ ~/$file exists"
+    else
+      echo "  ❌ ~/$file missing"
+    fi
+  done
+}
+
+# Uncomment the line below and run this script to get debug info:
+# debug_chezmoi && exit 0
+
 # ##########################################
 # PREREQUISITES & ASSUMPTIONS              #
 # ##########################################
@@ -228,6 +283,7 @@ apply_dotfiles_config() {
 
     # Install chezmoi if not present
     if ! command -v chezmoi &>/dev/null; then
+      echo "Installing chezmoi..."
       sh -c "$(curl -fsLS get.chezmoi.io)"
     fi
 
@@ -237,12 +293,35 @@ apply_dotfiles_config() {
       rm -rf "$HOME/.cache/chezmoi" 2>/dev/null
     fi
 
-    # Apply the configuration (use full path since chezmoi installs to ~/bin/)
-    if ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" init --apply jarodtaylor 2>/dev/null; then
+    echo "🔍 Running chezmoi with verbose output to debug any issues..."
+    # Apply the configuration with verbose output and proper error reporting
+    if ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" init --apply --verbose jarodtaylor; then
       echo "✅ Development environment configured successfully!"
       return 0
     else
-      echo "⚠️  Configuration attempt $attempt failed, auto-recovering..."
+      echo "❌ Configuration attempt $attempt failed with exit code $?"
+      echo "🔍 Checking what files were actually applied..."
+
+      # Show what was applied so far
+      if [ -d "$HOME/.local/share/chezmoi" ]; then
+        echo "📁 Chezmoi source directory exists"
+        echo "📊 Applied configurations:"
+        find "$HOME/.config" -maxdepth 1 -type d | sort
+
+        echo "🔍 Checking for common failure points..."
+
+        # Check if zsh config exists
+        if [ ! -f "$HOME/.zshrc" ]; then
+          echo "❌ Missing .zshrc - this is a key indicator"
+        fi
+
+        # Check chezmoi status for more details
+        echo "📋 Chezmoi status:"
+        ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" status || echo "❌ Chezmoi status failed"
+      else
+        echo "❌ Chezmoi source directory missing - init failed"
+      fi
+
       # Clear any corrupted template cache or state
       rm -rf "$HOME/.cache/chezmoi" 2>/dev/null
       ((attempt++))
@@ -260,9 +339,15 @@ config_success=false
 if [ -d "$HOME/.local/share/chezmoi" ] && command -v chezmoi &>/dev/null; then
   if prompt_yn "🔄 Development environment already configured. Refresh with latest updates?" "y"; then
     echo "🔄 Refreshing configuration..."
-    cd "$HOME/.local/share/chezmoi" && git pull origin main &>/dev/null
-    if ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" apply || apply_dotfiles_config; then
+    cd "$HOME/.local/share/chezmoi" && git pull origin main
+    echo "🔍 Applying updates with verbose output..."
+    if ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" apply --verbose; then
       config_success=true
+    else
+      echo "❌ Refresh apply failed, trying full reconfiguration..."
+      if apply_dotfiles_config; then
+        config_success=true
+      fi
     fi
   else
     echo "⏭️  Skipping configuration refresh."
