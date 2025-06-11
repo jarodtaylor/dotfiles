@@ -2,6 +2,51 @@
 
 set -o pipefail
 
+# ##########################################
+# INSTALL XCODE COMMAND LINE TOOLS FIRST   #
+# ##########################################
+
+echo "🛠️  Checking for Xcode Command Line Tools..."
+
+# Check if command line tools are installed
+if ! xcode-select -p &>/dev/null; then
+  echo "📥 Installing Xcode Command Line Tools..."
+  echo "   This is required for git, homebrew, and other developer tools"
+  echo "   The installation may take several minutes..."
+  echo ""
+
+  # Install command line tools non-interactively
+  # This prevents the popup dialog that can get hidden behind the terminal
+  sudo xcode-select --install 2>/dev/null || true
+
+  echo "⏳ Waiting for Xcode Command Line Tools installation to complete..."
+  echo "   You may see a system dialog - please click 'Install' if it appears"
+  echo "   This step is essential and cannot be skipped"
+  echo ""
+
+  # Wait for installation to complete
+  while ! xcode-select -p &>/dev/null; do
+    echo "   Still installing... (this can take 5-10 minutes)"
+    sleep 30
+  done
+
+  echo "✅ Xcode Command Line Tools installed successfully"
+else
+  echo "✅ Xcode Command Line Tools already installed"
+fi
+
+# Accept Xcode license if needed
+echo "📋 Checking Xcode license..."
+if ! xcodebuild -license check &>/dev/null; then
+  echo "📝 Accepting Xcode license agreement..."
+  sudo xcodebuild -license accept
+  echo "✅ Xcode license accepted"
+else
+  echo "✅ Xcode license already accepted"
+fi
+
+echo ""
+
 # Debug function for troubleshooting chezmoi issues
 debug_chezmoi() {
   echo "🔍 CHEZMOI DEBUG INFORMATION"
@@ -123,27 +168,6 @@ prompt_yn() {
     esac
   done
 }
-
-# ########################################
-# INSTALL XCODE COMMAND LINE TOOLS       #
-# ########################################
-
-# Check for Xcode Command Line Tools and install them if not present
-xcode-select -p &>/dev/null
-if [ $? -ne 0 ]; then
-  echo "Installing Xcode Command Line Tools ..."
-  xcode-select --install
-else
-  echo "XCode Command Line Tools already installed"
-fi
-
-# Accept Xcode license
-echo "before accepting license"
-xcode_version=$(xcodebuild -version | grep '^Xcode\s' | sed -E 's/^Xcode[[:space:]]+([0-9\.]+)/\1/')
-accepted_license_version=$(defaults read /Library/Preferences/com.apple.dt.Xcode 2>/dev/null | grep IDEXcodeVersionForAgreedToGMLicense | cut -d '"' -f 2)
-if [ "$xcode_version" != "$accepted_license_version" ]; then
-  sudo xcodebuild -license accept
-fi
 
 # ########################################
 # INSTALL HOMEBREW                       #
