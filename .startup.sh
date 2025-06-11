@@ -8,18 +8,21 @@ set -o pipefail
 echo "🏠 Jarod's Dotfiles Setup"
 echo "========================="
 echo ""
-echo "⚠️  PREREQUISITES:"
-echo "   • 1Password app installed and authenticated"
-echo "   • Internet connection"
-echo "   • Admin privileges (sudo access)"
+echo "⚠️  MANUAL PREREQUISITES (do these FIRST):"
+echo "   1. Install 1Password app from App Store"
+echo "   2. Sign in to 1Password and unlock it"
+echo "   3. Install 1Password CLI: brew install --cask 1password-cli"
+echo "   4. Test 1Password CLI works: op account list"
 echo ""
-echo "🎯 This script will install:"
+echo "✅ If those work, this script handles the rest:"
 echo "   • Xcode Command Line Tools"
-echo "   • Homebrew"
-echo "   • 1Password CLI"
+echo "   • Homebrew (if needed)"
 echo "   • Chezmoi + full dotfiles configuration"
+echo "   • All development tools and settings"
 echo ""
-read -p "Press ENTER to continue or Ctrl+C to abort..."
+echo "🎯 Goal: Zero to coding in 60 minutes on fresh Mac"
+echo ""
+read -p "Prerequisites completed? Press ENTER to continue or Ctrl+C to abort..."
 echo ""
 
 # Check if running in interactive mode
@@ -121,20 +124,6 @@ else
   set_brew_path
 fi
 
-
-# ##########################################
-# INSTALL PREREQUISITES                    #
-# ##########################################
-
-echo "Installing required dependencies for dotfiles..."
-
-# Install 1Password CLI (hard dependency)
-if ! command -v op &>/dev/null; then
-  echo "Installing 1Password CLI..."
-  brew install --cask 1password-cli
-else
-  echo "1Password CLI already installed"
-fi
 
 # ##########################################
 # INSTALL CHEZMOI AND APPLY DOTFILES       #
