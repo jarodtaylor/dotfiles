@@ -236,6 +236,17 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
   echo ""
   echo "🔧 Setting up 1Password integration..."
 
+  # Function to check if 1Password is properly authenticated
+  check_1password_auth() {
+    local accounts
+    accounts=$(op account list 2>/dev/null)
+    if [[ -n "$accounts" && "$accounts" != *"No accounts configured"* ]]; then
+      return 0
+    else
+      return 1
+    fi
+  }
+
   # Install 1Password CLI if needed
   if ! command -v op &>/dev/null; then
     echo "📥 Installing 1Password CLI..."
@@ -246,7 +257,7 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
   fi
 
   # Check if already signed in
-  if op account list &>/dev/null; then
+  if check_1password_auth; then
     echo "✅ Already signed in to 1Password CLI"
   else
     echo ""
@@ -273,7 +284,7 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
       read -p "Press Enter when you've enabled CLI integration..."
 
       # Test if integration works
-      if op account list &>/dev/null; then
+      if check_1password_auth; then
         echo "✅ 1Password CLI integration working"
       else
         echo "❌ CLI integration not working, trying manual signin..."
@@ -283,6 +294,7 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
           export ONEPASSWORD_AVAILABLE=false
           echo ""
           read -p "Press Enter to continue..."
+          return
         }
       fi
     else
@@ -293,12 +305,13 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
         export ONEPASSWORD_AVAILABLE=false
         echo ""
         read -p "Press Enter to continue..."
+        return
       }
     fi
   fi
 
   # Verify 1Password is working and test SSH key access
-  if op account list &>/dev/null; then
+  if check_1password_auth; then
     echo ""
     echo "🧪 Testing 1Password SSH key access..."
 
