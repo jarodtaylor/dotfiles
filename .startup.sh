@@ -237,9 +237,11 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
   echo "🔧 Setting up 1Password integration..."
 
   # Install 1Password CLI first - needed for all subsequent checks
+  onepassword_cli_installed=false
   if ! command -v op &>/dev/null; then
     echo "📥 Installing 1Password CLI..."
     brew install --cask 1password-cli
+    onepassword_cli_installed=true
     echo "✅ 1Password CLI installed"
   else
     echo "✅ 1Password CLI already installed"
@@ -256,10 +258,18 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
     fi
   }
 
-  # Check if already signed in
-  if check_1password_auth; then
+  # If we just installed it, it definitely won't be authenticated yet
+  if [[ $onepassword_cli_installed == true ]]; then
+    echo "🔑 New 1Password CLI installation detected - authentication required"
+    auth_needed=true
+  elif check_1password_auth; then
     echo "✅ Already signed in to 1Password CLI"
+    auth_needed=false
   else
+    auth_needed=true
+  fi
+
+  if [[ $auth_needed == true ]]; then
     echo ""
     echo "🔑 1Password Authentication Required"
     echo "==================================="
