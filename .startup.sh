@@ -180,8 +180,8 @@ apply_dotfiles_config() {
       rm -rf "$HOME/.local/share/chezmoi" "$HOME/.config/chezmoi" 2>/dev/null
     fi
 
-    # Apply the configuration
-    if chezmoi init --apply jarodtaylor 2>/dev/null; then
+    # Apply the configuration (use full path since chezmoi installs to ~/bin/)
+    if "$HOME/bin/chezmoi" init --apply jarodtaylor 2>/dev/null; then
       echo "✅ Development environment configured successfully!"
       return 0
     else
@@ -204,7 +204,7 @@ if [ -d "$HOME/.local/share/chezmoi" ] && command -v chezmoi &>/dev/null; then
   if prompt_yn "🔄 Development environment already configured. Refresh with latest updates?" "y"; then
     echo "🔄 Refreshing configuration..."
     cd "$HOME/.local/share/chezmoi" && git pull origin main &>/dev/null
-    if chezmoi apply || apply_dotfiles_config; then
+    if "$HOME/bin/chezmoi" apply || apply_dotfiles_config; then
       config_success=true
     fi
   else
