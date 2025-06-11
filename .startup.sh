@@ -177,7 +177,7 @@ apply_dotfiles_config() {
     # Clear any corrupted state and start fresh
     if [ $attempt -gt 1 ]; then
       echo "🔧 Clearing previous state and retrying..."
-      rm -rf "$HOME/.local/share/chezmoi" "$HOME/.config/chezmoi" 2>/dev/null
+      rm -rf "$HOME/.cache/chezmoi" 2>/dev/null
     fi
 
     # Apply the configuration (use full path since chezmoi installs to ~/bin/)
