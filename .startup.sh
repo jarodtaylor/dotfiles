@@ -2,6 +2,9 @@
 
 set -o pipefail
 
+# Debug mode: Set CHEZMOI_DEBUG=1 for verbose chezmoi output
+# Example: CHEZMOI_DEBUG=1 ./.startup.sh
+
 # ##########################################
 # INSTALL XCODE COMMAND LINE TOOLS FIRST   #
 # ##########################################
@@ -449,31 +452,38 @@ apply_dotfiles_config() {
       rm -rf "$HOME/.cache/chezmoi" 2>/dev/null
     fi
 
-    echo "🔍 Running chezmoi with verbose output to debug any issues..."
-    # Apply the configuration with verbose output and proper error reporting
-    if ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" init --apply --verbose jarodtaylor; then
+    echo "🔍 Applying configuration with chezmoi..."
+    # Apply the configuration with clean output for automation
+    # Use CHEZMOI_DEBUG=1 environment variable for verbose output when needed
+    if [[ ${CHEZMOI_DEBUG:-0} == 1 ]]; then
+      echo "🔍 Debug mode enabled - showing verbose output..."
+      ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" init --apply --verbose jarodtaylor
+    else
+      ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" init --apply jarodtaylor
+    fi
+
+    if [ $? -eq 0 ]; then
       echo "✅ Development environment configured successfully!"
       return 0
     else
       echo "❌ Configuration attempt $attempt failed with exit code $?"
-      echo "🔍 Checking what files were actually applied..."
 
-      # Show what was applied so far
+      # Quick health check without overwhelming output
       if [ -d "$HOME/.local/share/chezmoi" ]; then
         echo "📁 Chezmoi source directory exists"
-        echo "📊 Applied configurations:"
-        find "$HOME/.config" -maxdepth 1 -type d | sort
 
-        echo "🔍 Checking for common failure points..."
+        # Check for key indicators of success/failure
+        config_count=$(find "$HOME/.config" -maxdepth 1 -type d 2>/dev/null | wc -l)
+        echo "📊 Found $config_count configuration directories"
 
-        # Check if zsh config exists
         if [ ! -f "$HOME/.zshrc" ]; then
-          echo "❌ Missing .zshrc - this is a key indicator"
+          echo "⚠️  Missing .zshrc (shell config may not be applied)"
         fi
 
-        # Check chezmoi status for more details
-        echo "📋 Chezmoi status:"
-        ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" status || echo "❌ Chezmoi status failed"
+        if [[ ${CHEZMOI_DEBUG:-0} == 1 ]]; then
+          echo "📋 Chezmoi status (debug mode):"
+          ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" status || echo "❌ Chezmoi status failed"
+        fi
       else
         echo "❌ Chezmoi source directory missing - init failed"
       fi
@@ -496,8 +506,14 @@ if [ -d "$HOME/.local/share/chezmoi" ] && command -v chezmoi &>/dev/null; then
   if prompt_yn "🔄 Development environment already configured. Refresh with latest updates?" "y"; then
     echo "🔄 Refreshing configuration..."
     cd "$HOME/.local/share/chezmoi" && git pull origin main
-    echo "🔍 Applying updates with verbose output..."
-    if ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" apply --verbose; then
+    echo "🔍 Applying updates..."
+    if [[ ${CHEZMOI_DEBUG:-0} == 1 ]]; then
+      ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" apply --verbose
+    else
+      ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" apply
+    fi
+
+    if [ $? -eq 0 ]; then
       config_success=true
     else
       echo "❌ Refresh apply failed, trying full reconfiguration..."
