@@ -186,6 +186,8 @@ apply_dotfiles_config() {
       return 0
     else
       echo "⚠️  Configuration attempt $attempt failed, auto-recovering..."
+      # Clear any corrupted template cache or state
+      rm -rf "$HOME/.cache/chezmoi" 2>/dev/null
       ((attempt++))
       sleep 2
     fi
