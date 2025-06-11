@@ -199,24 +199,31 @@ apply_dotfiles_config() {
 }
 
 # Apply dotfiles configuration
+config_success=false
 if [ -d "$HOME/.local/share/chezmoi" ] && command -v chezmoi &>/dev/null; then
   if prompt_yn "🔄 Development environment already configured. Refresh with latest updates?" "y"; then
     echo "🔄 Refreshing configuration..."
     cd "$HOME/.local/share/chezmoi" && git pull origin main &>/dev/null
-    chezmoi apply || apply_dotfiles_config
+    if chezmoi apply || apply_dotfiles_config; then
+      config_success=true
+    fi
   else
     echo "⏭️  Skipping configuration refresh."
+    config_success=true  # User chose to skip, so don't show failure
   fi
 else
-  apply_dotfiles_config
+  if apply_dotfiles_config; then
+    config_success=true
+  fi
 fi
 
 # ##########################################
 # MAGICAL SUCCESS CELEBRATION              #
 # ##########################################
 
-echo ""
-echo "🎉✨ MAGIC COMPLETE! ✨🎉"
+if [ "$config_success" = true ]; then
+  echo ""
+  echo "🎉✨ MAGIC COMPLETE! ✨🎉"
 echo "========================"
 echo ""
 echo "🪄 Your Mac has been transformed into a development powerhouse!"
@@ -233,3 +240,19 @@ echo "   2. Some apps may ask for password on first launch"
 echo "   3. Everything is configured and ready to go!"
 echo ""
 echo "💫 Welcome to your supercharged development environment!"
+else
+  echo ""
+  echo "❌ Setup encountered issues but we got pretty far!"
+  echo "=========================================="
+  echo ""
+  echo "🎯 What worked:"
+  echo "   • Homebrew and all packages installed"
+  echo "   • System tools configured"
+  echo ""
+  echo "⚠️  What needs attention:"
+  echo "   • Some configurations failed to apply"
+  echo "   • Try running the script again"
+  echo "   • Check if 1Password is properly set up"
+  echo ""
+  echo "💡 Most things should still work - open a new terminal and explore!"
+fi

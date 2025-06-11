@@ -3,8 +3,10 @@
   email = "jarodrtaylor@gmail.com"
   # signingkey = [REMOVED - set up SSH keys separately]
 
+{{- if stat (joinPath .chezmoi.homeDir ".config/git/config-work") -}}
 [includeIf "gitdir:{{ .work_dir }}/"]
   path = config-work
+{{- end -}}
 
 [include]
   path = conf.d/delta.conf
