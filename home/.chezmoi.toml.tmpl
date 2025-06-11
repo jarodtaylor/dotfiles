@@ -33,6 +33,8 @@ id = "work"
 code_dir = "~/Code/work"
 create_directory = true
 
+{{- if lookPath "delta" -}}
 [diff]
 command = "delta"
 pager = "delta"
+{{- end -}}
