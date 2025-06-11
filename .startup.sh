@@ -56,9 +56,14 @@ fi
 # INSTALL HOMEBREW                       #
 # ########################################
 
-# Check if Homebrew is installed
+# Check if Homebrew is installed and functional
 is_brew_installed() {
   [ -d "/opt/homebrew" ] || [ -d "/usr/local/Homebrew" ]
+}
+
+# Check if Homebrew installation is complete and functional
+is_brew_functional() {
+  command -v brew &>/dev/null && brew --version &>/dev/null
 }
 
 # Check if Homebrew is in the PATH
@@ -79,12 +84,17 @@ set_brew_path() {
   fi
 }
 
-# Install Homebrew if it is not installed or not in the PATH
-if is_brew_installed && is_brew_path_set; then
-  echo "Homebrew is installed and in the PATH."
-elif is_brew_installed && ! is_brew_path_set; then
-  echo "Homebrew is installed but not in the PATH."
+# Install Homebrew if it is not installed or not functional
+if is_brew_functional; then
+  echo "Homebrew is installed and functional."
+elif is_brew_installed; then
+  echo "Homebrew directory exists but not functional. Setting PATH and checking..."
   set_brew_path
+  if ! is_brew_functional; then
+    echo "Homebrew installation appears incomplete. Reinstalling..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    set_brew_path
+  fi
 else
   echo "Homebrew is not installed. Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -103,14 +113,18 @@ install_and_apply_chezmoi() {
 }
 
 # Run Chezmoi to apply dotfiles
-if command -v chezmoi &>/dev/null && [ -d "$HOME/.local/share/chezmoi" ]; then
-  if prompt_yn "Chezmoi is already installed. Reapply configuration?" "y"; then
+if command -v chezmoi &>/dev/null && [ -d "$HOME/.local/share/chezmoi" ] && chezmoi status &>/dev/null; then
+  if prompt_yn "Chezmoi is already installed and initialized. Reapply configuration?" "y"; then
     echo "Reapplying chezmoi configuration..."
     chezmoi apply
   else
     echo "Skipping Chezmoi configuration."
   fi
 else
-  echo "Chezmoi is not fully set up. Installing and applying configuration..."
+  if command -v chezmoi &>/dev/null; then
+    echo "Chezmoi command exists but repository not properly initialized. Reinitializing..."
+  else
+    echo "Chezmoi is not installed. Installing and applying configuration..."
+  fi
   install_and_apply_chezmoi
 fi
