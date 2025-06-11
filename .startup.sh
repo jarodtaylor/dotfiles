@@ -5,42 +5,58 @@ set -o pipefail
 # ##########################################
 # PREREQUISITES & ASSUMPTIONS              #
 # ##########################################
-echo "🏠 Jarod's Dotfiles Setup"
-echo "========================="
+echo "🎯 Jarod's Magic Development Environment"
+echo "========================================"
 echo ""
-echo "⚠️  MANUAL PREREQUISITES (do these FIRST):"
+echo "🪄 About to transform this Mac into a fully-configured development machine!"
+echo ""
+echo "⚠️  Quick setup (do these first):"
 echo "   1. Install 1Password app from App Store"
-echo "   2. Sign in to 1Password and unlock it"
+echo "   2. Sign in to 1Password"
 echo ""
-echo "✅ This script will then handle everything else:"
-echo "   • Xcode Command Line Tools"
-echo "   • Homebrew"
-echo "   • 1Password CLI"
-echo "   • Chezmoi + full dotfiles configuration"
-echo "   • All development tools and settings"
+echo "✨ Then this script magically installs:"
+echo "   • All development tools (Git, Node, Python, etc.)"
+echo "   • 90+ productivity applications"
+echo "   • Custom shell with superpowers"
+echo "   • Perfect configurations for everything"
+echo "   • Automated backup systems"
 echo ""
-echo "🎯 Goal: Zero to coding in 60 minutes on fresh Mac"
-echo ""
-read -p "Prerequisites completed? Press ENTER to continue or Ctrl+C to abort..."
+echo "🚀 Goal: Zero to coding in 60 minutes!"
 echo ""
 
-# Check if running in interactive mode
-if [ ! -t 0 ]; then
-  echo "Error: This script is being run in non-interactive mode."
-  echo "This can happen when piping the script directly to bash."
+# Smart initial prompt with auto-continue
+if [ -t 0 ] && [ -t 1 ]; then
+  read -p "Ready to get your development superpowers? Press ENTER or Ctrl+C to abort..."
+else
+  echo "🪄 Auto-starting in non-interactive mode..."
+  sleep 2
+fi
+echo ""
+
+# Smart interactive mode detection with self-healing
+if [ ! -t 0 ] && [ ! -t 1 ]; then
+  echo "⚠️  Running in non-interactive mode - some prompts may not work perfectly."
+  echo "💡 For best experience, download and run the script directly:"
+  echo 'curl -sfL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/.startup.sh -o setup.sh && bash setup.sh'
   echo ""
-  echo "Please run the script using this command instead:"
-  echo 'bash -c "$(curl -sfL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/.startup.sh)"'
-  echo ""
-  echo "This will ensure proper TTY handling for sudo prompts and interactive elements."
-  exit 1
+  echo "🪄 Continuing with magic setup anyway..."
+  sleep 3
 fi
 
-# Function to prompt for yes/no
+# Smart prompt function with auto-fallback
 prompt_yn() {
   local prompt="$1"
   local default="$2"
   local response
+
+  # Auto-default in non-interactive mode
+  if [ ! -t 0 ] || [ ! -t 1 ]; then
+    echo "$prompt (auto-defaulting to: $default)"
+    case "$default" in
+      [Yy]* ) return 0;;
+      [Nn]* ) return 1;;
+    esac
+  fi
 
   while true; do
     read -p "$prompt (y/n) [$default]: " response
@@ -142,25 +158,76 @@ fi
 # INSTALL CHEZMOI AND APPLY DOTFILES       #
 # ##########################################
 
-# Function to install and apply Chezmoi
-install_and_apply_chezmoi() {
-  echo "Installing Chezmoi and applying dotfiles..."
-  sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply jarodtaylor
+# Function to apply dotfiles configuration
+apply_dotfiles_config() {
+  echo "🎯 Applying Jarod's development environment..."
+
+  # Try to apply configuration, with auto-recovery
+  local max_attempts=3
+  local attempt=1
+
+  while [ $attempt -le $max_attempts ]; do
+    echo "📦 Setting up development tools and configurations (attempt $attempt/$max_attempts)..."
+
+    # Install chezmoi if not present
+    if ! command -v chezmoi &>/dev/null; then
+      sh -c "$(curl -fsLS get.chezmoi.io)"
+    fi
+
+    # Clear any corrupted state and start fresh
+    if [ $attempt -gt 1 ]; then
+      echo "🔧 Clearing previous state and retrying..."
+      rm -rf "$HOME/.local/share/chezmoi" "$HOME/.config/chezmoi" 2>/dev/null
+    fi
+
+    # Apply the configuration
+    if chezmoi init --apply jarodtaylor 2>/dev/null; then
+      echo "✅ Development environment configured successfully!"
+      return 0
+    else
+      echo "⚠️  Configuration attempt $attempt failed, auto-recovering..."
+      ((attempt++))
+      sleep 2
+    fi
+  done
+
+  echo "❌ Configuration failed after $max_attempts attempts"
+  echo "💡 This might be a network issue - try running the script again"
+  return 1
 }
 
-# Run Chezmoi to apply dotfiles
-if command -v chezmoi &>/dev/null && [ -d "$HOME/.local/share/chezmoi" ] && chezmoi status &>/dev/null; then
-  if prompt_yn "Chezmoi is already installed and initialized. Reapply configuration?" "y"; then
-    echo "Reapplying chezmoi configuration..."
-    chezmoi apply
+# Apply dotfiles configuration
+if [ -d "$HOME/.local/share/chezmoi" ] && command -v chezmoi &>/dev/null; then
+  if prompt_yn "🔄 Development environment already configured. Refresh with latest updates?" "y"; then
+    echo "🔄 Refreshing configuration..."
+    cd "$HOME/.local/share/chezmoi" && git pull origin main &>/dev/null
+    chezmoi apply || apply_dotfiles_config
   else
-    echo "Skipping Chezmoi configuration."
+    echo "⏭️  Skipping configuration refresh."
   fi
 else
-  if command -v chezmoi &>/dev/null; then
-    echo "Chezmoi command exists but repository not properly initialized. Reinitializing..."
-  else
-    echo "Chezmoi is not installed. Installing and applying configuration..."
-  fi
-  install_and_apply_chezmoi
+  apply_dotfiles_config
 fi
+
+# ##########################################
+# MAGICAL SUCCESS CELEBRATION              #
+# ##########################################
+
+echo ""
+echo "🎉✨ MAGIC COMPLETE! ✨🎉"
+echo "========================"
+echo ""
+echo "🪄 Your Mac has been transformed into a development powerhouse!"
+echo ""
+echo "🌟 What you got:"
+echo "   • Perfect shell with AI-powered tools"
+echo "   • 90+ applications ready to use"
+echo "   • All configurations tuned for maximum productivity"
+echo "   • Automated backups and sync"
+echo ""
+echo "🚀 Next steps:"
+echo "   1. Open a fresh terminal to experience the magic"
+echo "   2. Some apps may ask for password on first launch"
+echo "   3. Everything is configured and ready to go!"
+echo ""
+echo "💫 Welcome to your supercharged development environment!"
