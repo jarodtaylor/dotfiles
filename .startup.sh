@@ -2,6 +2,26 @@
 
 set -o pipefail
 
+# ##########################################
+# PREREQUISITES & ASSUMPTIONS              #
+# ##########################################
+echo "🏠 Jarod's Dotfiles Setup"
+echo "========================="
+echo ""
+echo "⚠️  PREREQUISITES:"
+echo "   • 1Password app installed and authenticated"
+echo "   • Internet connection"
+echo "   • Admin privileges (sudo access)"
+echo ""
+echo "🎯 This script will install:"
+echo "   • Xcode Command Line Tools"
+echo "   • Homebrew"
+echo "   • 1Password CLI"
+echo "   • Chezmoi + full dotfiles configuration"
+echo ""
+read -p "Press ENTER to continue or Ctrl+C to abort..."
+echo ""
+
 # Check if running in interactive mode
 if [ ! -t 0 ]; then
   echo "Error: This script is being run in non-interactive mode."
@@ -101,6 +121,20 @@ else
   set_brew_path
 fi
 
+
+# ##########################################
+# INSTALL PREREQUISITES                    #
+# ##########################################
+
+echo "Installing required dependencies for dotfiles..."
+
+# Install 1Password CLI (hard dependency)
+if ! command -v op &>/dev/null; then
+  echo "Installing 1Password CLI..."
+  brew install --cask 1password-cli
+else
+  echo "1Password CLI already installed"
+fi
 
 # ##########################################
 # INSTALL CHEZMOI AND APPLY DOTFILES       #
