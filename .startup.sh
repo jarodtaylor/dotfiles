@@ -11,12 +11,11 @@ echo ""
 echo "⚠️  MANUAL PREREQUISITES (do these FIRST):"
 echo "   1. Install 1Password app from App Store"
 echo "   2. Sign in to 1Password and unlock it"
-echo "   3. Install 1Password CLI: brew install --cask 1password-cli"
-echo "   4. Test 1Password CLI works: op account list"
 echo ""
-echo "✅ If those work, this script handles the rest:"
+echo "✅ This script will then handle everything else:"
 echo "   • Xcode Command Line Tools"
-echo "   • Homebrew (if needed)"
+echo "   • Homebrew"
+echo "   • 1Password CLI"
 echo "   • Chezmoi + full dotfiles configuration"
 echo "   • All development tools and settings"
 echo ""
@@ -124,6 +123,20 @@ else
   set_brew_path
 fi
 
+# ##########################################
+# INSTALL ESSENTIAL CLI TOOLS              #
+# ##########################################
+
+echo "Installing essential CLI tools for dotfiles..."
+
+# Install 1Password CLI (required for secrets in chezmoi templates)
+if ! command -v op &>/dev/null; then
+  echo "Installing 1Password CLI..."
+  brew install --cask 1password-cli
+  echo "✅ 1Password CLI installed"
+else
+  echo "✅ 1Password CLI already installed"
+fi
 
 # ##########################################
 # INSTALL CHEZMOI AND APPLY DOTFILES       #
