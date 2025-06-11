@@ -5,7 +5,7 @@ set -o pipefail
 # ##########################################
 # PREREQUISITES & ASSUMPTIONS              #
 # ##########################################
-echo "🎯 Jarod's Magic Development Environment"
+echo "🎯 Jarod's Magical Development Environment"
 echo "========================================"
 echo ""
 echo "🪄 About to transform this Mac into a fully-configured development machine!"
