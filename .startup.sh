@@ -50,6 +50,18 @@ fi
 
 echo ""
 
+# Test if 1Password CLI can actually communicate with the app
+can_cli_communicate_with_app() {
+  # Check if app exists first
+  if ! ls /Applications/1Password\ *.app &>/dev/null; then
+    return 1
+  fi
+
+  # Test if CLI can actually communicate (this is what really matters)
+  # op account list should work if app integration is available
+  timeout 5 op account list &>/dev/null
+}
+
 # Debug function for troubleshooting chezmoi issues
 debug_chezmoi() {
   echo "🔍 CHEZMOI DEBUG INFORMATION"
@@ -316,10 +328,27 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
     echo "This will enable automatic SSH key management."
     echo ""
 
-    # Re-check if app is available (may have been installed/launched since initial check)
-    if ls /Applications/1Password\ *.app &>/dev/null; then
+    # Test if CLI can actually communicate with app (what really matters)
+    if can_cli_communicate_with_app; then
+      echo "✅ 1Password app detected and accessible"
+      echo ""
       echo "Choose your authentication method:"
       echo "1. Use 1Password app integration (recommended)"
+      echo "2. Add account manually"
+      echo ""
+
+      read -p "Enter choice (1/2) [1]: " auth_choice
+      auth_choice=${auth_choice:-1}
+    elif ls /Applications/1Password\ *.app &>/dev/null; then
+      echo "⚠️  1Password app found but CLI can't communicate with it yet"
+      echo ""
+      echo "🍎 This usually happens on macOS when:"
+      echo "   • App needs permission approval dialogs"
+      echo "   • App is launching for the first time"
+      echo "   • CLI integration hasn't been enabled yet"
+      echo ""
+      echo "Choose your authentication method:"
+      echo "1. Use 1Password app integration (we'll guide you through setup)"
       echo "2. Add account manually"
       echo ""
 
@@ -404,22 +433,27 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
         }
       fi
     else
-      echo "❌ 1Password app not found"
+      echo "❌ 1Password app not accessible"
       echo ""
-      echo "The app may still be launching or wasn't installed properly."
+      echo "🍎 Common reasons on macOS:"
+      echo "   • App is still launching"
+      echo "   • Permission dialogs need approval"
+      echo "   • App wasn't installed properly"
+      echo ""
       echo "Choose how to proceed:"
-      echo "1. Wait and check again (app might still be starting)"
+      echo "1. Wait and check again (allows time for permissions/launch)"
       echo "2. Add account manually"
       echo "3. Skip 1Password integration"
 
       read -p "Enter choice (1/2/3) [1]: " fallback_choice
       fallback_choice=${fallback_choice:-1}
 
-             if [[ $fallback_choice == "1" ]]; then
-         echo "⏳ Waiting 10 seconds for 1Password app to launch..."
-         sleep 10
-         if ls /Applications/1Password\ *.app &>/dev/null; then
-                       echo "✅ 1Password app found! Proceeding with app integration..."
+                    if [[ $fallback_choice == "1" ]]; then
+         echo "⏳ Waiting 15 seconds for 1Password app and permissions..."
+         echo "   💡 If you see permission dialogs, please approve them"
+         sleep 15
+         if can_cli_communicate_with_app; then
+           echo "✅ 1Password CLI can now communicate with app!"
             echo ""
             echo "📋 Follow these exact steps (from 1Password docs):"
             echo "   1. Open and unlock the 1Password app"
@@ -436,7 +470,8 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
            if check_1password_auth; then
              echo "✅ 1Password CLI integration working!"
            else
-             echo "❌ Integration still not working, falling back to manual setup"
+             echo "⚠️  CLI still can't communicate with app, but we can try manual setup"
+             echo "   (Manual setup often works even when app integration doesn't)"
              op account add && op signin || {
                echo "⚠️  Failed to add 1Password account"
                export ONEPASSWORD_AVAILABLE=false
@@ -446,7 +481,8 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
              }
            fi
          else
-           echo "❌ App still not found, falling back to manual setup"
+           echo "⚠️  CLI still can't communicate with app, trying manual setup instead"
+           echo "   (Manual setup often works even when app detection fails)"
            op account add && op signin || {
              echo "⚠️  Failed to add 1Password account"
              export ONEPASSWORD_AVAILABLE=false
