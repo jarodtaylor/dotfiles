@@ -310,7 +310,7 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
     echo "This will enable automatic SSH key management."
     echo ""
 
-    # Check if app is available for integration
+    # Re-check if app is available (may have been installed/launched since initial check)
     if ls /Applications/1Password\ *.app &>/dev/null; then
       echo "Choose your authentication method:"
       echo "1. Use 1Password app integration (recommended)"
@@ -323,29 +323,70 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
       if [[ $auth_choice == "1" ]]; then
         echo ""
         echo "🔗 Setting up 1Password app integration..."
-        echo "Please enable CLI integration in your 1Password app:"
-        echo "• Go to Settings > Developer"
-        echo "• Enable 'Integrate with 1Password CLI'"
+        echo ""
+        echo "📋 Steps to enable CLI integration:"
+        echo "   1. Open 1Password app (if not already open)"
+        echo "   2. Go to Settings → Developer"
+        echo "   3. Turn on 'Integrate with 1Password CLI'"
+        echo "   4. Optional: Turn on Touch ID for easy authentication"
+        echo ""
+        echo "💡 This allows the CLI to authenticate through the app instead of passwords"
         echo ""
         read -p "Press Enter when you've enabled CLI integration..."
 
+        # Give a moment for the integration to activate
+        echo "🔄 Testing CLI integration..."
+        sleep 2
+
         # Test if integration works
         if check_1password_auth; then
-          echo "✅ 1Password CLI integration working"
+          echo "✅ 1Password CLI integration working!"
         else
-          echo "❌ CLI integration not working, trying manual signin..."
-          op signin || {
-            echo "⚠️  1Password setup failed"
-            echo "   Continuing without 1Password integration..."
+          echo "⚠️  CLI integration not detected. Let's try a different approach."
+          echo ""
+          echo "Choose how to proceed:"
+          echo "1. Try again (maybe integration needs a moment to activate)"
+          echo "2. Add account manually"
+          echo "3. Skip 1Password integration"
+
+          read -p "Enter choice (1/2/3) [1]: " retry_choice
+          retry_choice=${retry_choice:-1}
+
+          if [[ $retry_choice == "1" ]]; then
+            echo "🔄 Retesting integration..."
+            sleep 3
+            if check_1password_auth; then
+              echo "✅ 1Password CLI integration working!"
+            else
+              echo "❌ Still not working, falling back to manual setup..."
+              op signin || {
+                echo "⚠️  1Password setup failed"
+                echo "   Continuing without 1Password integration..."
+                export ONEPASSWORD_AVAILABLE=false
+                echo ""
+                read -p "Press Enter to continue..."
+                return
+              }
+            fi
+          elif [[ $retry_choice == "2" ]]; then
+            echo "Adding 1Password account manually..."
+            op account add && op signin || {
+              echo "⚠️  Failed to add 1Password account"
+              echo "   Continuing without 1Password integration..."
+              export ONEPASSWORD_AVAILABLE=false
+              echo ""
+              read -p "Press Enter to continue..."
+              return
+            }
+          else
+            echo "⏭️  Skipping 1Password integration"
             export ONEPASSWORD_AVAILABLE=false
-            echo ""
-            read -p "Press Enter to continue..."
             return
-          }
+          fi
         fi
       else
         echo "Adding 1Password account manually..."
-        op account add || {
+        op account add && op signin || {
           echo "⚠️  Failed to add 1Password account"
           echo "   Continuing without 1Password integration..."
           export ONEPASSWORD_AVAILABLE=false
@@ -355,16 +396,68 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
         }
       fi
     else
-      echo "1Password app not found - using manual account setup only"
-      echo "Adding 1Password account manually..."
-      op account add || {
-        echo "⚠️  Failed to add 1Password account"
-        echo "   Continuing without 1Password integration..."
+      echo "❌ 1Password app not found"
+      echo ""
+      echo "The app may still be launching or wasn't installed properly."
+      echo "Choose how to proceed:"
+      echo "1. Wait and check again (app might still be starting)"
+      echo "2. Add account manually"
+      echo "3. Skip 1Password integration"
+
+      read -p "Enter choice (1/2/3) [1]: " fallback_choice
+      fallback_choice=${fallback_choice:-1}
+
+             if [[ $fallback_choice == "1" ]]; then
+         echo "⏳ Waiting 10 seconds for 1Password app to launch..."
+         sleep 10
+         if ls /Applications/1Password\ *.app &>/dev/null; then
+           echo "✅ 1Password app found! Proceeding with app integration..."
+           echo ""
+           echo "📋 Steps to enable CLI integration:"
+           echo "   1. Open 1Password app (if not already open)"
+           echo "   2. Go to Settings → Developer"
+           echo "   3. Turn on 'Integrate with 1Password CLI'"
+           echo "   4. Optional: Turn on Touch ID for easy authentication"
+           echo ""
+           read -p "Press Enter when you've enabled CLI integration..."
+
+           if check_1password_auth; then
+             echo "✅ 1Password CLI integration working!"
+           else
+             echo "❌ Integration still not working, falling back to manual setup"
+             op account add && op signin || {
+               echo "⚠️  Failed to add 1Password account"
+               export ONEPASSWORD_AVAILABLE=false
+               echo ""
+               read -p "Press Enter to continue..."
+               return
+             }
+           fi
+         else
+           echo "❌ App still not found, falling back to manual setup"
+           op account add && op signin || {
+             echo "⚠️  Failed to add 1Password account"
+             export ONEPASSWORD_AVAILABLE=false
+             echo ""
+             read -p "Press Enter to continue..."
+             return
+           }
+         fi
+      elif [[ $fallback_choice == "2" ]]; then
+        echo "Adding 1Password account manually..."
+        op account add && op signin || {
+          echo "⚠️  Failed to add 1Password account"
+          echo "   Continuing without 1Password integration..."
+          export ONEPASSWORD_AVAILABLE=false
+          echo ""
+          read -p "Press Enter to continue..."
+          return
+        }
+      else
+        echo "⏭️  Skipping 1Password integration"
         export ONEPASSWORD_AVAILABLE=false
-        echo ""
-        read -p "Press Enter to continue..."
         return
-      }
+      fi
     fi
   fi
 
