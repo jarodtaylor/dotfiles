@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail
+set -o pipefail
 
 # Check if running in interactive mode
 if [ ! -t 0 ]; then
@@ -32,7 +32,7 @@ prompt_yn() {
 }
 
 # ########################################
-# INSTALL XCODE COMMAND LINE TOOLS       # 
+# INSTALL XCODE COMMAND LINE TOOLS       #
 # ########################################
 
 # Check for Xcode Command Line Tools and install them if not present

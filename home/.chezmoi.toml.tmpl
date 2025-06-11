@@ -18,8 +18,13 @@ recipient = "age1mh2dqm4658zqnxethed0sw5hf0n28a8t4uw24w9akgwhgrzkwvssz90nst"
 [data]
 brew_prefix = {{ $brew_prefix | quote }}
 ageKeyFile = {{ $ageKeyFile | quote }}
+{{- if lookPath "op" -}}
 ssh_key = "{{- onepasswordRead "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" -}}"
 work_ssh_key = "{{- onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" -}}"
+{{- else -}}
+ssh_key = ""
+work_ssh_key = ""
+{{- end -}}
 code_dir = "~/Code"
 work_dir = "~/Code/work"
 
