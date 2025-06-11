@@ -20,7 +20,8 @@ brew_prefix = {{ $brew_prefix | quote }}
 ageKeyFile = {{ $ageKeyFile | quote }}
 {{- $op_available := false -}}
 {{- if lookPath "op" -}}
-{{-   if output "op" "account" "list" | len -}}
+{{-   $accountOutput := output "op" "account" "list" -}}
+{{-   if and (not (contains "No accounts configured" $accountOutput)) ($accountOutput | len) -}}
 {{-     $op_available = true -}}
 {{-   end -}}
 {{- end -}}
