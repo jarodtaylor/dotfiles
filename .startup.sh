@@ -219,76 +219,140 @@ else
 fi
 
 # ##########################################
-# INSTALL ESSENTIAL CLI TOOLS              #
+# 1PASSWORD SETUP & AUTHENTICATION        #
 # ##########################################
 
-echo "Installing essential CLI tools for dotfiles..."
+echo ""
+echo "🔐 1Password Integration Setup"
+echo "=============================="
+echo "1Password CLI can securely manage your SSH keys and other secrets."
+echo "This is completely optional but provides the best security experience."
+echo ""
 
-# Install 1Password CLI (required for secrets in chezmoi templates)
-if ! command -v op &>/dev/null; then
-  echo ""
-  echo "🔐 1Password Setup"
-  echo "=================="
-  echo "1Password CLI can be used to securely manage SSH keys and other secrets."
-  echo "This is optional but recommended for the full experience."
-  echo ""
-  read -p "Would you like to install and use 1Password CLI? (y/n) [y]: " use_1password
-  use_1password=${use_1password:-y}
+read -p "Will you be using 1Password for SSH key management? (y/n) [y]: " use_1password
+use_1password=${use_1password:-y}
 
-  if [[ $use_1password =~ ^[Yy]$ ]]; then
-    echo "Installing 1Password CLI..."
+if [[ $use_1password =~ ^[Yy]$ ]]; then
+  echo ""
+  echo "🔧 Setting up 1Password integration..."
+
+  # Install 1Password CLI if needed
+  if ! command -v op &>/dev/null; then
+    echo "📥 Installing 1Password CLI..."
     brew install --cask 1password-cli
     echo "✅ 1Password CLI installed"
+  else
+    echo "✅ 1Password CLI already installed"
+  fi
 
+  # Check if already signed in
+  if op account list &>/dev/null; then
+    echo "✅ Already signed in to 1Password CLI"
+  else
     echo ""
-    echo "Please sign in to 1Password CLI to continue..."
-    echo "This will enable automatic SSH key management and git signing."
+    echo "🔑 1Password Authentication Required"
+    echo "==================================="
+    echo "You need to sign in to 1Password CLI to continue."
+    echo "This will enable automatic SSH key management."
+    echo ""
+    echo "Choose your authentication method:"
+    echo "1. Use 1Password app integration (recommended)"
+    echo "2. Add account manually"
     echo ""
 
-    # Attempt to sign in
-    if ! op account list &>/dev/null; then
-      echo "Opening 1Password sign-in..."
-      op signin || echo "⚠️  1Password sign-in skipped - you can sign in later with 'op signin'"
+    read -p "Enter choice (1/2) [1]: " auth_choice
+    auth_choice=${auth_choice:-1}
+
+    if [[ $auth_choice == "1" ]]; then
+      echo ""
+      echo "Please enable 1Password CLI integration in your 1Password app:"
+      echo "• Open 1Password app"
+      echo "• Go to Settings > Developer"
+      echo "• Enable 'Integrate with 1Password CLI'"
+      echo ""
+      read -p "Press Enter when you've enabled CLI integration..."
+
+      # Test if integration works
+      if op account list &>/dev/null; then
+        echo "✅ 1Password CLI integration working"
+      else
+        echo "❌ CLI integration not working, trying manual signin..."
+        op signin || {
+          echo "⚠️  1Password setup failed"
+          echo "   Continuing without 1Password integration..."
+          export ONEPASSWORD_AVAILABLE=false
+          echo ""
+          read -p "Press Enter to continue..."
+        }
+      fi
+    else
+      echo "Adding 1Password account manually..."
+      op account add || {
+        echo "⚠️  Failed to add 1Password account"
+        echo "   Continuing without 1Password integration..."
+        export ONEPASSWORD_AVAILABLE=false
+        echo ""
+        read -p "Press Enter to continue..."
+      }
+    fi
+  fi
+
+  # Verify 1Password is working and test SSH key access
+  if op account list &>/dev/null; then
+    echo ""
+    echo "🧪 Testing 1Password SSH key access..."
+
+    # Test if we can read the SSH keys
+    if op read "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" &>/dev/null; then
+      echo "✅ Personal SSH key accessible"
+      personal_key_ok=true
+    else
+      echo "⚠️  Personal SSH key not found in 1Password"
+      personal_key_ok=false
     fi
 
-    # Verify it's working
-    if op account list &>/dev/null; then
-      echo "✅ 1Password CLI ready"
+    if op read "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" &>/dev/null; then
+      echo "✅ Work SSH key accessible"
+      work_key_ok=true
+    else
+      echo "⚠️  Work SSH key not found in 1Password"
+      work_key_ok=false
+    fi
+
+    if [[ $personal_key_ok == true && $work_key_ok == true ]]; then
+      echo "🎉 1Password SSH integration fully configured!"
       export ONEPASSWORD_AVAILABLE=true
     else
-      echo "⚠️  1Password CLI installed but not signed in"
-      echo "   You can sign in later with: op signin"
-      export ONEPASSWORD_AVAILABLE=false
-    fi
-  else
-    echo "⏭️  Skipping 1Password CLI installation"
-    export ONEPASSWORD_AVAILABLE=false
-  fi
-else
-  echo "✅ 1Password CLI already installed"
-  # Check if signed in
-  if op account list &>/dev/null; then
-    echo "✅ 1Password CLI ready"
-    export ONEPASSWORD_AVAILABLE=true
-  else
-    echo "⚠️  1Password CLI not signed in"
-    read -p "Would you like to sign in now? (y/n) [y]: " signin_now
-    signin_now=${signin_now:-y}
+      echo ""
+      echo "⚠️  Some SSH keys missing from 1Password"
+      echo "   You can add them later or continue with manual SSH key generation"
+      read -p "Continue with 1Password anyway? (y/n) [n]: " continue_anyway
+      continue_anyway=${continue_anyway:-n}
 
-    if [[ $signin_now =~ ^[Yy]$ ]]; then
-      op signin || echo "⚠️  1Password sign-in skipped"
-
-      if op account list &>/dev/null; then
-        echo "✅ 1Password CLI ready"
+      if [[ $continue_anyway =~ ^[Yy]$ ]]; then
         export ONEPASSWORD_AVAILABLE=true
       else
         export ONEPASSWORD_AVAILABLE=false
       fi
-    else
-      export ONEPASSWORD_AVAILABLE=false
     fi
+  else
+    echo "❌ 1Password authentication failed"
+    export ONEPASSWORD_AVAILABLE=false
   fi
+else
+  echo "⏭️  Skipping 1Password setup"
+  export ONEPASSWORD_AVAILABLE=false
 fi
+
+echo ""
+if [[ $ONEPASSWORD_AVAILABLE == true ]]; then
+  echo "✅ 1Password integration: ENABLED"
+  echo "   SSH keys will be managed automatically"
+else
+  echo "⚠️  1Password integration: DISABLED"
+  echo "   SSH keys will be generated manually during setup"
+fi
+echo ""
 
 # ##########################################
 # INSTALL CHEZMOI AND APPLY DOTFILES       #

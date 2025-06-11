@@ -6,9 +6,34 @@ set -eo pipefail
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
 
-{{- if .onepassword_available }}
-echo "✅ SSH keys managed by 1Password"
-echo "   Keys will be available via 1Password SSH agent"
+{{- if and (lookPath "op") (eq (env "ONEPASSWORD_AVAILABLE") "true") }}
+echo "🔑 SSH keys managed by 1Password - setting up key files..."
+
+# Verify 1Password is working
+if ! op account list &>/dev/null; then
+  echo "❌ 1Password CLI not authenticated"
+  echo "   Please run 'op signin' first"
+  exit 1
+fi
+
+# Create SSH key files from 1Password
+echo "📥 Retrieving SSH keys from 1Password..."
+
+# Personal key
+if op read "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" > ~/.ssh/id.pub 2>/dev/null; then
+  echo "✅ Personal SSH public key retrieved"
+else
+  echo "⚠️  Could not retrieve personal SSH key from 1Password"
+fi
+
+# Work key
+if op read "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" > ~/.ssh/work_id.pub 2>/dev/null; then
+  echo "✅ Work SSH public key retrieved"
+else
+  echo "⚠️  Could not retrieve work SSH key from 1Password"
+fi
+
+echo "✅ SSH keys configured via 1Password"
 {{- else }}
 echo "🔑 Setting up SSH keys manually..."
 
