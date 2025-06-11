@@ -236,6 +236,15 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
   echo ""
   echo "🔧 Setting up 1Password integration..."
 
+  # Install 1Password CLI first - needed for all subsequent checks
+  if ! command -v op &>/dev/null; then
+    echo "📥 Installing 1Password CLI..."
+    brew install --cask 1password-cli
+    echo "✅ 1Password CLI installed"
+  else
+    echo "✅ 1Password CLI already installed"
+  fi
+
   # Function to check if 1Password is properly authenticated
   check_1password_auth() {
     local accounts
@@ -246,15 +255,6 @@ if [[ $use_1password =~ ^[Yy]$ ]]; then
       return 1
     fi
   }
-
-  # Install 1Password CLI if needed
-  if ! command -v op &>/dev/null; then
-    echo "📥 Installing 1Password CLI..."
-    brew install --cask 1password-cli
-    echo "✅ 1Password CLI installed"
-  else
-    echo "✅ 1Password CLI already installed"
-  fi
 
   # Check if already signed in
   if check_1password_auth; then
