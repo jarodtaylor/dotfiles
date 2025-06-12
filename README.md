@@ -2,71 +2,80 @@
 
 > **Fair Warning**: These dotfiles are highly opinionated and tailored for my specific macOS development workflow. They showcase patterns and automation that might be useful, but you'll likely want to fork and heavily customize rather than use directly.
 
-A sophisticated dotfiles management system built on [Chezmoi](https://www.chezmoi.io/) with extensive automation, multi-identity support, and macOS-specific optimizations.
+A clean, simple dotfiles management system built on [Chezmoi](https://www.chezmoi.io/) following Tom Payne's philosophy of declarative configuration and natural tool idempotency.
 
 ## 🎯 Philosophy
 
-This repository follows a "**state keeper**" approach where:
+This repository follows Tom Payne's **"simple and declarative"** approach:
 
-- **Chezmoi manages the foundational configuration** - the stuff you need after a disaster
-- **Applications handle day-to-day settings** - live configurations that change frequently
-- **Automation bridges the gap** - smart backups and sync when it makes sense
+- **Leverage each tool's natural idempotency** instead of fighting it with custom logic
+- **Use direct `onepasswordRead` calls** in templates for secrets
+- **Simple brew bundle** for package installation (naturally idempotent)
+- **Minimal scripts** focused only on macOS defaults configuration
+- **No complex detection logic** or backup mechanisms
 
-The goal isn't to manage every single setting, but to have a solid foundation that gets you 90% of the way back to productivity after setting up a new machine.
+The goal is a clean, maintainable setup that gets you from zero to productive development environment in minutes.
 
 ## ✨ Key Features
 
 ### 🔐 Security-First Design
 
-- **1Password integration** for secrets management
-- **Age encryption** for sensitive configurations
-- **Multi-identity Git setup** (personal/work with separate SSH keys)
-- **SSH agent through 1Password** for seamless key management
-
-### 🤖 Smart Automation
-
-- **Weekly VSCode backup** via LaunchAgent
-- **Git hook integration** for automatic backups after commits
-- **Smart reminder system** that knows when to nudge you about backups
-- **One-time setup scripts** that run during chezmoi initialization
+- **1Password integration** with direct `onepasswordRead` template calls
+- **SSH keys managed by 1Password** with automatic agent configuration
+- **Git signing** through 1Password SSH keys
+- **Dynamic SSH config** stored in 1Password notes for ultimate flexibility
 
 ### 🛠 Developer Workflow Optimization
 
-- **Organized shell functions** categorized by purpose (CLI tools, config, system)
-- **Comprehensive tool configuration** (Git, Neovim, VS Code, Terminal apps)
-- **macOS-specific optimizations** (window management, system integration)
-- **Unified package management** with Homebrew and mise
+- **90+ applications** installed via brew bundle
+- **Development tools** managed by mise (Node.js, Python, Ruby, etc.)
+- **Comprehensive shell setup** with Zsh, Starship, and productivity tools
+- **macOS system configuration** via simple defaults commands
 
 ### 📁 Clean Organization
 
-- **Structured function loading** (config → CLI → system)
-- **Template-driven configuration** with environment-specific values
-- **Modular chezmoi scripts** for different setup phases
-- **Comprehensive `.chezmoiignore`** to avoid over-management
+- **Before scripts**: Package installation (brew bundle, mise)
+- **Templates**: Declarative config using direct `onepasswordRead`
+- **After scripts**: Minimal macOS defaults configuration
+- **Dynamic configs**: Stored in 1Password for flexibility without code changes
 
-## 🚀 Quick Setup (YOLO!)
+## 🚀 Quick Setup
 
-If you want to try my exact setup (not recommended unless you're me):
+### One-Line Install (Zero to Coding in 60 Minutes!)
 
 ```bash
-bash -c "$(curl -sfL https://raw.githubusercontent.com/jarodtaylor/dotfiles/refactor-simplify/install.sh)"
+curl -sfL https://raw.githubusercontent.com/jarodtaylor/dotfiles/refactor-simplify/install.sh | bash
 ```
 
-This installs Xcode Command Line Tools, Homebrew, and applies the full configuration.
+This will:
+
+1. Install Xcode Command Line Tools (with GUI prompts)
+2. Install and run chezmoi with my dotfiles
+3. Install 90+ applications via Homebrew
+4. Configure development tools with mise
+5. Apply all configurations and settings
+
+### What You'll Get
+
+- **Perfect shell** with AI-powered tools and productivity enhancements
+- **90+ applications** ready to use (VS Code, Docker, browsers, etc.)
+- **Development environment** with Node.js, Python, Ruby, Go, etc.
+- **All configurations** tuned for maximum productivity
+- **1Password integration** for secure SSH and Git operations
 
 ## 🔧 Manual Setup (Recommended for Others)
 
 ### 1. Prerequisites
 
+The install script handles these, but for manual setup:
+
 ```bash
-# Install Homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Install Xcode Command Line Tools
+xcode-select --install
 
-# Install chezmoi
-brew install chezmoi
-
-# Install 1Password CLI (optional, for secrets)
-brew install 1password-cli
+# Install 1Password app and CLI (optional but recommended)
+# Download from App Store or:
+brew install --cask 1password 1password-cli
 ```
 
 ### 2. Fork and Customize
@@ -76,11 +85,12 @@ brew install 1password-cli
 git clone https://github.com/YOURUSERNAME/dotfiles.git
 cd dotfiles
 
-# Review and customize:
-# - home/.chezmoi.toml.tmpl (remove 1Password references if not using)
-# - home/.chezmoiignore (adjust for your preferences)
-# - home/.chezmoiscripts/ (remove macOS-specific stuff if needed)
-# - Package lists in run_onchange_before_00-brew-packages.sh.tmpl
+# Customize the package lists:
+# - home/.chezmoiscripts/run_onchange_before_10-install-packages.sh.tmpl
+# Remove 1Password references if not using:
+# - home/.chezmoi.toml.tmpl
+# - home/private_dot_ssh/config.tmpl
+# - home/dot_gitconfig.tmpl
 ```
 
 ### 3. Initialize Your Version
@@ -99,99 +109,130 @@ chezmoi apply
 
 ## 📚 What's Included
 
-### Core Tools & Configuration
+### Core Applications (90+)
 
-- **Zsh** with Starship prompt, organized functions, and smart abbreviations
-- **Git** with Delta diff viewer, multiple identity support, and workflow aliases
-- **Neovim** with LazyVim configuration
-- **VS Code/Cursor** with settings, keybindings, and automated backup
-- **Terminal apps** (Ghostty, Kitty) with matching themes
+**Development Tools:**
 
-### macOS Integration
+- VS Code, Cursor, Neovim
+- Docker, Postman, GitHub Desktop
+- Terminal apps (Ghostty, Wezterm)
 
-- **Aerospace** tiling window manager configuration
-- **Karabiner Elements** keyboard customization
-- **LaunchAgents** for background automation
-- **System preferences** automation (Touch ID, PAM configuration)
+**Productivity:**
+
+- 1Password, Raycast, CleanShot
+- Notion, Obsidian, Todoist
+- Slack, Discord, Zoom
+
+**System Tools:**
+
+- Aerospace (window management)
+- Karabiner Elements (keyboard customization)
+- Various fonts and utilities
 
 ### Development Environment
 
-- **mise** for runtime version management (Node.js, Python, Ruby, etc.)
-- **Comprehensive package management** with Homebrew
-- **Database tools** (PostgreSQL, Redis)
-- **CLI productivity tools** (bat, eza, fzf, ripgrep, etc.)
+- **mise** for runtime management (Node.js, Python, Ruby, Go, etc.)
+- **Comprehensive CLI tools** (bat, eza, fzf, ripgrep, lazygit, etc.)
+- **Database tools** (PostgreSQL, Redis, pgcli)
+- **Modern shell** with Zsh, Starship prompt, and abbreviations
+
+### Configuration Files
+
+- **Git** with Delta diff viewer and 1Password SSH signing
+- **SSH** with 1Password agent integration
+- **Zsh** with organized functions and productivity aliases
+- **Neovim** with modern configuration
+- **macOS** system preferences and defaults
 
 ## 🗂 Repository Structure
 
 ```
-├── home/                           # Files that get applied to ~
-│   ├── .chezmoiscripts/           # One-time and conditional setup scripts
-│   ├── .chezmoitemplates/         # Reusable template snippets
-│   ├── .config/                   # Application configurations
-│   │   ├── zsh/functions/         # Organized shell functions
-│   │   │   ├── cli/              # Daily workflow tools
-│   │   │   ├── config/           # Shell configuration
-│   │   │   └── system/           # System integration
-│   │   ├── Code/User/            # VS Code configuration
-│   │   └── [other apps]/         # Tool-specific configs
-│   ├── bin/                       # Executable scripts
-│   └── Library/LaunchAgents/      # macOS background automation
-├── .startup.sh                    # Automated installation script
-└── README.md                      # This file
+├── home/                                    # Files applied to ~
+│   ├── .chezmoiscripts/                    # Setup scripts
+│   │   ├── run_onchange_before_10-install-packages.sh.tmpl  # Brew + mise
+│   │   └── run_onchange_after_10-configure-macos.sh        # System defaults
+│   ├── .chezmoitemplates/                  # Reusable snippets
+│   ├── .config/                            # App configurations
+│   │   ├── zsh/                           # Shell setup
+│   │   ├── git/                           # Git configuration
+│   │   ├── nvim/                          # Neovim config
+│   │   └── [other apps]/                 # Tool configs
+│   ├── private_dot_ssh/                    # SSH configuration
+│   └── dot_gitconfig.tmpl                  # Git global config
+├── install.sh                              # One-line installer
+└── README.md                               # This file
 ```
 
 ## 🎨 Customization Guide
 
-### For Different Operating Systems
+### Package Management
 
-- Remove macOS-specific files in `home/.chezmoiscripts/`
-- Update package manager in brew packages script
-- Adjust paths in configuration files
-- Remove `home/Library/` LaunchAgent files
+Edit `home/.chezmoiscripts/run_onchange_before_10-install-packages.sh.tmpl`:
 
-### For Different Workflows
+```bash
+{{ $brews := list
+  "your-brew-packages"
+  "here" -}}
 
-- Modify the functions in `home/.config/zsh/functions/`
-- Update application configurations in `home/.config/`
-- Adjust the package lists in the scripts
-- Customize the `.chezmoiignore` patterns
+{{ $casks := list
+  "your-cask-apps"
+  "here" -}}
+```
 
-### For Different Security Models
+### 1Password Integration
 
-- Remove 1Password references in `home/.chezmoi.toml.tmpl`
-- Replace age encryption with your preferred method
-- Update SSH key management approach
-- Modify git identity configuration
+If not using 1Password, remove references in:
 
-## 📖 Additional Documentation
+- `home/.chezmoi.toml.tmpl`
+- `home/private_dot_ssh/config.tmpl`
+- `home/dot_gitconfig.tmpl`
 
-- **[ZSH Functions Guide](home/dot_config/zsh/functions/README.md)** - Detailed breakdown of shell function organization
-- **[Chezmoi Scripts & Automation](docs/CHEZMOI_SCRIPTS.md)** - Deep dive into setup automation and script execution
-- **[VSCode Backup Automation](docs/VSCODE_AUTOMATION.md)** - Complete guide to the three-layer backup system
+### macOS Defaults
+
+Customize system settings in:
+
+- `home/.chezmoiscripts/run_onchange_after_10-configure-macos.sh`
+
+## 🔄 Key Differences from Complex Approach
+
+### Before (Complex)
+
+- Hundreds of lines of detection logic
+- Multiple backup and restore mechanisms
+- Complex 1Password setup scripts
+- Conditional environment variables
+- Timeout-based package installation
+
+### After (Simple)
+
+- Direct `onepasswordRead` calls in templates
+- Single brew bundle for packages
+- Minimal scripts for macOS defaults only
+- Leverages natural tool idempotency
+- Clean, declarative configuration
 
 ## 🤝 Contributing
 
 While this repository is highly personal, I'm happy to:
 
-- Answer questions about the patterns and approaches used
-- Review suggestions for better organization or automation
-- Help troubleshoot issues you encounter when adapting the setup
+- Answer questions about the simplified patterns used
+- Review suggestions for better organization
+- Help troubleshoot issues when adapting the setup
 
 ## ⚠️ Disclaimers
 
-- **macOS-focused**: Most automation assumes macOS (Homebrew, LaunchAgents, etc.)
-- **Opinionated tool choices**: Heavy use of specific tools (Starship, Neovim, etc.)
-- **1Password dependent**: Many security features assume 1Password CLI
-- **Personal workflow**: Optimized for my specific development patterns
+- **macOS-focused**: Assumes macOS with Homebrew
+- **1Password optimized**: Many features work best with 1Password
+- **Opinionated choices**: Specific tools and configurations for my workflow
 
 ## 🙏 Inspiration
 
-This repository builds on ideas from the dotfiles community, particularly:
+This simplified approach is heavily inspired by:
 
-- [Chezmoi documentation](https://www.chezmoi.io/) for configuration management patterns
-- [ThePrimeagen](https://github.com/ThePrimeagen/.dotfiles) for Neovim configuration inspiration
-- [Catppuccin](https://github.com/catppuccin) for consistent theming across tools
+- **[Tom Payne's dotfiles](https://github.com/twpayne/dotfiles)** - The creator of chezmoi's own clean approach
+- **[Chezmoi documentation](https://www.chezmoi.io/)** - Best practices and patterns
+- **[MasahiroSakoda's dotfiles](https://github.com/MasahiroSakoda/dotfiles/)** - Multi-platform simplicity
 
 ---
 
-**Remember**: The best dotfiles are the ones that match _your_ workflow. Use this as inspiration, but don't be afraid to rip out everything that doesn't fit your needs!
+**Remember**: The best dotfiles are simple, maintainable, and match _your_ workflow. This repository shows how to achieve a lot with very little complexity!

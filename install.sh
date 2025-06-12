@@ -26,16 +26,6 @@ else
   echo "✅ Xcode Command Line Tools already installed"
 fi
 
-# Accept Xcode license if needed
-echo "📋 Checking Xcode license..."
-if ! xcodebuild -license check &>/dev/null; then
-  echo "📝 Accepting Xcode license agreement..."
-  sudo xcodebuild -license accept
-  echo "✅ Xcode license accepted"
-else
-  echo "✅ Xcode license already accepted"
-fi
-
 echo ""
 echo "🚀 Installing chezmoi and applying dotfiles..."
 
