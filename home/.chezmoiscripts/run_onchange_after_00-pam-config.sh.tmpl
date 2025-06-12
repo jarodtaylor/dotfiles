@@ -3,19 +3,20 @@
 set -eufo pipefail
 
 {{ template "scripts/script_sudo" . }}
+{{ template "scripts/script_helper" . }}
 
 # Check if pam-reattach is installed, and install it if not
 if ! brew list pam-reattach &>/dev/null; then
-  echo "Installing pam-reattach..."
+  log_info "Installing pam-reattach..."
   brew install pam-reattach
 else
-  echo "pam-reattach is already installed."
+  log_debug "pam-reattach is already installed."
 fi
 
 # Create sudo_local file with required configuration
 SUDO_LOCAL_FILE="/etc/pam.d/sudo_local"
 
-echo "Configuring sudo_local for Touch ID, Apple Watch, and tmux authentication..."
+log_info "Configuring sudo_local for Touch ID, Apple Watch, and tmux authentication..."
 
 # Create the file with our desired configuration
 # Note: pam_reattach must be loaded first to properly handle authentication in tmux
@@ -29,4 +30,4 @@ auth       sufficient     pam_tid.so
 auth       sufficient     pam_watchid.so
 EOF
 
-echo "sudo_local configuration complete."
+log_debug "sudo_local configuration complete."

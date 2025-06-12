@@ -108,7 +108,7 @@ set -eufo pipefail
 
 # Install Homebrew if not present
 if ! command -v brew &>/dev/null; then
-  echo "Installing Homebrew..."
+  log_info "Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
@@ -141,7 +141,7 @@ EOF
 
 # Configure mise (development tool version manager)
 if command -v mise &>/dev/null; then
-    echo "Upgrading mise and managing development tools..."
+    log_info "Upgrading mise and managing development tools..."
     mise upgrade
 
     # Capture the list of prunable items
@@ -150,10 +150,10 @@ if command -v mise &>/dev/null; then
     # Check if there are any prunable items
     if [ -n "$prunable_items" ]; then
         for item in $prunable_items; do
-            echo "Pruning removed tool: $item"
+            log_debug "Pruning removed tool: $item"
             mise prune "$item"
         done
     fi
 else
-    echo "Warning: mise not found. Package installation may have failed."
+    log_warning "Warning: mise not found. Package installation may have failed."
 fi
