@@ -29,6 +29,6 @@ fi
 echo ""
 echo "🚀 Installing chezmoi and applying dotfiles..."
 
-# Now install and run chezmoi
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --verbose --apply https://github.com/jarodtaylor/dotfiles/tree/refactor-simplify
+# Now install and run chezmoi with correct branch syntax
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --verbose --apply --branch refactor-simplify jarodtaylor
 
