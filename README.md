@@ -49,7 +49,7 @@ The goal isn't to manage every single setting, but to have a solid foundation th
 If you want to try my exact setup (not recommended unless you're me):
 
 ```bash
-bash -c "$(curl -sfL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/install.sh)"
+bash -c "$(curl -sfL https://raw.githubusercontent.com/jarodtaylor/dotfiles/refactor-simplify/install.sh)"
 ```
 
 This installs Xcode Command Line Tools, Homebrew, and applies the full configuration.
