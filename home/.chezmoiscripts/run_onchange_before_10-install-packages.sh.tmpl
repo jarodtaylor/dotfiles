@@ -130,7 +130,7 @@ brew link --overwrite zsh-abbr@6
 brew install olets/tap/zsh-autosuggestions-abbreviations-strategy
 
 # Use brew bundle for idempotent package installation
-NONINTERACTIVE=1 brew bundle --file=/dev/stdin <<EOF
+brew bundle --file=/dev/stdin <<EOF
 {{ range ($brews | sortAlpha | uniq) -}}
 brew "{{ . }}"
 {{ end -}}
