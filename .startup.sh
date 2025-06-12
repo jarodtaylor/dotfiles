@@ -50,73 +50,6 @@ fi
 
 echo ""
 
-# Test if 1Password CLI can actually communicate with the app
-can_cli_communicate_with_app() {
-  # Check if app exists first
-  if ! ls /Applications/1Password\ *.app &>/dev/null; then
-    return 1
-  fi
-
-  # Test if CLI can actually communicate (this is what really matters)
-  # op account list should work if app integration is available
-  timeout 5 op account list &>/dev/null
-}
-
-# Debug function for troubleshooting chezmoi issues
-debug_chezmoi() {
-  echo "🔍 CHEZMOI DEBUG INFORMATION"
-  echo "============================="
-  echo ""
-
-  echo "📍 Environment:"
-  echo "  PWD: $(pwd)"
-  echo "  USER: $USER"
-  echo "  HOME: $HOME"
-  echo "  ONEPASSWORD_AVAILABLE: ${ONEPASSWORD_AVAILABLE:-not set}"
-  echo ""
-
-  echo "🛠️  Tool availability:"
-  echo "  chezmoi: $(command -v chezmoi || echo 'NOT FOUND')"
-  echo "  op: $(command -v op || echo 'NOT FOUND')"
-  echo "  git: $(command -v git || echo 'NOT FOUND')"
-  echo ""
-
-  if command -v chezmoi &>/dev/null; then
-    echo "📋 Chezmoi configuration:"
-    echo "  Source dir: $("$HOME/bin/chezmoi" source-path 2>/dev/null || echo 'ERROR')"
-    echo "  Config file: $("$HOME/bin/chezmoi" config-file 2>/dev/null || echo 'ERROR')"
-    echo ""
-
-    echo "📊 Chezmoi status:"
-    ONEPASSWORD_AVAILABLE="${ONEPASSWORD_AVAILABLE:-false}" "$HOME/bin/chezmoi" status 2>&1 || echo "❌ Status command failed"
-    echo ""
-
-    echo "🗂️  Source directory contents:"
-    if [ -d "$HOME/.local/share/chezmoi" ]; then
-      find "$HOME/.local/share/chezmoi/home" -type f | head -20
-    else
-      echo "❌ Source directory doesn't exist"
-    fi
-  fi
-
-  echo ""
-  echo "📁 Current ~/.config contents:"
-  find "$HOME/.config" -maxdepth 1 -type d 2>/dev/null | sort || echo "❌ Can't read ~/.config"
-
-  echo ""
-  echo "🔑 Key files status:"
-  for file in .zshrc .zshenv .ssh/config; do
-    if [ -f "$HOME/$file" ]; then
-      echo "  ✅ ~/$file exists"
-    else
-      echo "  ❌ ~/$file missing"
-    fi
-  done
-}
-
-# Uncomment the line below and run this script to get debug info:
-# debug_chezmoi && exit 0
-
 # ##########################################
 # PREREQUISITES & ASSUMPTIONS              #
 # ##########################################
@@ -126,8 +59,8 @@ echo ""
 echo "🪄 About to transform this Mac into a fully-configured development machine!"
 echo ""
 echo "⚠️  Quick setup (do these first):"
-echo "   1. Install 1Password app from App Store"
-echo "   2. Sign in to 1Password"
+echo "   1. Have your 1Password account details ready."
+echo "   2. This script will install 1Password and prompt for setup."
 echo ""
 echo "✨ Then this script magically installs:"
 echo "   • All development tools (Git, Node, Python, etc.)"
@@ -184,388 +117,6 @@ prompt_yn() {
   done
 }
 
-# ########################################
-# INSTALL HOMEBREW                       #
-# ########################################
-
-# Check if Homebrew is installed and functional
-is_brew_installed() {
-  [ -d "/opt/homebrew" ] || [ -d "/usr/local/Homebrew" ]
-}
-
-# Check if Homebrew installation is complete and functional
-is_brew_functional() {
-  command -v brew &>/dev/null && brew --version &>/dev/null
-}
-
-# Check if Homebrew is in the PATH
-is_brew_path_set() {
-  command -v brew &>/dev/null
-}
-
-# Set Homebrew in the PATH
-set_brew_path() {
-  if [ -d "/opt/homebrew/bin" ]; then
-    # For Apple Silicon Mac
-    echo "Apple Silicon Mac detected. Setting Homebrew path..."
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  elif [ -d "/usr/local/bin" ]; then
-    # For Intel Mac
-    echo "Intel Mac detected. Setting Homebrew path..."
-    eval "$(/usr/local/bin/brew shellenv)"
-  fi
-}
-
-# Install Homebrew if it is not installed or not functional
-if is_brew_functional; then
-  echo "Homebrew is installed and functional."
-elif is_brew_installed; then
-  echo "Homebrew directory exists but not functional. Setting PATH and checking..."
-  set_brew_path
-  if ! is_brew_functional; then
-    echo "Homebrew installation appears incomplete. Reinstalling..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    set_brew_path
-  fi
-else
-  echo "Homebrew is not installed. Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  set_brew_path
-fi
-
-# ##########################################
-# 1PASSWORD SETUP & AUTHENTICATION        #
-# ##########################################
-
-echo ""
-echo "🔐 1Password Integration Setup"
-echo "=============================="
-echo "1Password CLI can securely manage your SSH keys and other secrets."
-echo "This is completely optional but provides the best security experience."
-echo ""
-
-read -p "Will you be using 1Password for SSH key management? (y/n) [y]: " use_1password
-use_1password=${use_1password:-y}
-
-if [[ $use_1password =~ ^[Yy]$ ]]; then
-  echo ""
-  echo "🔧 Setting up 1Password integration..."
-
-  # Install 1Password CLI first - needed for all subsequent checks
-  onepassword_cli_installed=false
-  if ! command -v op &>/dev/null; then
-    echo "📥 Installing 1Password CLI..."
-    brew install --cask 1password-cli
-    onepassword_cli_installed=true
-    echo "✅ 1Password CLI installed"
-  else
-    echo "✅ 1Password CLI already installed"
-  fi
-
-  # Check if 1Password app is installed
-  onepassword_app_installed=false
-  if ! ls /Applications/1Password\ *.app &>/dev/null; then
-    echo "📥 Installing 1Password app..."
-    brew install --cask 1password
-    onepassword_app_installed=true
-    echo "✅ 1Password app installed"
-    echo "   Please set up 1Password app and add your account before continuing"
-  else
-    echo "✅ 1Password app already installed"
-  fi
-
-  # Function to check if 1Password is properly authenticated
-  check_1password_auth() {
-    local accounts
-    accounts=$(op account list 2>/dev/null)
-    if [[ -n "$accounts" && "$accounts" != *"No accounts configured"* ]]; then
-      return 0
-    else
-      return 1
-    fi
-  }
-
-  # If we just installed the app, user needs to set it up first
-  if [[ $onepassword_app_installed == true ]]; then
-    echo ""
-    echo "🎯 1Password App Setup Required"
-    echo "==============================="
-    echo "Since we just installed 1Password app, you need to set it up first:"
-    echo ""
-    echo "📱 Initial Setup Steps:"
-    echo "   1. Open 1Password app (it should launch automatically)"
-    echo "   2. Sign in to your 1Password account"
-    echo "   3. Complete the setup process and unlock the app"
-    echo ""
-    echo "🔧 Then we'll guide you through enabling CLI integration:"
-    echo "   • Settings > Developer > Integrate with 1Password CLI"
-    echo "   • This allows the CLI to work seamlessly with the app"
-    echo ""
-    echo "📖 Reference: https://developer.1password.com/docs/cli/get-started/"
-    echo ""
-    read -p "Press Enter when you've set up the 1Password app..."
-
-    # Open 1Password app
-    open -a "1Password 7 - Password Manager" 2>/dev/null || open -a "1Password" 2>/dev/null || true
-  fi
-
-  # If we just installed CLI or app, it definitely won't be authenticated yet
-  if [[ $onepassword_cli_installed == true || $onepassword_app_installed == true ]]; then
-    echo "🔑 New 1Password installation detected - authentication required"
-    auth_needed=true
-  elif check_1password_auth; then
-    echo "✅ Already signed in to 1Password CLI"
-    auth_needed=false
-  else
-    auth_needed=true
-  fi
-
-  if [[ $auth_needed == true ]]; then
-    echo ""
-    echo "🔑 1Password Authentication Required"
-    echo "==================================="
-    echo "You need to sign in to 1Password CLI to continue."
-    echo "This will enable automatic SSH key management."
-    echo ""
-
-    # Test if CLI can actually communicate with app (what really matters)
-    if can_cli_communicate_with_app; then
-      echo "✅ 1Password app detected and accessible"
-      echo ""
-      echo "Choose your authentication method:"
-      echo "1. Use 1Password app integration (recommended)"
-      echo "2. Add account manually"
-      echo ""
-
-      read -p "Enter choice (1/2) [1]: " auth_choice
-      auth_choice=${auth_choice:-1}
-    elif ls /Applications/1Password\ *.app &>/dev/null; then
-      echo "⚠️  1Password app found but CLI can't communicate with it yet"
-      echo ""
-      echo "🍎 This usually happens on macOS when:"
-      echo "   • App needs permission approval dialogs"
-      echo "   • App is launching for the first time"
-      echo "   • CLI integration hasn't been enabled yet"
-      echo ""
-      echo "Choose your authentication method:"
-      echo "1. Use 1Password app integration (we'll guide you through setup)"
-      echo "2. Add account manually"
-      echo ""
-
-      read -p "Enter choice (1/2) [1]: " auth_choice
-      auth_choice=${auth_choice:-1}
-
-      if [[ $auth_choice == "1" ]]; then
-        echo ""
-        echo "🔗 Setting up 1Password app integration..."
-        echo ""
-        echo "📋 Follow these exact steps (from 1Password docs):"
-        echo "   1. Open and unlock the 1Password app"
-        echo "   2. Select your account or collection at the top of the sidebar"
-        echo "   3. Navigate to Settings > Developer"
-        echo "   4. Select 'Integrate with 1Password CLI'"
-        echo "   5. Optional: Turn on Touch ID for fingerprint authentication"
-        echo ""
-        echo "💡 This enables CLI authentication through the app instead of passwords"
-        echo "📖 Reference: https://developer.1password.com/docs/cli/get-started/"
-        echo ""
-        read -p "Press Enter when you've enabled CLI integration..."
-
-        # Give a moment for the integration to activate
-        echo "🔄 Testing CLI integration..."
-        sleep 2
-
-        # Test if integration works
-        if check_1password_auth; then
-          echo "✅ 1Password CLI integration working!"
-        else
-          echo "⚠️  CLI integration not detected. Let's try a different approach."
-          echo ""
-          echo "Choose how to proceed:"
-          echo "1. Try again (maybe integration needs a moment to activate)"
-          echo "2. Add account manually"
-          echo "3. Skip 1Password integration"
-
-          read -p "Enter choice (1/2/3) [1]: " retry_choice
-          retry_choice=${retry_choice:-1}
-
-          if [[ $retry_choice == "1" ]]; then
-            echo "🔄 Retesting integration..."
-            sleep 3
-            if check_1password_auth; then
-              echo "✅ 1Password CLI integration working!"
-            else
-              echo "❌ Still not working, falling back to manual setup..."
-              op signin || {
-                echo "⚠️  1Password setup failed"
-                echo "   Continuing without 1Password integration..."
-                export ONEPASSWORD_AVAILABLE=false
-                echo ""
-                read -p "Press Enter to continue..."
-                return
-              }
-            fi
-          elif [[ $retry_choice == "2" ]]; then
-            echo "Adding 1Password account manually..."
-            op account add && op signin || {
-              echo "⚠️  Failed to add 1Password account"
-              echo "   Continuing without 1Password integration..."
-              export ONEPASSWORD_AVAILABLE=false
-              echo ""
-              read -p "Press Enter to continue..."
-              return
-            }
-          else
-            echo "⏭️  Skipping 1Password integration"
-            export ONEPASSWORD_AVAILABLE=false
-            return
-          fi
-        fi
-      else
-        echo "Adding 1Password account manually..."
-        op account add && op signin || {
-          echo "⚠️  Failed to add 1Password account"
-          echo "   Continuing without 1Password integration..."
-          export ONEPASSWORD_AVAILABLE=false
-          echo ""
-          read -p "Press Enter to continue..."
-          return
-        }
-      fi
-    else
-      echo "❌ 1Password app not accessible"
-      echo ""
-      echo "🍎 Common reasons on macOS:"
-      echo "   • App is still launching"
-      echo "   • Permission dialogs need approval"
-      echo "   • App wasn't installed properly"
-      echo ""
-      echo "Choose how to proceed:"
-      echo "1. Wait and check again (allows time for permissions/launch)"
-      echo "2. Add account manually"
-      echo "3. Skip 1Password integration"
-
-      read -p "Enter choice (1/2/3) [1]: " fallback_choice
-      fallback_choice=${fallback_choice:-1}
-
-                    if [[ $fallback_choice == "1" ]]; then
-         echo "⏳ Waiting 15 seconds for 1Password app and permissions..."
-         echo "   💡 If you see permission dialogs, please approve them"
-         sleep 15
-         if can_cli_communicate_with_app; then
-           echo "✅ 1Password CLI can now communicate with app!"
-            echo ""
-            echo "📋 Follow these exact steps (from 1Password docs):"
-            echo "   1. Open and unlock the 1Password app"
-            echo "   2. Select your account or collection at the top of the sidebar"
-            echo "   3. Navigate to Settings > Developer"
-            echo "   4. Select 'Integrate with 1Password CLI'"
-            echo "   5. Optional: Turn on Touch ID for fingerprint authentication"
-            echo ""
-            echo "💡 This enables CLI authentication through the app instead of passwords"
-            echo "📖 Reference: https://developer.1password.com/docs/cli/get-started/"
-           echo ""
-           read -p "Press Enter when you've enabled CLI integration..."
-
-           if check_1password_auth; then
-             echo "✅ 1Password CLI integration working!"
-           else
-             echo "⚠️  CLI still can't communicate with app, but we can try manual setup"
-             echo "   (Manual setup often works even when app integration doesn't)"
-             op account add && op signin || {
-               echo "⚠️  Failed to add 1Password account"
-               export ONEPASSWORD_AVAILABLE=false
-               echo ""
-               read -p "Press Enter to continue..."
-               return
-             }
-           fi
-         else
-           echo "⚠️  CLI still can't communicate with app, trying manual setup instead"
-           echo "   (Manual setup often works even when app detection fails)"
-           op account add && op signin || {
-             echo "⚠️  Failed to add 1Password account"
-             export ONEPASSWORD_AVAILABLE=false
-             echo ""
-             read -p "Press Enter to continue..."
-             return
-           }
-         fi
-      elif [[ $fallback_choice == "2" ]]; then
-        echo "Adding 1Password account manually..."
-        op account add && op signin || {
-          echo "⚠️  Failed to add 1Password account"
-          echo "   Continuing without 1Password integration..."
-          export ONEPASSWORD_AVAILABLE=false
-          echo ""
-          read -p "Press Enter to continue..."
-          return
-        }
-      else
-        echo "⏭️  Skipping 1Password integration"
-        export ONEPASSWORD_AVAILABLE=false
-        return
-      fi
-    fi
-  fi
-
-  # Verify 1Password is working and test SSH key access
-  if check_1password_auth; then
-    echo ""
-    echo "🧪 Testing 1Password SSH key access..."
-
-    # Test if we can read the SSH keys
-    if op read "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" &>/dev/null; then
-      echo "✅ Personal SSH key accessible"
-      personal_key_ok=true
-    else
-      echo "⚠️  Personal SSH key not found in 1Password"
-      personal_key_ok=false
-    fi
-
-    if op read "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" &>/dev/null; then
-      echo "✅ Work SSH key accessible"
-      work_key_ok=true
-    else
-      echo "⚠️  Work SSH key not found in 1Password"
-      work_key_ok=false
-    fi
-
-    if [[ $personal_key_ok == true && $work_key_ok == true ]]; then
-      echo "🎉 1Password SSH integration fully configured!"
-      export ONEPASSWORD_AVAILABLE=true
-    else
-      echo ""
-      echo "⚠️  Some SSH keys missing from 1Password"
-      echo "   You can add them later or continue with manual SSH key generation"
-      read -p "Continue with 1Password anyway? (y/n) [n]: " continue_anyway
-      continue_anyway=${continue_anyway:-n}
-
-      if [[ $continue_anyway =~ ^[Yy]$ ]]; then
-        export ONEPASSWORD_AVAILABLE=true
-      else
-        export ONEPASSWORD_AVAILABLE=false
-      fi
-    fi
-  else
-    echo "❌ 1Password authentication failed"
-    export ONEPASSWORD_AVAILABLE=false
-  fi
-else
-  echo "⏭️  Skipping 1Password setup"
-  export ONEPASSWORD_AVAILABLE=false
-fi
-
-echo ""
-if [[ $ONEPASSWORD_AVAILABLE == true ]]; then
-  echo "✅ 1Password integration: ENABLED"
-  echo "   SSH keys will be managed automatically"
-else
-  echo "⚠️  1Password integration: DISABLED"
-  echo "   SSH keys will be generated manually during setup"
-fi
-echo ""
-
 # ##########################################
 # INSTALL CHEZMOI AND APPLY DOTFILES       #
 # ##########################################
@@ -598,9 +149,9 @@ apply_dotfiles_config() {
     # Use CHEZMOI_DEBUG=1 environment variable for verbose output when needed
     if [[ ${CHEZMOI_DEBUG:-0} == 1 ]]; then
       echo "🔍 Debug mode enabled - showing verbose output..."
-      ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" init --apply --verbose jarodtaylor
+      "$HOME/bin/chezmoi" init --apply --verbose jarodtaylor
     else
-      ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" init --apply jarodtaylor
+      "$HOME/bin/chezmoi" init --apply jarodtaylor
     fi
 
     if [ $? -eq 0 ]; then
@@ -623,7 +174,7 @@ apply_dotfiles_config() {
 
         if [[ ${CHEZMOI_DEBUG:-0} == 1 ]]; then
           echo "📋 Chezmoi status (debug mode):"
-          ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" status || echo "❌ Chezmoi status failed"
+          "$HOME/bin/chezmoi" status || echo "❌ Chezmoi status failed"
         fi
       else
         echo "❌ Chezmoi source directory missing - init failed"
@@ -649,9 +200,9 @@ if [ -d "$HOME/.local/share/chezmoi" ] && command -v chezmoi &>/dev/null; then
     cd "$HOME/.local/share/chezmoi" && git pull origin main
     echo "🔍 Applying updates..."
     if [[ ${CHEZMOI_DEBUG:-0} == 1 ]]; then
-      ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" apply --verbose
+      "$HOME/bin/chezmoi" apply --verbose
     else
-      ONEPASSWORD_AVAILABLE="$ONEPASSWORD_AVAILABLE" "$HOME/bin/chezmoi" apply
+      "$HOME/bin/chezmoi" apply
     fi
 
     if [ $? -eq 0 ]; then

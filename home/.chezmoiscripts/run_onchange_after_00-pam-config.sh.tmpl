@@ -2,7 +2,7 @@
 
 set -eufo pipefail
 
-{{ template "scripts/keepalive_sudo" . }}
+{{ template "scripts/script_sudo" . }}
 
 # Check if pam-reattach is installed, and install it if not
 if ! brew list pam-reattach &>/dev/null; then
@@ -29,4 +29,4 @@ auth       sufficient     pam_tid.so
 auth       sufficient     pam_watchid.so
 EOF
 
-echo "sudo_local configuration complete." 
+echo "sudo_local configuration complete."
