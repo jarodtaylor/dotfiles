@@ -1,11 +1,7 @@
 [user]
   name  = "Jarod Taylor"
   email = "jarodrtaylor@gmail.com"
-{{- if and (lookPath "op") (eq (env "ONEPASSWORD_AVAILABLE") "true") }}
   signingkey = ~/.ssh/id
-{{- else }}
-  # signingkey = [REMOVED - set up SSH keys separately]
-{{- end }}
 
 {{- if stat (joinPath .chezmoi.homeDir ".config/git/config-work") }}
 [includeIf "gitdir:{{ .work_dir }}/"]
@@ -57,4 +53,7 @@
   ff = only
 
 [commit]
-  # gpgsign = true
+  gpgsign = true
+
+[gpg]
+  format = ssh
