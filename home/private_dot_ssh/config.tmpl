@@ -16,7 +16,3 @@ Host github.com-work
   PreferredAuthentications publickey
   IdentitiesOnly yes
   IdentityFile ~/.ssh/work_id
-
-{{- if onepasswordItemExists "op://Personal/SSH Config Additional" }}
-{{ onepasswordRead "op://Personal/SSH Config Additional/notesPlain" }}
-{{- end }}
