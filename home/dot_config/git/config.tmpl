@@ -1,10 +1,10 @@
 [user]
   name  = "Jarod Taylor"
   email = "jarodrtaylor@gmail.com"
-{{- if and (lookPath "op") (eq (env "ONEPASSWORD_AVAILABLE") "true") }}
-  signingkey = ~/.ssh/id
+{{- if and (ne .ssh_key "") .ssh_key }}
+  signingkey = {{ .ssh_key }}
 {{- else }}
-  # signingkey = [REMOVED - set up SSH keys separately]
+  signingkey = ~/.ssh/id
 {{- end }}
 
 {{- if stat (joinPath .chezmoi.homeDir ".config/git/config-work") }}
@@ -57,4 +57,16 @@
   ff = only
 
 [commit]
-  # gpgsign = true
+  gpgsign = true
+
+[gpg]
+  format = ssh
+{{- if lookPath "ssh-keygen" }}
+  program = {{ lookPath "ssh-keygen" }}
+{{- end }}
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

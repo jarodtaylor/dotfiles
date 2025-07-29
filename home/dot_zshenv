@@ -16,6 +16,9 @@ export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 export ZDOTDIR="${XDG_CONFIG_HOME:-${HOME}/.config}/zsh"
 export CODEDIR="$HOME/Code"
 
+# 1Password SSH Agent
+export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+
 # Zim configuration
 export ZIM_HOME="${XDG_CACHE_HOME}/zim"
 export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"

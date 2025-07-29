@@ -1,3 +1,1 @@
-{{- if and .onepassword_available .work_ssh_key -}}
-{{ .work_ssh_key }}
-{{- end -}}
+{{ onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" }}
