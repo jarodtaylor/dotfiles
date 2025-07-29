@@ -144,14 +144,16 @@ if command -v mise &>/dev/null; then
     log_info "Upgrading mise and managing development tools..."
     mise upgrade
 
-    # Capture the list of prunable items into an array
-    readarray -t prunable_items < <(mise ls --prunable 2>/dev/null || true)
+    # Capture the list of prunable items and process them
+    prunable_output=$(mise ls --prunable 2>/dev/null || true)
 
     # Check if there are any prunable items
-    if [ "${#prunable_items[@]}" -gt 0 ]; then
-        for item in "${prunable_items[@]}"; do
-            log_debug "Pruning removed tool: $item"
-            mise prune "$item"
+    if [ -n "$prunable_output" ]; then
+        echo "$prunable_output" | while IFS= read -r item; do
+            if [ -n "$item" ]; then
+                log_debug "Pruning removed tool: $item"
+                mise prune "$item"
+            fi
         done
     fi
 else
