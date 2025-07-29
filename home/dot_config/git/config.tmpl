@@ -1,7 +1,7 @@
 [user]
   name  = "Jarod Taylor"
   email = "jarodrtaylor@gmail.com"
-{{- if .ssh_key }}
+{{- if and (ne .ssh_key "") .ssh_key }}
   signingkey = {{ .ssh_key }}
 {{- else }}
   signingkey = ~/.ssh/id
