@@ -20,7 +20,7 @@ after-startup-command = [
   'exec-and-forget borders',
 ]
 
-after-startup-command = ['/bin/bash', '-c', 'sketchybar --reload']
+# after-startup-command = ['/bin/bash', '-c', 'sketchybar --reload']
 
 exec-on-workspace-change = [
   '/bin/bash',
