@@ -1,12 +1,12 @@
 os:
-    edit: "nvim"
-    notARepository: skip
-    promptToReturnFromSubprocess: true
-    confirmOnQuit: true
-    disableStartupPopups: true
+  edit: "nvim"
+  notARepository: skip
+  promptToReturnFromSubprocess: true
+  confirmOnQuit: true
+  disableStartupPopups: true
 git:
-    parseEmoji: true
-    paging:
-        colorArg: always
-        pager: delta --dark --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
-        useConfig: false
+  parseEmoji: true
+  pagers:
+    - colorArg: always
+      pager: delta --dark --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
+      useConfig: false
