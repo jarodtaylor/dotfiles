@@ -5,6 +5,7 @@ fi
 eval "$(direnv hook zsh)"
 
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 # ########################################
 # ENVIRONMENT VARIABLES                  #
