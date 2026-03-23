@@ -1,0 +1,8 @@
+# Chezmoi scripts use templates that shellcheck can't parse directly.
+# These defaults apply when checking raw .sh files or post-rendered scripts.
+
+# Allow sourcing from paths determined at runtime
+disable=SC1091
+
+# Don't warn about unexpanded variables in single quotes (common in chezmoi templates)
+disable=SC2016

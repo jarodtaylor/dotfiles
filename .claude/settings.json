@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | { read -r f; case \"$f\" in *.lua) /Users/jarodtaylor/.local/share/nvim/mason/packages/stylua/stylua --config-path /Users/jarodtaylor/.local/share/chezmoi/home/dot_config/nvim/stylua.toml \"$f\" 2>/dev/null || true ;; esac; }"
+          }
+        ]
+      }
+    ]
+  }
+}
