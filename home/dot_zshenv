@@ -26,3 +26,6 @@ export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"
 export HISTFILE="$ZDOTDIR/.zhistory" # History filepath
 export HISTSIZE=10000                # Maximum events for internal history
 export SAVEHIST=10000                # Maximum events in history file
+
+# sentry
+fpath=("/Users/jarodtaylor/.local/share/zsh/site-functions" $fpath)
