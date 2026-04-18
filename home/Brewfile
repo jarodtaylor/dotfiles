@@ -194,7 +194,9 @@ cask "spotify"
 cask "nikitabobko/tap/aerospace"    # tiling window manager
 cask "betterdisplay"                # external-display management
 cask "blackhole-2ch"                # virtual audio device
-cask "expressvpn"
+# NOTE: expressvpn cask is flaky during fresh-machine bootstrap — its
+# post-install step fails on LaunchDaemon registration. Install manually
+# post-bootstrap via: https://www.expressvpn.com/latest#mac
 cask "alltuner/tap/factoryfloor"
 cask "karabiner-elements"
 cask "keycastr"
