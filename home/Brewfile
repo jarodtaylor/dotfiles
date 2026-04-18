@@ -192,11 +192,11 @@ cask "spotify"
 # -----------------------------------------------------------------------------
 # Casks — system / utilities
 # -----------------------------------------------------------------------------
-cask "aerospace"                    # tiling window manager
+cask "nikitabobko/tap/aerospace"    # tiling window manager
 cask "betterdisplay"                # external-display management
 cask "blackhole-2ch"                # virtual audio device
 cask "expressvpn"
-cask "factoryfloor"
+cask "alltuner/tap/factoryfloor"
 cask "karabiner-elements"
 cask "keycastr"
 cask "shortcat"                     # keyboard-driven UI nav
