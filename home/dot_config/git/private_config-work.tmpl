@@ -1,5 +1,5 @@
-{{- if eq (env "ONEPASSWORD_AVAILABLE") "true" -}}
-{{/* User chose 1Password, so use age encryption for security. Age identity
+{{- if .onepassword_available -}}
+{{/* 1Password is signed in, so use age encryption for security. Age identity
      is resolved via 1Password at apply time (see .chezmoi.toml.tmpl). */}}
 {{- if .ageAvailable -}}
 {{/* Include the encrypted content — chezmoi decrypts it via identityCommand. */}}

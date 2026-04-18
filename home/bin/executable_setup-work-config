@@ -11,9 +11,19 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}🏢 Work Configuration Setup${NC}"
 echo
 
-# Check current setup
-ONEPASSWORD_AVAILABLE=${ONEPASSWORD_AVAILABLE:-"false"}
-HAS_AGE_KEY=$([ -f "$HOME/key.txt" ] && echo "true" || echo "false")
+# Check current setup — probe 1Password instead of trusting an env var
+if op whoami >/dev/null 2>&1; then
+    ONEPASSWORD_AVAILABLE=true
+else
+    ONEPASSWORD_AVAILABLE=false
+fi
+
+if [ "$ONEPASSWORD_AVAILABLE" = "true" ] && \
+   op read "op://Personal/Dotfiles Age Key/notesPlain" >/dev/null 2>&1; then
+    HAS_AGE_KEY=true
+else
+    HAS_AGE_KEY=false
+fi
 
 echo -e "${BLUE}Current configuration approach:${NC}"
 if [ "$ONEPASSWORD_AVAILABLE" = "true" ]; then
@@ -21,11 +31,12 @@ if [ "$ONEPASSWORD_AVAILABLE" = "true" ]; then
     echo "Work config will be encrypted with age for security."
     echo
     if [ "$HAS_AGE_KEY" = "true" ]; then
-        echo -e "${GREEN}✅ Age key available${NC}"
+        echo -e "${GREEN}✅ Age key available via 1Password${NC}"
         echo "Work config should be properly encrypted/decrypted."
     else
-        echo -e "${YELLOW}⚠️  Age key missing${NC}"
-        echo "Run 'chezmoi init' to generate age key."
+        echo -e "${YELLOW}⚠️  Age key missing in 1Password${NC}"
+        echo "Create a Secure Note 'Dotfiles Age Key' in the Personal vault,"
+        echo "then run 'chezmoi init' to pick it up."
     fi
     echo
     echo -e "${BLUE}To update encrypted work config:${NC}"

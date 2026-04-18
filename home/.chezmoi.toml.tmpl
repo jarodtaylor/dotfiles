@@ -7,15 +7,23 @@
 {{-   end -}}
 {{- end -}}
 
-{{/* 1Password availability gates both age encryption and SSH key lookups. */}}
-{{- $opAvailable := and (lookPath "op") (eq (env "ONEPASSWORD_AVAILABLE") "true") -}}
+{{/* 1Password availability: `op` must be in PATH AND authenticated.
+     We probe via `op whoami` rather than an env var gate so this works
+     on a fresh machine without relying on shell-profile bootstrapping. */}}
+{{- $opSignedIn := false -}}
+{{- if lookPath "op" -}}
+{{-   $whoami := output "sh" "-c" "op whoami 2>/dev/null || true" | trim -}}
+{{-   if $whoami -}}
+{{-     $opSignedIn = true -}}
+{{-   end -}}
+{{- end -}}
 
 {{/* Derive the age recipient (public key) by reading the 1Password-backed
      identity and piping through age-keygen -y. Falls back to empty string if
      anything fails (op not signed in, age-keygen missing, entry renamed) — in
      which case encryption is skipped and encrypted files won't decrypt. */}}
 {{- $ageRecipient := "" -}}
-{{- if $opAvailable -}}
+{{- if $opSignedIn -}}
 {{-   $ageRecipient = output "sh" "-c" "op read 'op://Personal/Dotfiles Age Key/notesPlain' 2>/dev/null | age-keygen -y 2>/dev/null || true" | trim -}}
 {{- end -}}
 {{- $ageAvailable := ne $ageRecipient "" -}}
@@ -31,7 +39,7 @@ recipient = {{ $ageRecipient | quote }}
 [data]
 brew_prefix = {{ $brew_prefix | quote }}
 ageAvailable = {{ $ageAvailable }}
-{{- if $opAvailable }}
+{{- if $opSignedIn }}
 ssh_key = "{{- onepasswordRead "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" -}}"
 work_ssh_key = "{{- onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" -}}"
 onepassword_available = true
