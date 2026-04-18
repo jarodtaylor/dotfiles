@@ -13,7 +13,7 @@
 # Taps
 # -----------------------------------------------------------------------------
 tap "alltuner/tap"                  # factoryfloor
-tap "elc-online/tap"                # elco
+tap "elc-online/tap", "git@github.com:elc-online/homebrew-tap.git"  # elco (private repo; SSH via 1Password agent)
 tap "felixkratz/formulae"           # sketchybar, borders
 tap "nikitabobko/tap"               # aerospace window manager
 tap "olets/tap"                     # zsh-abbr, zsh-autosuggestions-abbreviations-strategy
