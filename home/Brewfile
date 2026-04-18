@@ -13,8 +13,12 @@
 # Taps
 # -----------------------------------------------------------------------------
 tap "alltuner/tap"                  # factoryfloor
-tap "elc-online/tap", "git@github.com:elc-online/homebrew-tap.git"  # elco (private repo; SSH via 1Password agent)
 tap "felixkratz/formulae"           # sketchybar, borders
+# NOTE: elco is tapped from a private repo (elc-online/homebrew-tap) which
+# needs SSH auth. Not in the bootstrap Brewfile because the SSH env isn't
+# fully wired during chezmoi apply. Install manually post-bootstrap:
+#   brew tap elc-online/tap git@github.com:elc-online/homebrew-tap.git
+#   brew install elc-online/tap/elco
 tap "nikitabobko/tap"               # aerospace window manager
 tap "olets/tap"                     # zsh-abbr, zsh-autosuggestions-abbreviations-strategy
 
@@ -128,11 +132,6 @@ brew "yt-dlp"                       # video downloader
 # Web / frontend frameworks (infrequent, kept for project ramp-up speed)
 # -----------------------------------------------------------------------------
 brew "gatsby-cli"
-
-# -----------------------------------------------------------------------------
-# Domain-specific (user-declared KEEP during audit)
-# -----------------------------------------------------------------------------
-brew "elc-online/tap/elco"
 
 # -----------------------------------------------------------------------------
 # Casks — productivity
