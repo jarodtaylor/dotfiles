@@ -10,21 +10,29 @@ NC='\033[0m' # No Color
 echo -e "${YELLOW}🔐 Age Work Config Re-encryption Utility${NC}"
 echo
 
-# Get age key file location
-AGE_KEY_FILE="$HOME/key.txt"
+# Age key is stored in 1Password; pull it into a temp file with strict perms
+# for the duration of this script only. Trap cleans up on any exit.
 WORK_CONFIG_FILE="$HOME/.local/share/chezmoi/home/dot_config/git/encrypted_private_config-work.age.tmpl"
+AGE_KEY_FILE="$(mktemp -t dotfiles-age-key.XXXXXX)"
+chmod 600 "$AGE_KEY_FILE"
+trap 'rm -f "$AGE_KEY_FILE"' EXIT
 
-# Check if age key exists
-if [ ! -f "$AGE_KEY_FILE" ]; then
-    echo -e "${RED}❌ Age key not found at $AGE_KEY_FILE${NC}"
-    echo "Run 'chezmoi init' first to generate the age key"
+# Require 1Password CLI to be signed in
+if ! op whoami >/dev/null 2>&1; then
+    echo -e "${RED}❌ 1Password CLI not signed in. Run 'op signin' first.${NC}"
+    exit 1
+fi
+
+# Pull the key from 1Password
+if ! op read "op://Personal/Dotfiles Age Key/notesPlain" > "$AGE_KEY_FILE" 2>/dev/null; then
+    echo -e "${RED}❌ Could not read 'Dotfiles Age Key' from 1Password (Personal vault)${NC}"
     exit 1
 fi
 
 # Get the public key (recipient)
 PUBLIC_KEY=$(age-keygen -y "$AGE_KEY_FILE" 2>/dev/null)
 if [ -z "$PUBLIC_KEY" ]; then
-    echo -e "${RED}❌ Could not extract public key from $AGE_KEY_FILE${NC}"
+    echo -e "${RED}❌ Could not extract public key from 1Password-backed identity${NC}"
     exit 1
 fi
 
@@ -64,7 +72,7 @@ EOF
 
     # Create the template wrapper and encrypt
     (
-        echo "{{- if .ageKeyExists -}}"
+        echo "{{- if .ageAvailable -}}"
         age -r "$PUBLIC_KEY" /tmp/work-config.txt
         echo "{{- end -}}"
     ) > "$WORK_CONFIG_FILE"
@@ -82,7 +90,7 @@ else
     echo -e "${YELLOW}🔓 Decrypting current work config...${NC}"
 
     # Extract the encrypted content (between the template conditionals)
-    sed -n '/^{{- if .ageKeyExists -}}$/,/^{{- end -}}$/p' "$WORK_CONFIG_FILE" | \
+    sed -n '/^{{- if .ageAvailable -}}$/,/^{{- end -}}$/p' "$WORK_CONFIG_FILE" | \
     sed '1d;$d' | \
     age -d -i "$AGE_KEY_FILE" > /tmp/work-config.txt 2>/dev/null || {
         echo -e "${RED}❌ Failed to decrypt existing work config${NC}"
@@ -110,7 +118,7 @@ else
 
     # Re-encrypt with current key
     (
-        echo "{{- if .ageKeyExists -}}"
+        echo "{{- if .ageAvailable -}}"
         age -r "$PUBLIC_KEY" /tmp/work-config.txt
         echo "{{- end -}}"
     ) > "$WORK_CONFIG_FILE"
