@@ -31,7 +31,7 @@ fi
 
 # Apply the declarative Brewfile (installs missing, removes extras via --cleanup).
 log_info "Applying Brewfile..."
-brew bundle --file="$BREWFILE" --cleanup --no-lock
+brew bundle --file="$BREWFILE" --cleanup
 
 # Configure mise (development tool version manager)
 if command -v mise &>/dev/null; then
