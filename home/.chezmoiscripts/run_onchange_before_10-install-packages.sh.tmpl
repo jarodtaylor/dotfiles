@@ -29,9 +29,21 @@ if brew list zsh-abbr &>/dev/null; then
   brew uninstall --force zsh-abbr
 fi
 
-# Apply the declarative Brewfile (installs missing, removes extras via --cleanup).
-log_info "Applying Brewfile..."
-brew bundle --file="$BREWFILE" --cleanup
+# Apply the declarative Brewfile. Individual casks sometimes fail (kext
+# approval, LaunchDaemon registration quirks, one-off network issues);
+# we don't want those to abort the whole bootstrap. Install best-effort,
+# then report what didn't land so the user can install manually.
+log_info "Applying Brewfile (install — best-effort, non-fatal on cask failures)..."
+if ! brew bundle install --file="$BREWFILE" --verbose; then
+  log_warning "Some Brewfile dependencies failed to install. Listing what's missing:"
+  brew bundle check --file="$BREWFILE" --verbose || true
+  log_warning "Install the missing items manually (e.g., 'brew install --cask NAME') after bootstrap."
+fi
+
+log_info "Pruning packages not in Brewfile..."
+if ! brew bundle cleanup --file="$BREWFILE" --force; then
+  log_warning "Brew cleanup encountered issues; non-fatal, bootstrap continues."
+fi
 
 # Configure mise (development tool version manager)
 if command -v mise &>/dev/null; then
