@@ -13,21 +13,41 @@ else
   log_debug "pam-reattach is already installed."
 fi
 
-# Create sudo_local file with required configuration
+# Create sudo_local file with required configuration.
+# Only include lines for modules that actually exist on this machine —
+# referencing a missing module (e.g. pam_watchid.so.2 in a VM or on a
+# Mac without Apple Watch pairing) causes ALL sudo calls to fail with
+# "unable to initialize PAM: No such file or directory".
 SUDO_LOCAL_FILE="/etc/pam.d/sudo_local"
 
-log_info "Configuring sudo_local for Touch ID, Apple Watch, and tmux authentication..."
+log_info "Configuring sudo_local (Touch ID / Apple Watch / tmux re-attach)..."
 
-# Create the file with our desired configuration
-# Note: pam_reattach must be loaded first to properly handle authentication in tmux
-sudo tee "$SUDO_LOCAL_FILE" > /dev/null << 'EOF'
-# sudo_local: local config file which survives system update and is included for sudo
+SUDO_LOCAL_LINES="# sudo_local: local config file which survives system update and is included for sudo"
+
+if [ -f /opt/homebrew/lib/pam/pam_reattach.so ]; then
+  SUDO_LOCAL_LINES="$SUDO_LOCAL_LINES
 # pam_reattach: reattaches to the user's security session when using sudo in tmux
-auth       optional       /opt/homebrew/lib/pam/pam_reattach.so
+auth       optional       /opt/homebrew/lib/pam/pam_reattach.so"
+else
+  log_warning "pam_reattach.so not found — tmux-sudo re-attach disabled"
+fi
+
+if [ -f /usr/lib/pam/pam_tid.so.2 ]; then
+  SUDO_LOCAL_LINES="$SUDO_LOCAL_LINES
 # Touch ID: enables authentication using Touch ID
-auth       sufficient     pam_tid.so
+auth       sufficient     pam_tid.so"
+else
+  log_warning "pam_tid.so.2 not found — Touch ID sudo disabled"
+fi
+
+if [ -f /usr/lib/pam/pam_watchid.so.2 ]; then
+  SUDO_LOCAL_LINES="$SUDO_LOCAL_LINES
 # Apple Watch: enables authentication using Apple Watch
-auth       sufficient     pam_watchid.so
-EOF
+auth       sufficient     pam_watchid.so"
+else
+  log_warning "pam_watchid.so.2 not found — Apple Watch sudo disabled (expected in VMs)"
+fi
+
+echo "$SUDO_LOCAL_LINES" | sudo tee "$SUDO_LOCAL_FILE" > /dev/null
 
 log_debug "sudo_local configuration complete."
