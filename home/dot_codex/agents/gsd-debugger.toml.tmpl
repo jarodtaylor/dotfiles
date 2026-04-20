@@ -416,7 +416,7 @@ git bisect bad              # or good, based on testing
 - Path A writes to `dir/sub/hooks/` but Path B checks `dir/hooks/` (directory mismatch)
 - Config value comes from cache/template that wasn't updated
 - Variable is derived differently in two places (e.g., one adds a subdirectory, the other doesn't)
-- Template placeholder (`{{VERSION}}`) not substituted in all code paths
+- Template placeholder (`{{ "{{VERSION}}" }}`) not substituted in all code paths
 
 **Example:** Stale hook warning persists after update
 ```

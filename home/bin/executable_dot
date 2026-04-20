@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dots — personal dotfiles management CLI
+# dot — personal dotfiles management CLI
 #
 # Commands:
 #   sync         Capture drift into repo, optionally commit/push
@@ -37,10 +37,10 @@ log_debug() { [ "${DOTS_VERBOSE:-0}" = "1" ] && printf "%s  %s%s\n" "$C_DIM" "$*
 # --- Usage ---
 usage() {
   cat <<'USAGE'
-dots — personal dotfiles management CLI
+dot — personal dotfiles management CLI
 
 Usage:
-  dots <command> [flags]
+  dot <command> [flags]
 
 Commands:
   sync          Capture drift into repo, optionally commit/push
@@ -58,10 +58,10 @@ Common flags:
   -v,--verbose  Show underlying commands
 
 Examples:
-  dots sync --dry-run       # Preview what would be captured
-  dots sync --push          # Capture + commit + push
-  dots doctor               # Show system health
-  dots apply                # Reconcile machine with repo
+  dot sync --dry-run       # Preview what would be captured
+  dot sync --push          # Capture + commit + push
+  dot doctor               # Show system health
+  dot apply                # Reconcile machine with repo
 USAGE
 }
 
@@ -201,7 +201,7 @@ cmd_doctor() {
   if brew bundle check --file="$DOTS_SOURCE_DIR/Brewfile" --verbose; then
     log_ok "Brewfile in sync with installed state"
   else
-    log_warn "Brewfile drift (run 'dots sync' to capture or 'dots apply' to reconcile)"
+    log_warn "Brewfile drift (run 'dot sync' to capture or 'dot apply' to reconcile)"
     fail=1
   fi
 
@@ -291,12 +291,12 @@ cmd_new_machine() {
 New-machine setup helper.
 
 Expected state: you've already run bootstrap.sh or the chezmoi one-liner.
-This command checks prereqs and runs 'dots doctor'.
+This command checks prereqs and runs 'dot doctor'.
 
 Typical post-bootstrap steps (do manually if needed):
   1) Open a fresh shell so PATH is updated.
   2) Verify 1Password CLI session: op whoami
-  3) Run 'dots doctor' and fix any warnings.
+  3) Run 'dot doctor' and fix any warnings.
   4) Restart macOS once to let launchd agents pick up cleanly.
   5) Manual installs (see docs/KNOWN_ISSUES.md):
        brew tap elc-online/tap git@github.com:elc-online/homebrew-tap.git
@@ -330,7 +330,7 @@ EOM
   fi
 
   if [ "$ok" = "1" ]; then
-    log_info "prereqs ok. Running 'dots doctor':"
+    log_info "prereqs ok. Running 'dot doctor':"
     echo
     cmd_doctor
   else
