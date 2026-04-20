@@ -73,6 +73,30 @@ install.sh
 .claude/tasks/**
 .claude/teams/**
 .claude/package.json
+.claude/image-cache/**
+.claude/plans/**                    # user/project-specific work artifacts, not dotfiles
+
+# Nested-project skills — treat as independent projects, not dotfiles.
+# Any skill that has its own .git or is multi-hundred-MB goes here:
+.claude/skills/gstack/**
+
+# Generic filters for things that shouldn't ride in dotfiles even in smaller
+# skills (node modules, build output, nested git repos, lockfiles, native
+# binaries, compiled objects):
+.claude/skills/**/node_modules/**
+.claude/skills/**/dot_git/**
+.claude/skills/**/.git/**
+.claude/skills/**/dist/**
+.claude/skills/**/build/**
+.claude/skills/**/target/**
+.claude/skills/**/.next/**
+.claude/skills/**/.turbo/**
+.claude/skills/**/bun.lock
+.claude/skills/**/package-lock.json
+.claude/skills/**/pnpm-lock.yaml
+.claude/skills/**/*.node
+.claude/skills/**/*.dylib
+.claude/skills/**/*.so
 
 # ~/.claude.json — rebuilt by Claude Code on first launch; no need to track.
 .claude.json
@@ -88,6 +112,7 @@ install.sh
 .codex/sessions/**
 .codex/shell_snapshots/**
 .codex/state_*.sqlite*
+.codex/plugins/cache/**             # cached plugin code; re-fetchable on new machine
 .codex/tmp/**
 .codex/.personality_migration
 .codex/gsd-file-manifest.json
@@ -98,6 +123,11 @@ install.sh
 .gemini/logs/**
 .gemini/sessions/**
 .gemini/tmp/**
+.gemini/history/**                  # session history, not config
+.gemini/installation_id             # machine-specific
+.gemini/projects.json               # workspace/project state
+.gemini/state.json                  # runtime state
+.gemini/trustedFolders.json         # per-machine trust list
 
 # --- ~/.cursor ---
 .cursor/workspaceStorage/**
@@ -106,6 +136,13 @@ install.sh
 .cursor/extensions/**
 .cursor/User/globalStorage/**
 .cursor/User/workspaceStorage/**
+.cursor/projects/**                 # workspace/project state
+.cursor/get-shit-done/**            # GSD tool state
+.cursor/ai-tracking/**              # telemetry
+.cursor/prompt_history.json         # runtime
+.cursor/ide_state.json              # runtime
+.cursor/gsd-file-manifest.json
+.cursor/argv.json                   # machine-specific launch args
 
 # Misc noise across all tools
 .claude/.DS_Store
