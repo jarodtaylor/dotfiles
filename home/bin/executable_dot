@@ -100,19 +100,18 @@ cmd_sync() {
     brew bundle dump --force --describe --file="$brewfile"
   fi
 
-  # 2. Re-capture AI tool dirs (respects .chezmoiignore)
-  log_info "capturing AI tool dirs..."
-  local tool_dir
-  for tool_dir in "$HOME/.claude" "$HOME/.codex" "$HOME/.cursor"; do
-    if [ -d "$tool_dir" ]; then
-      if [ "$dry_run" = "1" ]; then
-        log_debug "(dry-run) would: chezmoi add --recursive $tool_dir"
-      else
-        log_debug "chezmoi add --recursive $tool_dir"
-        chezmoi add --recursive "$tool_dir" 2>&1 | grep -vE '^$' || true
-      fi
-    fi
-  done
+  # 2. Update already-tracked AI tool files from live state.
+  # Using `re-add` (not `add`) so template files stay templates and we
+  # don't get prompted every sync about "downgrading" .tmpl to plain.
+  # Trade-off: brand-new files (e.g. a new skill) are NOT auto-captured.
+  # To start tracking new paths, run `chezmoi add <path>` explicitly once,
+  # then subsequent `dot sync` runs will keep them updated.
+  log_info "updating tracked AI tool files..."
+  if [ "$dry_run" = "1" ]; then
+    log_debug "(dry-run) would: chezmoi re-add"
+  else
+    chezmoi re-add 2>&1 | grep -vE '^$' || true
+  fi
 
   # 3. Show diff
   cd "$DOTS_REPO_DIR" || exit 1
