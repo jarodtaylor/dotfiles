@@ -80,6 +80,47 @@ install.sh
 # Any skill that has its own .git or is multi-hundred-MB goes here:
 .claude/skills/gstack/**
 
+# Gstack also installs symlinks in ~/.claude/skills/ pointing into
+# ~/.claude/skills/gstack/. These would be broken on any machine that
+# hasn't cloned gstack separately. Install gstack to recreate them.
+.claude/skills/plan-devex-review/**
+.claude/skills/open-gstack-browser/**
+.claude/skills/design-review/**
+.claude/skills/gstack-upgrade/**
+.claude/skills/setup-deploy/**
+.claude/skills/freeze/**
+.claude/skills/cso/**
+.claude/skills/retro/**
+.claude/skills/qa/**
+.claude/skills/qa-only/**
+.claude/skills/plan-ceo-review/**
+.claude/skills/design-consultation/**
+.claude/skills/canary/**
+.claude/skills/design-shotgun/**
+.claude/skills/plan-eng-review/**
+.claude/skills/guard/**
+.claude/skills/office-hours/**
+.claude/skills/health/**
+.claude/skills/plan-design-review/**
+.claude/skills/checkpoint/**
+.claude/skills/devex-review/**
+.claude/skills/ship/**
+.claude/skills/autoplan/**
+.claude/skills/careful/**
+.claude/skills/pair-agent/**
+.claude/skills/learn/**
+.claude/skills/document-release/**
+.claude/skills/unfreeze/**
+.claude/skills/setup-browser-cookies/**
+.claude/skills/investigate/**
+.claude/skills/review/**
+.claude/skills/land-and-deploy/**
+.claude/skills/codex/**
+.claude/skills/browse/**
+.claude/skills/design-html/**
+.claude/skills/benchmark/**
+.claude/skills/connect-chrome/**
+
 # Generic filters for things that shouldn't ride in dotfiles even in smaller
 # skills (node modules, build output, nested git repos, lockfiles, native
 # binaries, compiled objects):
@@ -119,15 +160,10 @@ install.sh
 .codex/get-shit-done/**
 
 # --- ~/.gemini ---
-.gemini/cache/**
-.gemini/logs/**
-.gemini/sessions/**
-.gemini/tmp/**
-.gemini/history/**                  # session history, not config
-.gemini/installation_id             # machine-specific
-.gemini/projects.json               # workspace/project state
-.gemini/state.json                  # runtime state
-.gemini/trustedFolders.json         # per-machine trust list
+# Skip entirely. Gemini holds OAuth creds that expire/refresh, plus minimal
+# config that's cheap to re-establish on re-auth. Not worth the ceremony
+# of templating every sensitive file via 1Password.
+.gemini/**
 
 # --- ~/.cursor ---
 .cursor/workspaceStorage/**

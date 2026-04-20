@@ -1,0 +1,240 @@
+{
+  "env": {
+    "ENABLE_TOOL_SEARCH": "true"
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch",
+      "Task",
+      "Bash(git:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(pnpm:*)",
+      "Bash(bun:*)",
+      "Bash(bunx:*)",
+      "Bash(docker:*)",
+      "Bash(docker-compose:*)",
+      "Bash(mix:*)",
+      "Bash(elixir:*)",
+      "Bash(iex:*)",
+      "Bash(ruby:*)",
+      "Bash(bundle:*)",
+      "Bash(rails:*)",
+      "Bash(go:*)",
+      "Bash(python:*)",
+      "Bash(pip:*)",
+      "Bash(cargo:*)",
+      "Bash(rustc:*)",
+      "Bash(ls:*)",
+      "Bash(which:*)",
+      "Bash(cat:*)",
+      "Bash(echo:*)",
+      "Bash(pwd:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(diff:*)",
+      "Bash(find:*)",
+      "Bash(xargs:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Bash(curl:*)",
+      "Bash(jq:*)",
+      "Bash(gh:*)",
+      "Bash(test:*)",
+      "Bash([:*)",
+      "Bash(true:*)",
+      "Bash(false:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(rm -rf:*)",
+      "Bash(rm -r:*)",
+      "Bash(chmod 777:*)",
+      "Bash(curl:* | sh:*)",
+      "Bash(curl:* | bash:*)"
+    ],
+    "defaultMode": "bypassPermissions"
+  },
+  "attribution": {
+    "commit": "Generated with AI\n\nCo-Authored-By: AI <ai@example.com>",
+    "pr": ""
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Claude needs your attention\" with title \"Claude Code\"'"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{ .chezmoi.homeDir }}/.claude/hooks/gsd-check-update.js\""
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{ .chezmoi.homeDir }}/.claude/hooks/gsd-session-state.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit|Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{ .chezmoi.homeDir }}/.claude/hooks/gsd-context-monitor.js\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{ .chezmoi.homeDir }}/.claude/hooks/gsd-phase-boundary.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{ .chezmoi.homeDir }}/.claude/hooks/gsd-prompt-guard.js\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{ .chezmoi.homeDir }}/.claude/hooks/gsd-read-guard.js\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{ .chezmoi.homeDir }}/.claude/hooks/gsd-validate-commit.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{ .chezmoi.homeDir }}/.claude/hooks/gsd-workflow-guard.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash {{ .chezmoi.homeDir }}/.claude/statusline.sh"
+  },
+  "enabledPlugins": {
+    "compound-engineering@every-marketplace": true,
+    "context7@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "figma@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "codex@openai-codex": true,
+    "sentry-mcp@sentry-mcp": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
+    "consensus@claude-consensus": true,
+    "last30days@last30days-skill": true
+  },
+  "extraKnownMarketplaces": {
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    },
+    "sentry-mcp": {
+      "source": {
+        "source": "github",
+        "repo": "getsentry/sentry-mcp"
+      }
+    },
+    "ui-ux-pro-max-skill": {
+      "source": {
+        "source": "github",
+        "repo": "nextlevelbuilder/ui-ux-pro-max-skill"
+      }
+    },
+    "last30days-skill": {
+      "source": {
+        "source": "github",
+        "repo": "mvanhorn/last30days-skill"
+      }
+    },
+    "claude-consensus": {
+      "source": {
+        "source": "github",
+        "repo": "AltimateAI/claude-consensus"
+      }
+    },
+    "designer-skills": {
+      "source": {
+        "source": "github",
+        "repo": "Owl-Listener/designer-skills"
+      }
+    }
+  },
+  "showThinkingSummaries": true,
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true
+}

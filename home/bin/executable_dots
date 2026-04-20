@@ -103,7 +103,7 @@ cmd_sync() {
   # 2. Re-capture AI tool dirs (respects .chezmoiignore)
   log_info "capturing AI tool dirs..."
   local tool_dir
-  for tool_dir in "$HOME/.claude" "$HOME/.codex" "$HOME/.gemini" "$HOME/.cursor"; do
+  for tool_dir in "$HOME/.claude" "$HOME/.codex" "$HOME/.cursor"; do
     if [ -d "$tool_dir" ]; then
       if [ "$dry_run" = "1" ]; then
         log_debug "(dry-run) would: chezmoi add --recursive $tool_dir"
@@ -244,7 +244,7 @@ cmd_doctor() {
   echo
   log_info "== AI tool directories =="
   local tool_dir
-  for tool_dir in "$HOME/.claude" "$HOME/.codex" "$HOME/.gemini" "$HOME/.cursor"; do
+  for tool_dir in "$HOME/.claude" "$HOME/.codex" "$HOME/.cursor"; do
     if [ -d "$tool_dir" ]; then
       log_ok "$(basename "$tool_dir") exists"
     else
