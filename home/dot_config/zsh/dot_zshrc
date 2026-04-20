@@ -1,12 +1,16 @@
+# PATH modifications must happen BEFORE `mise activate` because mise
+# captures PATH once at activate-time and its precmd hook resets PATH
+# to that snapshot plus mise-managed tools on every prompt. Anything
+# prepended after activate gets silently stripped.
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/bin:$PATH"
+
 if [[ -e /opt/homebrew/bin/mise ]]; then
   eval "$(mise activate zsh)"
 fi
 
 eval "$(direnv hook zsh)"
-
-export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/bin:$PATH"
 
 # ########################################
 # ENVIRONMENT VARIABLES                  #
