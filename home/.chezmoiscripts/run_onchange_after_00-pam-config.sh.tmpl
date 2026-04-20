@@ -2,6 +2,7 @@
 
 set -eufo pipefail
 
+{{ template "scripts/script_eval_brew" . }}
 {{ template "scripts/script_sudo" . }}
 {{ template "scripts/script_helper" . }}
 
