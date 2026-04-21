@@ -3,7 +3,7 @@
 # =============================================================================
 # Managed by chezmoi + `dot sync`.
 #
-# Apply:   brew bundle --file=$(chezmoi source-path)/home/Brewfile --cleanup
+# Apply:   brew bundle --file="$(chezmoi source-path)/Brewfile" --cleanup
 # Capture: dot sync    (runs `brew bundle dump --force --describe` + commits)
 #
 # Note: `dot sync` rewrites this file flat-alphabetized via `brew bundle dump`,

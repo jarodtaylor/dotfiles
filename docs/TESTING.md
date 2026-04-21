@@ -87,7 +87,7 @@ Keep this snapshot sacred. Never overwrite it.
    ```bash
    dot doctor
    dot status
-   brew bundle check --file="$(chezmoi source-path)/home/Brewfile"
+   brew bundle check --file="$(chezmoi source-path)/Brewfile"
    launchctl print "gui/$(id -u)/com.jarodtaylor.dots-sync" | head -5
    ```
 
