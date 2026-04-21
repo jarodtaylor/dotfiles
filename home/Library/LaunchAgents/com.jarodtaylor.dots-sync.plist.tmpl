@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.jarodtaylor.dots-sync</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>{{ .chezmoi.homeDir }}/bin/dot sync --push &gt;&gt; {{ .chezmoi.homeDir }}/.local/state/dots-sync/stdout.log 2&gt;&gt; {{ .chezmoi.homeDir }}/.local/state/dots-sync/stderr.log</string>
+  </array>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>3</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>KeepAlive</key>
+  <false/>
+
+  <key>LowPriorityIO</key>
+  <true/>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>{{ .brew_prefix }}/bin:/usr/bin:/bin</string>
+    <key>HOME</key>
+    <string>{{ .chezmoi.homeDir }}</string>
+  </dict>
+
+  <key>WorkingDirectory</key>
+  <string>{{ .chezmoi.homeDir }}</string>
+</dict>
+</plist>
