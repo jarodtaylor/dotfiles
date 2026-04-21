@@ -1,6 +1,6 @@
 # Chezmoi Ironclad — Session Resumption Notes
 
-**Last updated**: 2026-04-20, end of Phase 2 work.
+**Last updated**: 2026-04-21, Phase 3 code+docs complete; CP-3 VM pending.
 **Branch**: `design/chezmoi-ironclad`
 **Spec**: `docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md`
 **Plan**: `docs/superpowers/plans/2026-04-16-chezmoi-ironclad.md`
@@ -10,7 +10,7 @@
 - **Phase 0 (VM baseline)** — complete. Parallels VM has `clean-macos-with-1password` snapshot (fresh macOS + Xcode CLT + 1Password app + CLI signed in).
 - **Phase 1 (audit & cleanup)** — complete. CP-1 validated in VM. `post-cp1-bootstrap` snapshot was taken but sudo_local ended up broken there (`pam_watchid.so.2` missing in VM). Fixed in Phase 2; new CP-2 state should be re-snapshotted next session.
 - **Phase 2 (sync infrastructure)** — code complete on host, validated 95% in VM. `dot sync` round-trip works (CP-2 verified brew bundle dump writes Brewfile correctly after a VM state reset).
-- **Phase 3 (launchd + bootstrap.sh + docs)** — NOT STARTED.
+- **Phase 3 (launchd + bootstrap.sh + docs)** — code + docs complete on host. CP-3 VM replay NOT YET DONE. Branch is ready for fresh-VM bootstrap test.
 - **Phase 4 (final validation + merge)** — NOT STARTED.
 
 ## What's on the branch (commits since `main`)
@@ -41,18 +41,34 @@ These are all committed. Don't re-do.
 - **PATH exports must come BEFORE `mise activate` in zshrc** (mise's precmd hook strips post-activate PATH additions)
 - `dot sync` uses `chezmoi re-add` (not `add --recursive`) so template files stay templates and don't prompt every sync
 
-## Phase 3 next-session work (in `docs/superpowers/plans/2026-04-16-chezmoi-ironclad.md`)
+## Phase 3 status
 
-- **Task 3.1**: `home/Library/LaunchAgents/com.jarodtaylor.dots-sync.plist` (launchd agent, daily 03:00 `dot sync --push`)
-- **Task 3.2**: `run_onchange_after_20-launchd-reload.sh.tmpl` (loads agent on `chezmoi apply`)
-- **Task 3.3**: `bootstrap.sh` at repo root (replaces `install.sh`, points at `main` branch, includes pre-flight for Xcode CLT + op auth + pre-installs `age` so templates can render encryption config on first pass)
-- **Task 3.4**: `dot new-machine` implementation (partly done in the CLI — walkthrough + doctor)
-- **Task 3.5**: README refresh
-- **Task 3.6**: `SETUP.md` new-machine walkthrough
-- **Task 3.7**: `docs/AUDITING.md`
-- **Task 3.8**: `docs/TESTING.md`
-- **Task 3.9**: Refresh root `CLAUDE.md`
-- **Task 3.10**: CP-3 in VM
+Tasks 3.1 – 3.9 complete (commits `7f8edb5` → `f2568bf` on the branch).
+Only remaining item is **Task 3.10 — CP-3 in VM** (user-driven, blocked
+by no-apply-on-host policy).
+
+Highlights vs the original plan:
+- Plist was templated (`.plist.tmpl`) instead of hardcoded paths — now
+  portable across M1 Max / M5 Max via `{{ .chezmoi.homeDir }}` and
+  `{{ .brew_prefix }}`. Task 3.2's after-apply script was updated to
+  `include` the `.plist.tmpl` source and re-run via sha256 change
+  detection.
+- `bootstrap.sh` pre-installs `age` between Homebrew setup and
+  `chezmoi init --apply` (fixes the chicken-and-egg noted below).
+  `CHEZMOI_BRANCH` env var overrides default `main` for pre-merge VM
+  runs.
+- Brewfile was reorganized: 7 prompt-heavy casks (docker-desktop,
+  karabiner-elements, microsoft-outlook/teams, adobe-creative-cloud,
+  blackhole-2ch, zoom) are grouped into a dedicated "interactive
+  installers" section at the end so macOS Auth Services password
+  prompts arrive in one back-to-back burst. `dot sync` will flatten
+  this on any future sync — that's expected, value is one-shot for
+  first bootstrap.
+- `cmd_new_machine` (Task 3.4) was already implemented during Phase 2
+  and needed no code changes — already includes prereq checks, doctor
+  invocation, and elco/expressvpn guidance.
+- CLAUDE.md stale-banner removed; file now describes ironclad
+  architecture + secret table + active script inventory.
 
 ## Phase 4
 
@@ -72,14 +88,26 @@ These are all committed. Don't re-do.
   - `expressvpn`: download from expressvpn.com (cask's LaunchDaemon install is flaky)
 - **SSH first-connection prompt**: bootstrap.sh should `ssh-keyscan github.com >> ~/.ssh/known_hosts` pre-emptively.
 - **Password prompts from cask pkg installers**: unavoidable (karabiner, microsoft-*, adobe, docker-desktop, fonts). Document.
-- **CP-2 stray Brewfile**: at some point during VM testing, a `Brewfile` got committed at repo ROOT (not just `home/Brewfile`). Check `git log -- Brewfile` next session and clean if present.
+- ~~**CP-2 stray Brewfile** at repo ROOT~~ — verified clean on 2026-04-21; only `home/Brewfile` exists.
 
 ## How to resume
 
-1. Read this file + the spec + the plan.
-2. Verify branch state: `git log --oneline main..HEAD`, `git status`, `dot doctor` (on host).
-3. Start Phase 3 Task 3.1 (launchd plist) following the plan verbatim.
-4. VM testing: revert Parallels to `clean-macos-with-1password`. Re-run bootstrap. Validate CP-2 + CP-3 end-to-end.
+1. Read this file + `docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md` + `docs/superpowers/plans/2026-04-16-chezmoi-ironclad.md`.
+2. Verify branch state: `git log --oneline main..HEAD`, `git status`, `dot doctor` (read-only — safe on host).
+3. **Next action is CP-3 VM replay** (Task 3.10). Follow `docs/TESTING.md` §5:
+   - Revert Parallels to `clean-macos-with-1password` snapshot.
+   - In VM: `CHEZMOI_BRANCH=design/chezmoi-ironclad bash <(curl -fsSL https://raw.githubusercontent.com/jarodtaylor/dotfiles/design/chezmoi-ironclad/bootstrap.sh)`.
+   - Expect password-prompt burst at the end (interactive installers
+     section of Brewfile). This is working-as-designed, not a regression.
+   - Verify with the block in TESTING.md §5 (dot doctor / dot status /
+     brew bundle check / launchctl print).
+   - Induce drift (brew install cowsay → dot sync --dry-run → dot sync),
+     confirm sync round-trip.
+   - On success: snapshot as `post-cp3-bootstrap`, revert VM to baseline
+     to keep it pristine for Phase 4.
+4. After CP-3 green: start Phase 4 (Task 4.1 `dot doctor` on host,
+   then 4.2 full-VM replay, 4.3 `docs/KNOWN_ISSUES.md`, 4.4 self-review,
+   4.5 merge to main).
 
 ## Key files / locations
 
