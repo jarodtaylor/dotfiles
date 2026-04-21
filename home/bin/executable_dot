@@ -97,14 +97,7 @@ cmd_sync() {
     fi
     rm -f "$tmpdump"
   else
-    # DEBUG: surface brew bundle dump exit + md5 to diagnose silent no-ops
-    local md5_before md5_after
-    md5_before=$(md5 -q "$brewfile" 2>/dev/null || echo none)
-    log_info "pre-dump md5=$md5_before file=$brewfile"
     brew bundle dump --force --describe --file="$brewfile"
-    local dump_exit=$?
-    md5_after=$(md5 -q "$brewfile" 2>/dev/null || echo none)
-    log_info "post-dump md5=$md5_after exit=$dump_exit"
   fi
 
   # 2. Update already-tracked AI tool files from live state.
