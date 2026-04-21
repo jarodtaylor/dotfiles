@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+{{ template "scripts/script_helper" . }}
+
+# Hash of the plist source so this script re-runs when the plist changes.
+# Plist hash: {{ include "Library/LaunchAgents/com.jarodtaylor.dots-sync.plist.tmpl" | sha256sum }}
+
+PLIST_SRC="$HOME/Library/LaunchAgents/com.jarodtaylor.dots-sync.plist"
+LABEL="com.jarodtaylor.dots-sync"
+
+if [ ! -f "$PLIST_SRC" ]; then
+  log_warning "dots-sync plist not found at $PLIST_SRC; skipping."
+  exit 0
+fi
+
+UID_NUM="$(id -u)"
+DOMAIN="gui/$UID_NUM"
+
+# Bootout if loaded (idempotent reload).
+if launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+  log_info "dots-sync agent already loaded; rebooting..."
+  launchctl bootout "$DOMAIN/$LABEL" 2>/dev/null || true
+fi
+
+log_info "loading dots-sync launchd agent..."
+launchctl bootstrap "$DOMAIN" "$PLIST_SRC"
+launchctl enable "$DOMAIN/$LABEL"
+
+log_debug "dots-sync agent loaded"
