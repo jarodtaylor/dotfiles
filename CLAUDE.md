@@ -1,5 +1,13 @@
 # CLAUDE.md
 
+> **⚠️ This file is OUTDATED as of 2026-04-20.**
+> A major refactor is in progress on branch `design/chezmoi-ironclad`.
+> For current architecture, phase state, known gotchas, and resume
+> instructions, read **`docs/superpowers/RESUME.md`** FIRST.
+> The full refresh of this file is Phase 3 Task 3.9 (not yet done).
+> Sections below describe pre-refactor state — use only for historical
+> reference when working on `main`.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
