@@ -63,17 +63,26 @@ Keep this snapshot sacred. Never overwrite it.
 
 1. In Parallels: **Actions → Manage Snapshots → Go To** `clean-macos-with-1password`.
 2. Open Terminal in the VM.
-3. Run the one-liner (override the branch as needed):
+3. **Verify 1Password CLI session is live** before running bootstrap.
+   `op` sessions expire (default 30 days, shorter if the app locked or
+   the VM was stopped), and the baseline snapshot's cached session may
+   be stale even if it was active at snapshot time:
+
+   ```bash
+   op whoami || op signin
+   ```
+
+4. Run the one-liner (override the branch as needed):
 
    ```bash
    CHEZMOI_BRANCH=design/chezmoi-ironclad bash <(curl -fsSL \
      https://raw.githubusercontent.com/jarodtaylor/dotfiles/design/chezmoi-ironclad/bootstrap.sh)
    ```
 
-4. Walk away ~30–60 minutes. Return for the password-prompt burst at
+5. Walk away ~30–60 minutes. Return for the password-prompt burst at
    the end (interactive installers: docker-desktop, karabiner, ms-*, etc.).
-5. Close the terminal. Open a new one so the new PATH + zsh config load.
-6. Verify:
+6. Close the terminal. Open a new one so the new PATH + zsh config load.
+7. Verify:
 
    ```bash
    dot doctor
@@ -82,7 +91,7 @@ Keep this snapshot sacred. Never overwrite it.
    launchctl print "gui/$(id -u)/com.jarodtaylor.dots-sync" | head -5
    ```
 
-7. Induce drift, confirm capture works:
+8. Induce drift, confirm capture works:
 
    ```bash
    brew install cowsay
@@ -92,7 +101,7 @@ Keep this snapshot sacred. Never overwrite it.
    dot sync             # commits removal
    ```
 
-8. If everything passes, take a new checkpoint snapshot (e.g.
+9. If everything passes, take a new checkpoint snapshot (e.g.
    `post-cp3-bootstrap`) and revert to baseline to keep the baseline
    pristine for the next pass.
 

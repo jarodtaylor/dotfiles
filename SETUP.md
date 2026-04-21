@@ -84,6 +84,27 @@ If any is missing, create it (see spec §8) before running bootstrap.
 
 ## 4. Run the one-liner
 
+### Just-in-time: verify 1Password CLI session
+
+**Even if step 2c succeeded earlier**, `op` sessions expire (default 30
+days, shorter if you've locked the app or rebooted). The bootstrap
+script's preflight will abort if the session is stale — save yourself
+the round-trip:
+
+```bash
+op whoami
+```
+
+If it errors with "not currently signed in" (or similar), refresh:
+
+```bash
+op signin
+```
+
+Then proceed.
+
+### Run
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/bootstrap.sh | bash
 ```
