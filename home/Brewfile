@@ -142,8 +142,11 @@ brew "gatsby-cli"
 # -----------------------------------------------------------------------------
 # Casks — productivity
 # -----------------------------------------------------------------------------
-cask "1password"
-cask "1password-cli"
+# 1Password app + CLI are preflight prerequisites, not Brewfile-managed.
+# Installing them via Homebrew races the pkg installs that bootstrap requires,
+# and ends up with two `op` binaries on PATH where only one holds the CLI-
+# integration grant (discovered in CP-3 VM testing, 2026-04-21).
+# Install instructions live in SETUP.md §2.
 cask "cleanshot"
 cask "granola"
 cask "notion"
