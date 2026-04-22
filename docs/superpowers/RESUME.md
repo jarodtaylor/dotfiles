@@ -1,6 +1,6 @@
 # Chezmoi Ironclad — Session Resumption Notes
 
-**Last updated**: 2026-04-21, Phase 3 code+docs complete; CP-3 VM pending.
+**Last updated**: 2026-04-21, end of session — **CP-3 passed in VM**. Ready for Phase 4.
 **Branch**: `design/chezmoi-ironclad`
 **Spec**: `docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md`
 **Plan**: `docs/superpowers/plans/2026-04-16-chezmoi-ironclad.md`
@@ -10,7 +10,7 @@
 - **Phase 0 (VM baseline)** — complete. Parallels VM has `clean-macos-with-1password` snapshot (fresh macOS + Xcode CLT + 1Password app + CLI signed in).
 - **Phase 1 (audit & cleanup)** — complete. CP-1 validated in VM. `post-cp1-bootstrap` snapshot was taken but sudo_local ended up broken there (`pam_watchid.so.2` missing in VM). Fixed in Phase 2; new CP-2 state should be re-snapshotted next session.
 - **Phase 2 (sync infrastructure)** — code complete on host, validated 95% in VM. `dot sync` round-trip works (CP-2 verified brew bundle dump writes Brewfile correctly after a VM state reset).
-- **Phase 3 (launchd + bootstrap.sh + docs)** — code + docs complete on host. CP-3 VM replay NOT YET DONE. Branch is ready for fresh-VM bootstrap test.
+- **Phase 3 (launchd + bootstrap.sh + docs)** — complete including CP-3 in VM (2026-04-21). Fresh VM bootstrap ran end-to-end, launchd agent loaded with templated paths, `dot sync` round-trip verified clean (2-line diff for formula removal). VM snapshotted as `post-cp3-bootstrap`; baseline reverted.
 - **Phase 4 (final validation + merge)** — NOT STARTED.
 
 ## What's on the branch (commits since `main`)
@@ -41,13 +41,15 @@ These are all committed. Don't re-do.
 - **PATH exports must come BEFORE `mise activate` in zshrc** (mise's precmd hook strips post-activate PATH additions)
 - `dot sync` uses `chezmoi re-add` (not `add --recursive`) so template files stay templates and don't prompt every sync
 
-## Phase 3 status
+## Phase 3 complete
 
-Tasks 3.1 – 3.9 complete (commits `7f8edb5` → `f2568bf` on the branch).
-Only remaining item is **Task 3.10 — CP-3 in VM** (user-driven, blocked
-by no-apply-on-host policy).
+Tasks 3.1 – 3.10 done. Commits on the branch this phase:
+`7f8edb5` → `b4a6d17` → `e52c14b` → `d2e06bf` → `1e757d0` → `17fda41`
+→ `2b542a0` → `f3e9564` → `f2568bf` → `7f04e9f` → `1cbf5c0` → `f665b7f`
+→ `3a339ea` → `d111ab9`.
 
-Highlights vs the original plan:
+### Highlights vs the original plan
+
 - Plist was templated (`.plist.tmpl`) instead of hardcoded paths — now
   portable across M1 Max / M5 Max via `{{ .chezmoi.homeDir }}` and
   `{{ .brew_prefix }}`. Task 3.2's after-apply script was updated to
@@ -61,14 +63,31 @@ Highlights vs the original plan:
   karabiner-elements, microsoft-outlook/teams, adobe-creative-cloud,
   blackhole-2ch, zoom) are grouped into a dedicated "interactive
   installers" section at the end so macOS Auth Services password
-  prompts arrive in one back-to-back burst. `dot sync` will flatten
-  this on any future sync — that's expected, value is one-shot for
-  first bootstrap.
+  prompts arrive in one back-to-back burst. `dot sync` flattens this
+  on first sync — that's expected, value is one-shot for first bootstrap.
 - `cmd_new_machine` (Task 3.4) was already implemented during Phase 2
-  and needed no code changes — already includes prereq checks, doctor
-  invocation, and elco/expressvpn guidance.
+  and needed no code changes.
 - CLAUDE.md stale-banner removed; file now describes ironclad
   architecture + secret table + active script inventory.
+
+### CP-3 VM findings (bugs caught and fixed)
+
+- `f665b7f` — `$(chezmoi source-path)` already returns the `home/`
+  subdir (since `.chezmoiroot=home`); docs were appending `/home/`
+  yielding `.../chezmoi/home/home/Brewfile` → "No Brewfile found".
+- `3a339ea` — dropped `cask "1password"` and `cask "1password-cli"`
+  from Brewfile. They're preflight prerequisites (SETUP.md §2); having
+  them in the Brewfile races the pkg installs and creates two `op`
+  binaries on PATH where only one holds the CLI-integration grant.
+- `d111ab9` — **`dot sync` was silently reverting updates**. Brewfile
+  was tracked by chezmoi (applied to `~/Brewfile`); inside `cmd_sync`,
+  `brew bundle dump` would write fresh state to the source Brewfile,
+  then `chezmoi re-add` would immediately copy the stale `~/Brewfile`
+  back over it. Fix: add `Brewfile` to `.chezmoiignore` — nothing
+  reads `~/Brewfile`, every consumer reads
+  `$(chezmoi source-path)/Brewfile` directly. Verified in VM: a
+  `brew install cowsay` + sync + `brew uninstall cowsay` + sync
+  round-trip produced clean 2-line removal diff as expected.
 
 ## Phase 4
 
@@ -90,24 +109,57 @@ Highlights vs the original plan:
 - **Password prompts from cask pkg installers**: unavoidable (karabiner, microsoft-*, adobe, docker-desktop, fonts). Document.
 - ~~**CP-2 stray Brewfile** at repo ROOT~~ — verified clean on 2026-04-21; only `home/Brewfile` exists.
 
-## How to resume
+## How to resume (next session = Phase 4)
 
-1. Read this file + `docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md` + `docs/superpowers/plans/2026-04-16-chezmoi-ironclad.md`.
-2. Verify branch state: `git log --oneline main..HEAD`, `git status`, `dot doctor` (read-only — safe on host).
-3. **Next action is CP-3 VM replay** (Task 3.10). Follow `docs/TESTING.md` §5:
-   - Revert Parallels to `clean-macos-with-1password` snapshot.
-   - In VM: `CHEZMOI_BRANCH=design/chezmoi-ironclad bash <(curl -fsSL https://raw.githubusercontent.com/jarodtaylor/dotfiles/design/chezmoi-ironclad/bootstrap.sh)`.
-   - Expect password-prompt burst at the end (interactive installers
-     section of Brewfile). This is working-as-designed, not a regression.
-   - Verify with the block in TESTING.md §5 (dot doctor / dot status /
-     brew bundle check / launchctl print).
-   - Induce drift (brew install cowsay → dot sync --dry-run → dot sync),
-     confirm sync round-trip.
-   - On success: snapshot as `post-cp3-bootstrap`, revert VM to baseline
-     to keep it pristine for Phase 4.
-4. After CP-3 green: start Phase 4 (Task 4.1 `dot doctor` on host,
-   then 4.2 full-VM replay, 4.3 `docs/KNOWN_ISSUES.md`, 4.4 self-review,
-   4.5 merge to main).
+1. Read this file + the spec + the plan.
+2. Verify branch state: `git log --oneline main..HEAD`, `git status`,
+   `dot doctor` (read-only; safe on host).
+3. **Next action is Phase 4 Task 4.1 — `dot doctor` green on host (the
+   real M1 Max).** Host hasn't been applied yet; `op` / brew / chezmoi
+   should already be there from the pre-refactor setup. Just run
+   `dot doctor` and see what's missing. Most likely outcome: brew drift
+   (host has many packages not in the curated Brewfile, and vice versa).
+   Decide per-case: capture via `dot sync` or prune.
+4. Task 4.2 — full VM replay from `clean-macos-with-1password` (again,
+   clean baseline) to prove a reviewer could run the one-liner and reach
+   working state.
+5. Task 4.3 — write `docs/KNOWN_ISSUES.md` covering the CP-3 rough edges
+   (list below).
+6. Task 4.4 — self-review diff against `main`.
+7. Task 4.5 — merge to main.
+
+## Phase 4 punch list (for `docs/KNOWN_ISSUES.md`)
+
+- **Signed commits in VM**: bootstrap machines don't have the user's
+  1Password SSH agent available, so signed commits fail on `dot sync`.
+  Workaround: `git config --local commit.gpgsign false` in the VM's
+  source dir. On host, commits should work normally.
+- **`op` session per-terminal in VMs**: macOS Sequoia's App-Data
+  privacy gate + no Touch ID passthrough means op prompts every new
+  shell. Recommend disabling 1P auto-lock in the VM baseline snapshot.
+  On host (Touch ID), this doesn't happen.
+- **Interactive installer cask prompt burst**: macOS Authorization
+  Services prompts can't be suppressed by sudo priming. Expected;
+  Brewfile groups them together so they fire back-to-back at the end.
+- **Pkg `op` + brew `1password-cli` conflict**: don't put 1password or
+  1password-cli in Brewfile — they're preflight prerequisites. Fixed
+  in `3a339ea`; document the failure mode for future reference.
+- **First `dot sync` flattens curated Brewfile**: acknowledged B1
+  trade-off. After first sync the Brewfile is flat-alphabetized per
+  `brew bundle dump` behavior. Grouping value is one-shot for first
+  bootstrap (prompt bunching).
+- **Age template chicken-and-egg on first apply** (already noted in
+  pre-CP-3 gotchas, kept here for completeness): bootstrap.sh
+  pre-installs `age` so `.chezmoi.toml.tmpl` can derive recipient on
+  first pass. No second `init --apply` required.
+- **First-run `op authorization timeout`**: if the user walks away
+  during brew bundle (~30 min) and the 1P app locks, the first
+  `onepasswordRead` template call times out. Recovery: unlock 1P →
+  `chezmoi apply -v` to resume (Brewfile install is content-gated and
+  won't re-run).
+- **Baseline snapshot needs refresh**: `clean-macos-with-1password`
+  predates our "disable 1P auto-lock" recommendation. Consider
+  re-snapshotting after the settings tweak so CP-4 is quieter.
 
 ## Key files / locations
 
