@@ -81,6 +81,23 @@ for pkg in chezmoi age; do
   fi
 done
 
+# --- SSH known_hosts: preempt github.com prompt ---
+# First `git push` (from `dot sync --push` or the daily launchd agent)
+# connects to github.com over SSH via the 1Password agent. If
+# ~/.ssh/known_hosts doesn't have github.com, ssh blocks on the yes/no
+# prompt — fine interactively, fatal in launchd. Idempotent.
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+touch "$HOME/.ssh/known_hosts"
+chmod 644 "$HOME/.ssh/known_hosts"
+if ssh-keygen -F github.com >/dev/null 2>&1; then
+  ok "github.com already in known_hosts"
+else
+  log "adding github.com to ~/.ssh/known_hosts"
+  ssh-keyscan -H -t rsa,ecdsa,ed25519 github.com 2>/dev/null >> "$HOME/.ssh/known_hosts"
+  ok "github.com pinned in known_hosts"
+fi
+
 # --- init + apply ---
 log "running: chezmoi init --apply --branch $BRANCH $REPO_USER"
 chezmoi init --apply --verbose --branch "$BRANCH" "$REPO_USER"
