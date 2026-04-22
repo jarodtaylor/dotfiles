@@ -1,6 +1,6 @@
 # Chezmoi Ironclad — Session Resumption Notes
 
-**Last updated**: 2026-04-21, end of session — **CP-3 passed in VM**. Ready for Phase 4.
+**Last updated**: 2026-04-22 — **Phase 4 tasks 4.1, 4.3, 4.4 complete.** Remaining: 4.2 (VM replay) + 4.5 (merge).
 **Branch**: `design/chezmoi-ironclad`
 **Spec**: `docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md`
 **Plan**: `docs/superpowers/plans/2026-04-16-chezmoi-ironclad.md`
@@ -11,7 +11,12 @@
 - **Phase 1 (audit & cleanup)** — complete. CP-1 validated in VM. `post-cp1-bootstrap` snapshot was taken but sudo_local ended up broken there (`pam_watchid.so.2` missing in VM). Fixed in Phase 2; new CP-2 state should be re-snapshotted next session.
 - **Phase 2 (sync infrastructure)** — code complete on host, validated 95% in VM. `dot sync` round-trip works (CP-2 verified brew bundle dump writes Brewfile correctly after a VM state reset).
 - **Phase 3 (launchd + bootstrap.sh + docs)** — complete including CP-3 in VM (2026-04-21). Fresh VM bootstrap ran end-to-end, launchd agent loaded with templated paths, `dot sync` round-trip verified clean (2-line diff for formula removal). VM snapshotted as `post-cp3-bootstrap`; baseline reverted.
-- **Phase 4 (final validation + merge)** — NOT STARTED.
+- **Phase 4 (final validation + merge)** — IN PROGRESS.
+  - **4.1 (host `dot doctor`)** — complete. Brewfile drift captured as first host-authoritative sync (+45 entries, 0 removes). Denylist added to `dot sync` to permanently filter 1password/1password-cli/elco/expressvpn.
+  - **4.2 (VM replay)** — pending. Blocks merge.
+  - **4.3 (KNOWN_ISSUES.md)** — complete. `docs/KNOWN_ISSUES.md` covers post-bootstrap manuals, first-boot gotchas, day-to-day ops, preflight prereqs, and VM-specific issues.
+  - **4.4 (self-review)** — complete. Surfaced + fixed a merge-blocker: `private_config-work.tmpl` was embedding age ciphertext as template body (chezmoi doesn't decrypt that); migrated to `encrypted_private_config-work`. Two orphaned helper scripts (`setup-work-config`, `re-encrypt-work-config`) built around the old pattern were removed. Round-trip verified. Also preempted github.com SSH prompt in `bootstrap.sh`.
+  - **4.5 (merge)** — pending.
 
 ## What's on the branch (commits since `main`)
 
