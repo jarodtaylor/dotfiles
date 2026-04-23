@@ -116,7 +116,7 @@ curl -X POST https://api.anthropic.com/v1/sessions \
         "type": "github_repository",
         "url": "https://github.com/owner/repo",
         "mount_path": "/workspace/repo",
-        "authorization_token": "ghp_...",
+        "authorization_token": "<github_pat>",
         "branch": "feature-branch"
       }
     ]
@@ -302,7 +302,7 @@ curl -X POST https://api.anthropic.com/v1/agents \
 curl -X POST https://api.anthropic.com/v1/sessions \
   "${HEADERS[@]}" \
   -d '{
-    "agent": "agent_abc123",
+    "agent": { "type": "agent", "id": "agent_abc123" },
     "environment_id": "env_abc123",
     "vault_ids": ["vlt_abc123"]
   }'

@@ -25,10 +25,10 @@ log_info "Configuring sudo_local (Touch ID / Apple Watch / tmux re-attach)..."
 
 SUDO_LOCAL_LINES="# sudo_local: local config file which survives system update and is included for sudo"
 
-if [ -f /opt/homebrew/lib/pam/pam_reattach.so ]; then
+if [ -f {{ .brew_prefix }}/lib/pam/pam_reattach.so ]; then
   SUDO_LOCAL_LINES="$SUDO_LOCAL_LINES
 # pam_reattach: reattaches to the user's security session when using sudo in tmux
-auth       optional       /opt/homebrew/lib/pam/pam_reattach.so"
+auth       optional       {{ .brew_prefix }}/lib/pam/pam_reattach.so"
 else
   log_warning "pam_reattach.so not found — tmux-sudo re-attach disabled"
 fi

@@ -10,6 +10,9 @@ set -eufo pipefail
 PLIST_SRC="$HOME/Library/LaunchAgents/com.jarodtaylor.dots-sync.plist"
 LABEL="com.jarodtaylor.dots-sync"
 
+# Ensure log directory exists (launchd won't create it for StandardOutPath/StandardErrorPath).
+mkdir -p "$HOME/.local/state/dots-sync"
+
 if [ ! -f "$PLIST_SRC" ]; then
   log_warning "dots-sync plist not found at $PLIST_SRC; skipping."
   exit 0
