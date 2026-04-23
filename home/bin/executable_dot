@@ -80,27 +80,42 @@ cmd_help() { usage; }
 #   docs/KNOWN_ISSUES.md.
 # - expressvpn (cask): cask's LaunchDaemon install is flaky. Manual
 #   install from expressvpn.com per docs/KNOWN_ISSUES.md.
+# - github.copilot*, vscode: newer Cursor ships copilot-chat as a
+#   built-in extension and rejects the older pinned version `brew
+#   bundle` tries to install. github.copilot depends on copilot-chat
+#   and cascades the failure. Cursor manages these natively — let it.
+# - cmd/go, cmd/gofmt (go): stdlib references. `go install cmd/foo@latest`
+#   is always invalid; these get captured in error by `brew bundle dump`.
 BREWFILE_DENYLIST_BREW=("elco")
 BREWFILE_DENYLIST_CASK=("1password" "1password-cli" "expressvpn")
 BREWFILE_DENYLIST_TAP=("elc-online/tap")
+BREWFILE_DENYLIST_VSCODE=("github.copilot" "github.copilot-chat")
+BREWFILE_DENYLIST_GO=("cmd/go" "cmd/gofmt")
 
 filter_denylist() {
   # Reads Brewfile at $1, writes denylist-filtered content to stdout.
   local file="$1"
-  local brew_re cask_re tap_re
+  local brew_re cask_re tap_re vscode_re go_re
   brew_re="$(IFS='|'; echo "${BREWFILE_DENYLIST_BREW[*]}")"
   cask_re="$(IFS='|'; echo "${BREWFILE_DENYLIST_CASK[*]}")"
   tap_re="$(IFS='|'; echo "${BREWFILE_DENYLIST_TAP[*]}")"
+  vscode_re="$(IFS='|'; echo "${BREWFILE_DENYLIST_VSCODE[*]}")"
+  go_re="$(IFS='|'; echo "${BREWFILE_DENYLIST_GO[*]}")"
 
-  awk -v brews="$brew_re" -v casks="$cask_re" -v taps="$tap_re" '
+  awk -v brews="$brew_re" -v casks="$cask_re" -v taps="$tap_re" \
+      -v vscodes="$vscode_re" -v gos="$go_re" '
     BEGIN {
-      if (brews != "") brew_pat = "^brew \"([^\"]+/)?(" brews ")\""
-      if (casks != "") cask_pat = "^cask \"(" casks ")\""
-      if (taps  != "") tap_pat  = "^tap \"("  taps  ")\""
+      if (brews   != "") brew_pat   = "^brew \"([^\"]+/)?(" brews ")\""
+      if (casks   != "") cask_pat   = "^cask \"(" casks ")\""
+      if (taps    != "") tap_pat    = "^tap \"("  taps  ")\""
+      if (vscodes != "") vscode_pat = "^vscode \"(" vscodes ")\""
+      if (gos     != "") go_pat     = "^go \"(" gos ")\""
     }
-    brew_pat && $0 ~ brew_pat { next }
-    cask_pat && $0 ~ cask_pat { next }
-    tap_pat  && $0 ~ tap_pat  { next }
+    brew_pat   && $0 ~ brew_pat   { next }
+    cask_pat   && $0 ~ cask_pat   { next }
+    tap_pat    && $0 ~ tap_pat    { next }
+    vscode_pat && $0 ~ vscode_pat { next }
+    go_pat     && $0 ~ go_pat     { next }
     { print }
   ' "$file"
 }
@@ -118,6 +133,8 @@ brewfile_header() {
 #   - 1password, 1password-cli (cask): preflight prerequisites per SETUP.md
 #   - elco + elc-online/tap:           private SSH tap; manual post-bootstrap
 #   - expressvpn (cask):               flaky LaunchDaemon install; manual
+#   - github.copilot* (vscode):        Cursor ships chat as built-in; conflicts
+#   - cmd/go, cmd/gofmt (go):          stdlib refs; never valid `go install` targets
 # Manual-install recipes live in docs/KNOWN_ISSUES.md.
 #
 # Apply:   dot apply            # chezmoi apply + brew bundle install/cleanup
