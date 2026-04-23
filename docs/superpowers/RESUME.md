@@ -1,6 +1,6 @@
 # Chezmoi Ironclad — Session Resumption Notes
 
-**Last updated**: 2026-04-22 — **Phase 4 tasks 4.1, 4.3, 4.4 complete.** Remaining: 4.2 (VM replay) + 4.5 (merge).
+**Last updated**: 2026-04-23 — **CP-4 passed.** All phases complete. PR opened for peer AI review before merge.
 **Branch**: `design/chezmoi-ironclad`
 **Spec**: `docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md`
 **Plan**: `docs/superpowers/plans/2026-04-16-chezmoi-ironclad.md`
@@ -8,15 +8,17 @@
 ## Current state
 
 - **Phase 0 (VM baseline)** — complete. Parallels VM has `clean-macos-with-1password` snapshot (fresh macOS + Xcode CLT + 1Password app + CLI signed in).
-- **Phase 1 (audit & cleanup)** — complete. CP-1 validated in VM. `post-cp1-bootstrap` snapshot was taken but sudo_local ended up broken there (`pam_watchid.so.2` missing in VM). Fixed in Phase 2; new CP-2 state should be re-snapshotted next session.
-- **Phase 2 (sync infrastructure)** — code complete on host, validated 95% in VM. `dot sync` round-trip works (CP-2 verified brew bundle dump writes Brewfile correctly after a VM state reset).
-- **Phase 3 (launchd + bootstrap.sh + docs)** — complete including CP-3 in VM (2026-04-21). Fresh VM bootstrap ran end-to-end, launchd agent loaded with templated paths, `dot sync` round-trip verified clean (2-line diff for formula removal). VM snapshotted as `post-cp3-bootstrap`; baseline reverted.
-- **Phase 4 (final validation + merge)** — IN PROGRESS.
-  - **4.1 (host `dot doctor`)** — complete. Brewfile drift captured as first host-authoritative sync (+45 entries, 0 removes). Denylist added to `dot sync` to permanently filter 1password/1password-cli/elco/expressvpn.
-  - **4.2 (VM replay)** — pending. Blocks merge.
-  - **4.3 (KNOWN_ISSUES.md)** — complete. `docs/KNOWN_ISSUES.md` covers post-bootstrap manuals, first-boot gotchas, day-to-day ops, preflight prereqs, and VM-specific issues.
-  - **4.4 (self-review)** — complete. Surfaced + fixed a merge-blocker: `private_config-work.tmpl` was embedding age ciphertext as template body (chezmoi doesn't decrypt that); migrated to `encrypted_private_config-work`. Two orphaned helper scripts (`setup-work-config`, `re-encrypt-work-config`) built around the old pattern were removed. Round-trip verified. Also preempted github.com SSH prompt in `bootstrap.sh`.
-  - **4.5 (merge)** — pending.
+- **Phase 1 (audit & cleanup)** — complete. CP-1 validated in VM.
+- **Phase 2 (sync infrastructure)** — complete. CP-2 validated (`dot sync` round-trip clean).
+- **Phase 3 (launchd + bootstrap.sh + docs)** — complete. CP-3 passed in VM (2026-04-21).
+- **Phase 4 (final validation + merge)** — complete pending PR review.
+  - **4.1 (host `dot doctor`)** — complete. Brewfile drift captured as first host-authoritative sync (+45 entries, 0 removes).
+  - **4.2 (VM replay, CP-4)** — complete. Fresh VM bootstrap ran end-to-end from `clean-macos-with-1password`. Only MAS entries fail (Apple blocks App Store sign-in from VMs — expected, documented). Denylist extended mid-replay to cover vscode+go capture artifacts.
+  - **4.3 (KNOWN_ISSUES.md)** — complete. Covers post-bootstrap manuals, first-boot gotchas, day-to-day ops, preflight prereqs, VM-specific limitations, MAS-in-VM, on-disk age key rationale.
+  - **4.4 (self-review)** — complete. Caught + fixed two merge-blockers:
+    1. `private_config-work.tmpl` embedded age ciphertext as template body → renders verbatim, not decrypted. Migrated to `encrypted_private_config-work` (native chezmoi prefix). Two orphaned helper scripts (`setup-work-config`, `re-encrypt-work-config`) removed.
+    2. `identityCommand` was not a real chezmoi config key — VM correctly surfaced this; apply failed to decrypt the work config. Replaced with `identity = "~/.config/chezmoi/key.txt"` + bootstrap-time fetch of key from 1Password.
+  - **4.5 (merge)** — PR open for review by Copilot/Claude/Codex. Merge after feedback addressed.
 
 ## What's on the branch (commits since `main`)
 
