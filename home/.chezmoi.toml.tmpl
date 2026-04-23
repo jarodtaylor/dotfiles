@@ -31,8 +31,13 @@
 {{- if $ageAvailable }}
 encryption = "age"
 
+{{/* Identity file is a derived cache written by bootstrap.sh from the
+     authoritative 1Password entry. chezmoi has no native way to source an
+     age identity from a command at apply time (only identity file,
+     identities, or identityFile+passphrase). On-disk key is 0600 and
+     lives alongside chezmoi's own state. See docs/KNOWN_ISSUES.md. */}}
 [age]
-identityCommand = ["op", "read", "op://Personal/Dotfiles Age Key/notesPlain"]
+identity = "{{ joinPath .chezmoi.homeDir ".config/chezmoi/key.txt" }}"
 recipient = {{ $ageRecipient | quote }}
 {{- end }}
 

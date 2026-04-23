@@ -167,6 +167,32 @@ holds the CLI-integration entitlement. The symptom is cryptic:
 This is why `dot sync` filters them out of captured state (see
 `BREWFILE_DENYLIST_CASK` in `home/bin/executable_dot`).
 
+### Age identity: on-disk cache at `~/.config/chezmoi/key.txt`
+
+chezmoi's `[age]` config requires an identity **file path** —
+`identity`, `identities`, or `identityFile`+`passphrase`. There is no
+native "fetch from a command at apply time" option. To decrypt the
+`encrypted_*` files in this repo (e.g., the work git config),
+`bootstrap.sh` materializes the 1Password-held age key to
+`~/.config/chezmoi/key.txt` with `0600` permissions.
+
+**Security posture**: same as pre-refactor `~/key.txt` — an on-disk
+secret in user-space. 1Password remains the authoritative copy
+(survives machine loss, syncs across devices). The file is a derived
+cache.
+
+**Rotation**: update the `Dotfiles Age Key` entry in 1Password, then
+re-run:
+
+```bash
+op read 'op://Personal/Dotfiles Age Key/notesPlain' \
+  > ~/.config/chezmoi/key.txt
+chmod 600 ~/.config/chezmoi/key.txt
+```
+
+If you lose the local cache (e.g., after `rm -rf ~/.config/chezmoi/`),
+re-run `bootstrap.sh` — it detects the missing file and re-fetches.
+
 ---
 
 ## Parallels VM testing
@@ -206,3 +232,22 @@ The existing `clean-macos-with-1password` Parallels snapshot predates
 the "disable 1P auto-lock" recommendation above. Consider
 re-snapshotting after applying the settings tweak so future VM
 bootstraps are quieter.
+
+### Mac App Store sign-in blocked in VMs
+
+App Store rejects sign-in attempts from VMs with a generic
+`An unknown error occurred`. This is Apple's anti-piracy behavior, not
+a bootstrap bug — no amount of retries or correct credentials will
+work.
+
+**What happens**: every `mas "..."` entry in the Brewfile fails
+during `brew bundle install`. Because brew bundle is wrapped to be
+non-fatal (see `aef48ee`), bootstrap continues.
+
+**Workaround for VM testing**: sign out of App Store (App Store menu →
+Sign Out) before running `bootstrap.sh` so `mas install` fails fast
+instead of stalling on the broken sign-in flow. Accept that MAS
+entries will be missing — you're validating mechanism, not inventory.
+
+On real hardware, `mas install` works as long as you're signed into
+the App Store app beforehand.

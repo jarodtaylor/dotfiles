@@ -98,6 +98,26 @@ else
   ok "github.com pinned in known_hosts"
 fi
 
+# --- Age identity from 1Password → on-disk cache ---
+# chezmoi's [age] config requires a file path for identity. There's no
+# native "fetch from a command at apply time" option, so we materialize
+# the 1Password-held age key to ~/.config/chezmoi/key.txt (0600). 1P
+# stays authoritative; this file is a derived cache. Rotation is a
+# manual `op read > key.txt` until we script it. See KNOWN_ISSUES.md.
+mkdir -p "$HOME/.config/chezmoi"
+chmod 700 "$HOME/.config/chezmoi"
+if [ -s "$HOME/.config/chezmoi/key.txt" ]; then
+  ok "age identity already present at ~/.config/chezmoi/key.txt"
+else
+  log "fetching age identity from 1Password → ~/.config/chezmoi/key.txt"
+  if ! op read 'op://Personal/Dotfiles Age Key/notesPlain' \
+        > "$HOME/.config/chezmoi/key.txt"; then
+    die "failed to fetch age key from 1Password (Personal vault)."
+  fi
+  chmod 600 "$HOME/.config/chezmoi/key.txt"
+  ok "age identity pinned"
+fi
+
 # --- init + apply ---
 log "running: chezmoi init --apply --branch $BRANCH $REPO_USER"
 chezmoi init --apply --verbose --branch "$BRANCH" "$REPO_USER"
