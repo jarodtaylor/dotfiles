@@ -55,13 +55,15 @@ Common flags:
   --dry-run     Preview without writing
   --no-commit   sync: capture but don't auto-commit
   --push        sync: push to origin after commit
-  -v,--verbose  Show underlying commands
+  -v,--verbose  apply: show chezmoi per-file diffs (default is quiet)
+                sync:  show underlying commands
 
 Examples:
   dot sync --dry-run       # Preview what would be captured
   dot sync --push          # Capture + commit + push
   dot doctor               # Show system health
-  dot apply                # Reconcile machine with repo
+  dot apply                # Reconcile machine with repo (quiet)
+  dot apply -v             # Same, with chezmoi diffs
 USAGE
 }
 
@@ -231,32 +233,43 @@ cmd_sync() {
 
 # --- apply ---
 cmd_apply() {
-  local dry_run=0
+  local dry_run=0 verbose=0
   while [ $# -gt 0 ]; do
     case "$1" in
       --dry-run)    dry_run=1 ;;
-      -v|--verbose) export DOTS_VERBOSE=1 ;;
+      -v|--verbose) verbose=1; export DOTS_VERBOSE=1 ;;
       *) log_warn "unknown flag: $1" ;;
     esac
     shift
   done
 
-  local chezmoi_flags=(-v)
+  # chezmoi's -v prints colored per-file diffs which are overwhelming on
+  # big applies. Opt in via `dot apply -v`. --dry-run implies -v (diffs are
+  # the whole point of a preview).
+  local chezmoi_flags=()
+  if [ "$verbose" = "1" ] || [ "$dry_run" = "1" ]; then
+    chezmoi_flags+=(-v)
+  fi
   if [ "$dry_run" = "1" ]; then
     chezmoi_flags+=(--dry-run)
   fi
 
   log_info "chezmoi apply..."
+  # Package install is handled by run_onchange_before_10-install-packages.sh.tmpl
+  # inside `chezmoi apply`, content-hashed off the Brewfile. We do NOT also
+  # call `brew bundle install` here — that would re-attempt failing MAS / cask
+  # entries on every apply and double-print "Using X" for already-installed
+  # items. If you manually `brew uninstall`ed something and want it back,
+  # run `brew bundle install --file="$(chezmoi source-path)/Brewfile"`
+  # or touch the Brewfile to re-trigger the run_onchange hash.
   chezmoi apply "${chezmoi_flags[@]}"
 
   if [ "$dry_run" = "0" ]; then
-    log_info "brew bundle install + cleanup..."
-    brew bundle install --file="$DOTS_SOURCE_DIR/Brewfile" || \
-      log_warn "brew bundle install reported issues; non-fatal"
+    log_info "brew bundle cleanup..."
     brew bundle cleanup --file="$DOTS_SOURCE_DIR/Brewfile" --force || \
       log_warn "brew bundle cleanup reported issues; non-fatal"
   else
-    log_info "(dry-run) would run: brew bundle install + cleanup"
+    log_info "(dry-run) would run: brew bundle cleanup"
   fi
 
   log_ok "apply complete"
