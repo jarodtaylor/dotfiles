@@ -66,8 +66,8 @@ relative to `~/`.
 
 | Purpose | 1Password entry | Consumed by |
 |---|---|---|
-| age decryption key | `Dotfiles Age Key` (Secure Note, `notesPlain`) | `.chezmoi.toml.tmpl` (`identity`) |
-| Claude Code env | `Claude Code env` (Secure Note, `notesPlain`) | `home/dot_claude/dot_env.tmpl` |
+| age decryption key | `Dotfiles Age Key` (Secure Note, `notesPlain`) | `bootstrap.sh` writes it to `~/.config/chezmoi/key.txt`; `.chezmoi.toml.tmpl` points `[age] identity` at that file |
+| Claude Code env | `Claude Code env` (Secure Note, `notesPlain`) | `home/dot_claude/private_dot_env.tmpl` |
 | Codex auth | `Codex auth` (Secure Note, `notesPlain`) | `home/dot_codex/private_auth.json.tmpl` |
 | Cursor GitHub PAT | `GitHub PAT - cursor mcp` (Secure Note, `notesPlain`) | cursor mcp template |
 | Personal SSH key | existing SSH-key entry | `home/private_dot_ssh/config.tmpl` |
