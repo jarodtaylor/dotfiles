@@ -7,32 +7,44 @@
 {{-   end -}}
 {{- end -}}
 
-{{ $ageKeyFile := printf "%s/key.txt" .chezmoi.homeDir }}
-
-{{/* Check if age key exists and get its public key */}}
-{{- $ageKeyExists := false -}}
-{{- $ageRecipient := "" -}}
-{{- if stat $ageKeyFile -}}
-{{-   $publicKey := output "sh" "-c" (printf "age-keygen -y '%s' 2>/dev/null || echo ''" $ageKeyFile) | trim -}}
-{{-   if $publicKey -}}
-{{-     $ageKeyExists = true -}}
-{{-     $ageRecipient = $publicKey -}}
+{{/* 1Password availability: `op` must be in PATH AND authenticated.
+     We probe via `op whoami` rather than an env var gate so this works
+     on a fresh machine without relying on shell-profile bootstrapping. */}}
+{{- $opSignedIn := false -}}
+{{- if lookPath "op" -}}
+{{-   $whoami := output "sh" "-c" "op whoami 2>/dev/null || true" | trim -}}
+{{-   if $whoami -}}
+{{-     $opSignedIn = true -}}
 {{-   end -}}
 {{- end -}}
 
-{{- if $ageKeyExists }}
+{{/* Derive the age recipient (public key) by reading the 1Password-backed
+     identity and piping through age-keygen -y. Falls back to empty string if
+     anything fails (op not signed in, age-keygen missing, entry renamed) — in
+     which case encryption is skipped and encrypted files won't decrypt. */}}
+{{- $ageRecipient := "" -}}
+{{- if $opSignedIn -}}
+{{-   $ageRecipient = output "sh" "-c" "op read 'op://Personal/Dotfiles Age Key/notesPlain' 2>/dev/null | age-keygen -y 2>/dev/null || true" | trim -}}
+{{- end -}}
+{{- $ageAvailable := ne $ageRecipient "" -}}
+
+{{- if $ageAvailable }}
 encryption = "age"
 
+{{/* Identity file is a derived cache written by bootstrap.sh from the
+     authoritative 1Password entry. chezmoi has no native way to source an
+     age identity from a command at apply time (only identity file,
+     identities, or identityFile+passphrase). On-disk key is 0600 and
+     lives alongside chezmoi's own state. See docs/KNOWN_ISSUES.md. */}}
 [age]
-identity = {{ $ageKeyFile | quote }}
+identity = "{{ joinPath .chezmoi.homeDir ".config/chezmoi/key.txt" }}"
 recipient = {{ $ageRecipient | quote }}
 {{- end }}
 
 [data]
 brew_prefix = {{ $brew_prefix | quote }}
-ageKeyFile = {{ $ageKeyFile | quote }}
-ageKeyExists = {{ $ageKeyExists }}
-{{- if and (lookPath "op") (eq (env "ONEPASSWORD_AVAILABLE") "true") }}
+ageAvailable = {{ $ageAvailable }}
+{{- if $opSignedIn }}
 ssh_key = "{{- onepasswordRead "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" -}}"
 work_ssh_key = "{{- onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" -}}"
 onepassword_available = true
