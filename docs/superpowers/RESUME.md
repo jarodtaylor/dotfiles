@@ -1,9 +1,32 @@
 # Chezmoi Ironclad — Session Resumption Notes
 
-**Last updated**: 2026-04-23 — **CP-4 passed.** All phases complete. PR opened for peer AI review before merge.
+**Last updated**: 2026-04-23 — **MAJOR PIVOT: simplify to single-machine declarative model** before M5 bootstrap and merge. See "Phase 5: simplification" below for the new scope. PR #2 is still open but will be rewritten.
 **Branch**: `design/chezmoi-ironclad`
-**Spec**: `docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md`
-**Plan**: `docs/superpowers/plans/2026-04-16-chezmoi-ironclad.md`
+**Spec**: `docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md` (the hybrid model this spec describes is being pared down — treat spec as *design history*, not current state)
+**Plan**: `docs/superpowers/plans/2026-04-16-chezmoi-ironclad.md` (same — design history)
+
+## Why the pivot (read this first)
+
+After CP-4 passed and Copilot's review landed, Jarod clarified the
+actual deployment model: **he runs ONE active daily-driver machine**.
+M1 Max → M5 Max is a **migration**, not a fleet. After M5 is set up
+he'll wipe M1 and repurpose it (possibly give to his brother). Mac
+mini runs different workloads (OpenClaw agent) and has different
+dotfiles. So the multi-machine hybrid sync machinery (launchd daily
+agent, machine-authoritative Brewfile auto-capture, denylist filter,
+race-condition mitigation) has no actual customer.
+
+Concurrently, Jarod's preference is that Brewfile be **hand-edited /
+declarative** — the friction of manually adding `brew "foo"` is a
+*feature* that forces thoughtful curation and prevents sprawl. AI
+tool state (`.claude`, `.codex`, `.cursor`) should remain
+machine-captured because skills/plugins churn too fast for manual
+maintenance.
+
+The spec (§hybrid source-of-truth) was a clever-but-unnecessary
+wrinkle for the brew domain. Reverting to chezmoi-native declarative
+aligns with Tom Payne's design intent and simplifies ~10% of the
+branch.
 
 ## Current state
 
@@ -186,3 +209,131 @@ Tasks 3.1 – 3.10 done. Commits on the branch this phase:
 - `Codex auth` (Secure Note, notesPlain = `~/.codex/auth.json` plaintext)
 - `GitHub PAT - cursor mcp` (Secure Note, notesPlain = just the `ghp_...` token)
 - Pre-existing: personal SSH key + work SSH key items
+
+---
+
+## Phase 5: simplification (NEXT SESSION STARTS HERE)
+
+### Goal
+
+Pare the branch back to a chezmoi-native single-machine model. Preserve
+AI tool capture (the one place machine-authoritative is genuinely
+needed); revert everything else to declarative/repo-authoritative.
+
+### Tasks (execute in order)
+
+**5.1 — Rename `dot` → `dots`** (Jarod's preference; `dots` reads
+better than `dot sync`. Was originally `dots` pre-refactor; renamed
+to avoid zsh-abbr conflict, but Jarod will update the abbr instead).
+
+- `git mv home/bin/executable_dot home/bin/executable_dots`
+- Global search+replace `dot ` → `dots ` and `\bdot\b` in: README, SETUP,
+  CLAUDE.md, KNOWN_ISSUES, AUDITING, TESTING, spec, plan, all
+  `.chezmoiscripts/`, launchd plist template if still present.
+- Self-references inside `executable_dots` (log lines, usage text).
+
+**5.2 — Revert Brewfile to hand-edited / declarative**
+
+- Restore `home/Brewfile` to its hand-curated shape (Taps / Core CLI /
+  UI / Interactive installers at end — the B1 grouping for prompt
+  bunching). The currently-committed file is the flat dump from
+  `dot sync`; use it as content source but re-add the section
+  headings. Jarod will want to also prune packages he no longer uses
+  while he's in there.
+- Delete from `home/bin/executable_dots`: `BREWFILE_DENYLIST_BREW/
+  CASK/TAP/VSCODE/GO` arrays, `filter_denylist()`, `brewfile_header()`,
+  and the dump-filter-write sequence inside `cmd_sync`. `cmd_sync`
+  becomes AI-tool-only: `chezmoi re-add ~/.claude ~/.codex ~/.cursor`
+  (or similar scoped re-add) + commit + push.
+
+**5.3 — Delete the launchd daily sync agent**
+
+- `git rm home/Library/LaunchAgents/com.jarodtaylor.dots-sync.plist.tmpl`
+- `git rm home/.chezmoiscripts/run_onchange_after_20-launchd-reload.sh.tmpl`
+- Delete launchd mentions from README, CLAUDE.md, SETUP,
+  KNOWN_ISSUES, and the spec (mark as design history).
+
+**5.4 — Trim the `dots` CLI**
+
+Keep: `apply`, `sync` (AI-only), `doctor`, `edit`, `help`.
+Delete: `status`, `new-machine` (redundant with `doctor` + `bootstrap.sh`).
+
+**5.5 — Add interactive drift-catcher** (optional, but Jarod asked)
+
+`dots doctor` (or a new `dots drift`) should detect files where the
+target has drifted from what chezmoi would render and offer a
+multi-select fzf UI to `chezmoi re-add` the selected ones. This is
+the classic pain point: some apps silently write to files chezmoi
+manages (~/.config/zsh/.zshrc, karabiner, obsidian) and
+`chezmoi apply` then refuses with a conflict.
+
+Implementation sketch:
+
+```
+drifted=$(chezmoi status | awk '$1 ~ /M$/ { print $2 }')
+selected=$(echo "$drifted" | fzf --multi --preview 'chezmoi diff {}')
+echo "$selected" | xargs -r chezmoi re-add
+```
+
+Real version needs checkbox-style hints, better preview, and a
+"commit the updates afterward?" prompt. Nice-to-have; don't block
+merge on it.
+
+**5.6 — Rewrite docs to match the simpler model**
+
+- **README.md**: single-machine lifecycle, Brewfile is hand-edited,
+  no daily launchd sync. Drop "Hybrid source-of-truth" framing;
+  replace with "chezmoi declarative, plus captured AI tool state."
+- **CLAUDE.md**: same edits.
+- **KNOWN_ISSUES.md**: delete the "First `dot sync` flattens Brewfile"
+  (B1) section, the launchd-Touch-ID-at-3am gotcha, and the
+  baseline-snapshot-refresh note. Keep MAS-in-VM, post-bootstrap
+  manual installs, and the on-disk age key rationale.
+- **SETUP.md**: drop references to daily sync; keep bootstrap flow.
+- **docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md**:
+  add a header note marking it as *design history* — it captured
+  the hybrid model we scoped out.
+
+**5.7 — Validate in M5 test user**
+
+New M5 Max arrives; Jarod creates a test user. Run the bootstrap
+one-liner with the simplified branch:
+
+```
+CHEZMOI_BRANCH=design/chezmoi-ironclad bash <(curl -fsSL \
+  https://raw.githubusercontent.com/jarodtaylor/dotfiles/design/chezmoi-ironclad/bootstrap.sh)
+```
+
+This becomes CP-5. Iterate until clean.
+
+**5.8 — Merge**
+
+Force-push (or add commits to) PR #2. Re-ping Copilot/Claude/Codex
+for a fresh review on the simplified branch. Merge.
+
+### Out of scope for Phase 5
+
+- Changing the 1P integration (keep as-is)
+- Changing the `encrypted_` prefix work config (keep)
+- Changing bootstrap's age-identity fetch (keep)
+- Changing the AI tool capture mechanism (keep — it's the only
+  thing where machine-authoritative has genuine value)
+
+### Do NOT
+
+- Re-derive the simplification argument — it's captured above.
+- Re-audit the Brewfile denylist entries (1password, elco, expressvpn,
+  vscode copilot-chat, cmd/go) — they don't exist in this model
+  since brew isn't auto-captured.
+- Re-open the spec vs plan vs RESUME tension — spec and plan are
+  frozen as history; RESUME is the live doc.
+
+### Current state of branch when Phase 5 starts
+
+- PR #2 is open, `design/chezmoi-ironclad` at `cc516a6`.
+- Branch includes 4 Phase-4 review-response commits (Copilot triage,
+  work-config fix, age-identity fix, cleanup).
+- Nothing uncommitted in working tree.
+- M1 Max still has the old pre-refactor chezmoi config (not applied
+  during refactor — per policy). Will need one `chezmoi init` to pick
+  up the new config when cutover time comes, but not urgent.
