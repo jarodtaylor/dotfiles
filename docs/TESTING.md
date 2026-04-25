@@ -21,7 +21,7 @@ chezmoi execute-template < home/.chezmoiscripts/foo.sh.tmpl | shellcheck -s bash
 ## 2. Shellcheck (seconds)
 
 ```bash
-shellcheck home/bin/executable_dot bootstrap.sh
+shellcheck home/bin/executable_dots bootstrap.sh
 ```
 
 For templates, use the render-then-pipe approach above.
@@ -35,14 +35,14 @@ chezmoi apply --dry-run -v
 Tells you what apply would do without doing it. Great for catching
 regressions before committing.
 
-## 4. `dot doctor` (seconds, read-only)
+## 4. `dots doctor` (seconds, read-only)
 
 ```bash
-dot doctor
+dots doctor
 ```
 
-Multi-layer health check (chezmoi doctor + brew drift + launchd agent
-state + op session). Keep it green.
+Multi-layer health check (chezmoi doctor + brew drift + op session +
+AI tool dirs). Keep it green.
 
 ## 5. Parallels VM integration (30–60 min)
 
@@ -85,20 +85,18 @@ Keep this snapshot sacred. Never overwrite it.
 7. Verify:
 
    ```bash
-   dot doctor
-   dot status
+   dots doctor
    brew bundle check --file="$(chezmoi source-path)/Brewfile"
-   launchctl print "gui/$(id -u)/com.jarodtaylor.dots-sync" | head -5
    ```
 
 8. Induce drift, confirm capture works:
 
    ```bash
    brew install cowsay
-   dot sync --dry-run   # expect to see +cowsay in preview
-   dot sync             # commits
+   dots sync --dry-run   # expect to see +cowsay in preview
+   dots sync             # commits
    brew uninstall cowsay
-   dot sync             # commits removal
+   dots sync             # commits removal
    ```
 
 9. If everything passes, take a new checkpoint snapshot (e.g.
@@ -109,7 +107,7 @@ Keep this snapshot sacred. Never overwrite it.
 
 - End of every phase (CP-1 / CP-2 / CP-3 / CP-4)
 - Before any merge to `main`
-- After any change to `bootstrap.sh`, `.chezmoiscripts/`, the `dot` CLI,
+- After any change to `bootstrap.sh`, `.chezmoiscripts/`, the `dots` CLI,
   or 1Password integration
 - After dependency bumps (chezmoi version, brew migrations)
 

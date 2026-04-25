@@ -1,8 +1,10 @@
 # Personal Dotfiles (Chezmoi)
 
-Opinionated macOS dotfiles managed by [chezmoi](https://www.chezmoi.io/).
-Hybrid source-of-truth model: the machine is authoritative for installed
-packages and AI tool state; the repo is authoritative for hand-edited configs.
+Opinionated macOS dotfiles managed by [chezmoi](https://www.chezmoi.io/) for
+a single daily-driver Mac. Repo is the declarative source of truth for the
+shell, editor, package list, and other authored configs. AI tool state
+(`~/.claude`, `~/.codex`, `~/.cursor`) is captured from the machine on
+demand because skills/agents/plugins churn too fast to hand-maintain.
 
 > **Fair Warning**: highly personal setup. Fork and adapt — don't expect a
 > plug-and-play experience on a different person's workflow.
@@ -26,54 +28,57 @@ That:
 
 - Installs Homebrew, chezmoi, and age (needed at init time)
 - Clones this repo + runs `chezmoi apply`
-- Brewfile installs ~115 packages (66 brew formulae + 47 casks + 4 taps)
+- Brewfile installs ~100 entries (58 brew + 33 casks + 8 MAS + 3 taps)
 - Configs are rendered with secrets pulled from 1Password
-- The `com.jarodtaylor.dots-sync` launchd agent is loaded (runs daily at 03:00)
 
 Total: ~5 minutes of active clicks + 30–60 minutes walkaway.
 
 ## Daily workflow
 
 ```bash
-brew install <anything>        # just works — no chezmoi edit needed
+# Adding a package: edit the Brewfile by hand, then apply.
+$EDITOR $(chezmoi source-path)/Brewfile     # add `brew "foo"` / `cask "foo"`
+dots apply                                  # install it
 
-# ... add a skill to ~/.claude/skills/ ...
-# ... edit ~/.claude/CLAUDE.md ...
-
-dot sync                       # capture machine drift into repo and commit
-dot sync --push                # + push to origin
+# Adding an AI tool customization (skill, agent, plugin):
+# ... edit ~/.claude/skills/whatever.md ...
+dots sync                                   # capture into repo (commit)
+dots sync --push                            # ... and push to origin
 ```
 
-The launchd agent runs `dot sync --push` nightly at 03:00. You rarely need
-to run it manually unless you want an immediate save point.
+The Brewfile is hand-edited on purpose — the friction prevents package
+sprawl. `dots sync` only captures AI tool state (`~/.claude`, `~/.codex`,
+`~/.cursor`), where machine churn is real.
 
 ## Key commands
 
 | Command | Purpose |
 |---|---|
-| `dot sync` | Capture drift into repo; commit (and optionally push) |
-| `dot apply` | Reconcile machine with repo (`chezmoi apply` + `brew bundle`) |
-| `dot doctor` | Multi-layer health check |
-| `dot status` | One-line drift summary (exit 1 if drift) |
-| `dot new-machine` | First-run helper after `bootstrap.sh` |
-| `dot edit` | Open the source repo in `$EDITOR` |
+| `dots sync` | Capture drift into repo; commit (and optionally push) |
+| `dots apply` | Reconcile machine with repo (`chezmoi apply` + `brew bundle`) |
+| `dots doctor` | Multi-layer health check |
+| `dots edit` | Open the source repo in `$EDITOR` |
 
 ## Architecture
 
-Full design: [`docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md`](docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md).
-
 Short version:
 
-- **Machine is source of truth for mutable state.** Installed brew packages
-  and AI tool skills/agents/plugins are captured via `dot sync`.
-- **Repo is source of truth for authored configs.** `nvim`, `ghostty`,
-  `starship`, `zsh`, `git`, etc. Edit in the repo; `dot apply` reconciles
-  to the machine.
+- **Repo is source of truth for declared state.** Brewfile, SSH config,
+  `nvim`, `ghostty`, `starship`, `zsh`, `git`, etc. Hand-edit in the repo;
+  `dots apply` reconciles to the machine.
+- **Machine is source of truth for AI tool state.** `~/.claude`, `~/.codex`,
+  `~/.cursor` skills/agents/plugins churn too fast to hand-maintain.
+  `dots sync` re-adds them into the repo.
 - **Runtime state never syncs.** Logs, caches, session history, sqlite DBs —
   filtered in `.chezmoiignore`.
 - **Secrets via 1Password.** SSH keys, work git email, age decryption key,
   Claude/Codex auth tokens. No secrets on disk outside of 1Password-served
   templates.
+
+> The original spec ([`docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md`](docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md))
+> proposed a hybrid model with machine-authoritative Brewfile auto-capture
+> and a daily launchd sync agent. That was scoped out — see the spec's
+> "Design history" banner.
 
 ## Key layout
 
@@ -81,13 +86,11 @@ Short version:
 bootstrap.sh                                        one-liner entry
 home/                                                chezmoi source root
 ├── Brewfile                                         package manifest (tap/brew/cask)
-├── bin/executable_dot                               the `dot` CLI
-├── Library/LaunchAgents/
-│   └── com.jarodtaylor.dots-sync.plist.tmpl         daily sync agent
+├── bin/executable_dots                              the `dots` CLI
 ├── dot_claude/, dot_codex/, dot_cursor/             captured AI tool state
 ├── dot_config/                                      authored configs (nvim, ghostty, etc.)
 ├── private_dot_ssh/                                 SSH config (1Password-backed)
-├── .chezmoiscripts/                                 runtime scripts (packages, pam, launchd)
+├── .chezmoiscripts/                                 runtime scripts (packages, pam, etc.)
 └── .chezmoi.toml.tmpl                               per-machine config, 1Password integration
 ```
 

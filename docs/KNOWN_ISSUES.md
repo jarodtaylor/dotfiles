@@ -11,9 +11,9 @@ file.
 
 ## Post-bootstrap manual installs
 
-Two packages are deliberately **not** in the Brewfile. Both are
-filtered by `dot sync`'s denylist (see `home/bin/executable_dot`), so
-they won't sneak back in even if installed on an authoritative host.
+A few things are deliberately **not** in the Brewfile (Brewfile is
+hand-edited; nothing auto-captures into it). Install these by hand
+after bootstrap:
 
 ### elco (private GitHub tap)
 
@@ -53,9 +53,7 @@ a 30-minute run:
 - `blackhole-2ch`
 - `zoom`
 
-Plan for ~7 password prompts at the end of the first bootstrap. Note
-that the grouping only survives the first `dot sync` — subsequent
-syncs flatten the file alphabetically (see below).
+Plan for ~7 password prompts at the end of the first bootstrap.
 
 ### 1Password authorization timeout
 
@@ -93,39 +91,6 @@ during `brew bundle install` (non-fatal, brew continues).
 
 ## Day-to-day operations
 
-### First `dot sync` flattens the curated Brewfile
-
-The hand-curated `home/Brewfile` groups packages into sections (Taps,
-Core CLI, UI, Interactive installers at end) for human readability and
-to bunch prompt-heavy casks. The first time you run `dot sync`, those
-section comments are replaced by flat-alphabetized output from
-`brew bundle dump`.
-
-This is the acknowledged **B1 trade-off** from the design spec. The
-grouping value was one-shot: it helps the *first* bootstrap land
-cleanly (prompt bunching). After that, machine state is authoritative
-and the flat-alphabetized form is diff-friendlier anyway.
-
-An auto-generated header with denylist rationale is re-prepended on
-every `dot sync` so the file stays self-documenting.
-
-### Daily launchd agent and Touch ID
-
-The `com.jarodtaylor.dots-sync` launchd agent runs `dot sync --push`
-at 03:00 local. `dot sync` calls `chezmoi re-add`, which renders
-templates — and op-gated templates (`.claude/.env.tmpl`, etc.)
-need a 1Password session.
-
-The macOS Touch ID prompt requires a foreground user session. At 03:00
-with the machine asleep or locked, the prompt never appears and the
-`op` call errors out. `dot sync`'s re-add step is wrapped in `|| true`,
-so this failure is **non-fatal** — the Brewfile dump still succeeds
-and gets committed, but template drift for that night's run won't be
-captured.
-
-You'll catch any missed template drift the next time you run `dot sync`
-manually from an interactive shell.
-
 ### `op` in automation contexts (Claude Code, cron, non-TTY)
 
 The 1Password CLI integration uses Touch ID on-demand, which requires
@@ -133,7 +98,6 @@ a TTY-attached foreground process. Non-interactive contexts can't
 trigger the prompt:
 
 - Claude Code `!` shells and subagent Bash calls
-- `launchd` agents
 - `cron`
 - CI
 
@@ -163,9 +127,6 @@ Brewfile. During `brew bundle install` they race the pkg installers
 and leave the user with two `op` binaries on PATH, where only one
 holds the CLI-integration entitlement. The symptom is cryptic:
 `op whoami` reports signed in but `onepasswordRead` templates fail.
-
-This is why `dot sync` filters them out of captured state (see
-`BREWFILE_DENYLIST_CASK` in `home/bin/executable_dot`).
 
 ### Age identity: on-disk cache at `~/.config/chezmoi/key.txt`
 
@@ -205,7 +166,7 @@ merging changes. See `docs/TESTING.md` for the full workflow.
 `git config --global commit.gpgsign true` is set in the committed
 `home/dot_config/git/config`, which expects the 1Password SSH agent
 to be available. VMs don't have the host's 1Password agent, so
-`dot sync` commits fail with `gpg failed to sign the data`.
+`dots sync` commits fail with `gpg failed to sign the data`.
 
 **Workaround** in the VM's source directory:
 
@@ -225,13 +186,6 @@ unlock.
 
 **Workaround**: disable 1Password auto-lock in the VM baseline
 snapshot so at least a single unlock covers a full test session.
-
-### Baseline snapshot refresh
-
-The existing `clean-macos-with-1password` Parallels snapshot predates
-the "disable 1P auto-lock" recommendation above. Consider
-re-snapshotting after applying the settings tweak so future VM
-bootstraps are quieter.
 
 ### Mac App Store sign-in blocked in VMs
 

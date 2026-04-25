@@ -132,23 +132,16 @@ PATH and zsh config load).
 ## 5. Verify
 
 ```bash
-dot doctor
+dots doctor
 ```
 
 Expect everything green. If anything warns or errors, see
 [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) or follow the hint in the
 warning itself.
 
-```bash
-dot new-machine
-```
-
-Walks through any remaining first-run steps (manual tap + install for
-`elco`, `expressvpn` download, etc.).
-
 ## 6. Optional: restart
 
-Once, to ensure all launchd agents and login items take effect cleanly.
+Once, to ensure login items and brew services pick up cleanly.
 
 ---
 
@@ -169,5 +162,5 @@ the `# created:` comment line and the `AGE-SECRET-KEY-…` line).
 cd $(chezmoi source-path)
 git log --oneline | head
 git revert <bad-hash>
-dot apply
+dots apply
 ```

@@ -4,19 +4,19 @@ Guidance for Claude Code (and any AI pair) working in this repository.
 
 ## Project overview
 
-Opinionated macOS dotfiles managed by [chezmoi](https://www.chezmoi.io/).
-Hybrid source-of-truth model:
+Opinionated macOS dotfiles managed by [chezmoi](https://www.chezmoi.io/) for
+a single daily-driver Mac. Mostly chezmoi-native declarative, with one carve-out:
 
-- **Machine is authoritative** for installed packages (Homebrew) and AI
-  tool runtime state (skills, agents, plugins under `~/.claude`, `~/.codex`,
-  `~/.cursor`).
-- **Repo is authoritative** for hand-edited configs (nvim, zsh, git,
-  ghostty, starship, etc.).
-- **`dot sync`** captures machine drift into the repo.
-- **`dot apply`** reconciles machine with the repo (wraps `chezmoi apply`
-  + `brew bundle`).
-- **Daily launchd agent** (`com.jarodtaylor.dots-sync`) runs `dot sync --push`
-  at 03:00 local.
+- **Repo is authoritative** for declared state — Brewfile, SSH config, and
+  hand-edited configs (nvim, zsh, git, ghostty, starship, etc.). Edit here;
+  `dots apply` reconciles the machine.
+- **Machine is authoritative for AI tool runtime state only** — skills,
+  agents, plugins, and settings under `~/.claude`, `~/.codex`, `~/.cursor`.
+  `dots sync` runs `chezmoi re-add` against just those paths and commits
+  the result. Brewfile is **not** captured this way; it's hand-edited.
+
+`dots apply` wraps `chezmoi apply` + `brew bundle`. `dots sync` captures
+AI tool drift only.
 
 Source dir is `home/` (set via `.chezmoiroot`). All target paths are
 relative to `~/`.
@@ -26,7 +26,7 @@ relative to `~/`.
 - [`README.md`](README.md) — user-facing overview + key commands
 - [`SETUP.md`](SETUP.md) — new-machine walkthrough (pre + post bootstrap)
 - [`bootstrap.sh`](bootstrap.sh) — zero-to-productive one-liner
-- [`home/bin/executable_dot`](home/bin/executable_dot) — the `dot` CLI
+- [`home/bin/executable_dots`](home/bin/executable_dots) — the `dots` CLI
 - [`docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md`](docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md) — full architecture spec
 - [`docs/AUDITING.md`](docs/AUDITING.md) — onboarding a new AI tool
 - [`docs/TESTING.md`](docs/TESTING.md) — layered validation workflow
@@ -58,9 +58,6 @@ relative to `~/`.
 - `run_onchange_after_00-pam-config.sh.tmpl` — Touch ID / Apple Watch
   sudo via `pam_reattach`; detects missing PAM modules per-machine so
   VMs without Apple Watch don't break sudo
-- `run_onchange_after_20-launchd-reload.sh.tmpl` — bootstraps or reloads
-  the `com.jarodtaylor.dots-sync` LaunchAgent; re-runs when the plist
-  template changes (embedded sha256 hash)
 
 ## Secrets (all via 1Password, `Personal` vault)
 
@@ -91,7 +88,7 @@ following the pattern in `docs/AUDITING.md`.
 - Test template changes with `chezmoi execute-template < file.tmpl`
   before committing
 - Dry-run any apply with `chezmoi apply --dry-run -v` (read-only)
-- `dot doctor` is the multi-layer health check — keep it green
+- `dots doctor` is the multi-layer health check — keep it green
 - Homebrew prefix varies by arch: `/opt/homebrew` (arm64) vs
   `/usr/local` (amd64). Always use `{{ .brew_prefix }}` in templates
 - PATH additions must come **before** `mise activate` in the zshrc —
@@ -99,7 +96,7 @@ following the pattern in `docs/AUDITING.md`.
 - `.chezmoiignore` excludes repo-only files (README, docs, bootstrap.sh)
   from being applied to `~`
 - See `docs/TESTING.md` for the layered validation order
-  (render-check → shellcheck → dry-run apply → `dot doctor` → VM)
+  (render-check → shellcheck → dry-run apply → `dots doctor` → VM)
 
 ## Subdirectory CLAUDE.md files
 

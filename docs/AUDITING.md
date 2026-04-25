@@ -1,7 +1,7 @@
 # Auditing a New AI Tool
 
 When a new AI tool lands on the machine (a new `~/.newtool/` directory),
-`dot sync` does **not** automatically pick it up. This is deliberate: a
+`dots sync` does **not** automatically pick it up. This is deliberate: a
 blind capture would risk pulling secrets into the repo, committing
 multi-megabyte caches, or shipping runtime-only state like sqlite session
 DBs.
@@ -46,9 +46,9 @@ Add patterns for the IGNORE entries. Pattern scope matters — use
 .newtool/sessions.db
 ```
 
-## Step 4: Extend the `dot sync` capture loop
+## Step 4: Extend the `dots sync` capture loop
 
-Open `home/bin/executable_dot` and find the AI tool capture loop
+Open `home/bin/executable_dots` and find the AI tool capture loop
 (currently around line 246):
 
 ```bash
@@ -74,8 +74,8 @@ If there are auth/token files, migrate them to 1Password:
 ## Step 6: First capture
 
 ```bash
-dot sync --dry-run   # preview what would land in the commit
-dot sync             # commit
+dots sync --dry-run   # preview what would land in the commit
+dots sync             # commit
 ```
 
 ## Step 7: Verify no secrets leaked

@@ -12,7 +12,7 @@ binding so the whole config is Lua, not shell.
 - [SbarLua](https://github.com/FelixKratz/SbarLua)
 - Lua (`brew install lua`)
 
-All three are in the Brewfile; `dot apply` installs them.
+All three are in the Brewfile; `dots apply` installs them.
 
 ## Layout
 

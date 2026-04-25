@@ -1,8 +1,18 @@
 # Chezmoi Ironclad — Design Spec
 
+> **⚠ Design history (2026-04-23 pivot).** This spec captured a hybrid
+> source-of-truth model with machine-authoritative Brewfile auto-capture,
+> a daily launchd sync agent, and a denylist filter. **Phase 5 of the
+> implementation scoped that out** in favor of a simpler chezmoi-native
+> single-machine model: Brewfile is hand-edited (friction is the feature),
+> launchd agent is gone, and `dots sync` only captures AI tool state
+> (`~/.claude`, `~/.codex`, `~/.cursor`). Read this doc as a record of
+> the design discussion, not the current implementation. Live state lives
+> in `README.md`, `CLAUDE.md`, and the `dots` CLI source itself.
+
 **Author**: Jarod Taylor
 **Date**: 2026-04-16
-**Status**: Draft (pending user review)
+**Status**: Design history — superseded by Phase 5 simplification (see banner above)
 **Scope**: Complete overhaul of `~/.local/share/chezmoi` dotfiles system
 **Target machines**: M1 Max MacBook Pro (current), M5 Max MacBook Pro (incoming). YAGNI everything else.
 

@@ -11,8 +11,8 @@ README.md
 install.sh
 
 # Brewfile is a source-only artifact — read via $(chezmoi source-path)/Brewfile
-# by bootstrap, `dot apply`, `dot doctor`, and the install-packages script.
-# Applying it to ~/Brewfile serves no purpose AND causes `dot sync` to silently
+# by bootstrap, `dots apply`, `dots doctor`, and the install-packages script.
+# Applying it to ~/Brewfile serves no purpose AND causes `dots sync` to silently
 # revert updates: `chezmoi re-add` inside sync would copy stale ~/Brewfile back
 # over the freshly-dumped source, undoing the brew bundle dump. (CP-3 finding.)
 Brewfile
