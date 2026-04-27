@@ -36,9 +36,13 @@ Total: ~5 minutes of active clicks + 30–60 minutes walkaway.
 ## Daily workflow
 
 ```bash
-# Adding a package: edit the Brewfile by hand, then apply.
+# Adding a package: edit the Brewfile, then apply.
 $EDITOR $(chezmoi source-path)/Brewfile     # add `brew "foo"` / `cask "foo"`
 dots apply                                  # install it
+
+# Removing a package: edit the Brewfile, then apply.
+$EDITOR $(chezmoi source-path)/Brewfile     # delete the line
+dots apply                                  # `brew bundle cleanup` uninstalls it
 
 # Adding an AI tool customization (skill, agent, plugin):
 # ... edit ~/.claude/skills/whatever.md ...
@@ -50,16 +54,72 @@ The Brewfile is hand-edited on purpose — the friction prevents package
 sprawl. `dots sync` only captures AI tool state (`~/.claude`, `~/.codex`,
 `~/.cursor`), where machine churn is real.
 
+> ⚠️ **Don't `brew uninstall foo` directly** when `foo` is in the
+> Brewfile. The next `dots apply` will reinstall it (Brewfile is the
+> source of truth for installed packages). Edit the Brewfile first;
+> cleanup will then remove it.
+
 ## Key commands
 
 | Command | Purpose |
 |---|---|
-| `dots sync` | Capture drift into repo; commit (and optionally push) |
+| `dots sync` | Capture AI tool drift into repo; commit (and optionally push) |
 | `dots apply` | Reconcile machine with repo (`chezmoi apply` + `brew bundle`) |
 | `dots doctor` | Multi-layer health check |
 | `dots edit` | Open the source repo in `$EDITOR` |
 
+### What is `dots`?
+
+`dots` (`home/bin/executable_dots`) is a thin Bash wrapper around
+`chezmoi` + `brew bundle` + `git`. If you're already a chezmoi user,
+the mapping is:
+
+| `dots` command | Equivalent chezmoi/brew/git invocations |
+|---|---|
+| `dots apply` | `chezmoi apply` (which triggers `brew bundle install` via `run_onchange_before_10-install-packages.sh.tmpl` when the Brewfile changes) + `brew bundle cleanup --force` |
+| `dots sync` | `chezmoi re-add ~/.claude ~/.codex ~/.cursor` + scoped `git commit` (only the three AI tool source paths) |
+| `dots doctor` | `chezmoi doctor` + `brew bundle check` + repo cleanliness + `op whoami` + AI tool dir presence |
+| `dots edit` | `$EDITOR $(chezmoi source-path)/..` |
+
+Plain `chezmoi apply`, `chezmoi diff`, `chezmoi re-add <path>`, etc.
+still work directly. The wrapper exists for keystroke economy and to
+bake in the right combination of commands — especially the scoped
+commit on `sync`, which only stages `home/dot_claude home/dot_codex
+home/dot_cursor` so unrelated in-progress edits don't get swept into a
+`state sync` commit.
+
 ## Architecture
+
+```mermaid
+flowchart LR
+    subgraph repo["📁 Repo (this directory)"]
+        direction TB
+        BF["Brewfile<br/>(hand-edited)"]
+        DC["dot_config/<br/>nvim, zsh, ghostty,<br/>git, ssh, ..."]
+        AT["dot_claude/<br/>dot_codex/<br/>dot_cursor/"]
+    end
+
+    subgraph machine["💻 Machine"]
+        direction TB
+        BREW["Homebrew<br/>/Applications"]
+        CFG["~/.config<br/>~/.zshenv<br/>~/.ssh<br/>..."]
+        AI["~/.claude<br/>~/.codex<br/>~/.cursor"]
+    end
+
+    subgraph op["🔐 1Password vault"]
+        AGE["Age key<br/>tokens<br/>env files"]
+    end
+
+    BF ==>|dots apply| BREW
+    DC ==>|dots apply| CFG
+    AT ==>|dots apply| AI
+    AI -.->|dots sync| AT
+    op -.->|onepasswordRead<br/>at template render| DC
+```
+
+Solid arrows = `dots apply` (repo → machine, the dominant flow).
+Dashed = `dots sync` (machine → repo, AI tool state only) and
+1Password reads (vault → templates at apply time).
 
 Short version:
 
