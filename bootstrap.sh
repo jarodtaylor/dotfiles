@@ -82,10 +82,10 @@ for pkg in chezmoi age; do
 done
 
 # --- SSH known_hosts: preempt github.com prompt ---
-# First `git push` (from `dot sync --push` or the daily launchd agent)
-# connects to github.com over SSH via the 1Password agent. If
-# ~/.ssh/known_hosts doesn't have github.com, ssh blocks on the yes/no
-# prompt — fine interactively, fatal in launchd. Idempotent.
+# First `git push` (e.g. from `dots sync --push`) connects to github.com
+# over SSH via the 1Password agent. If ~/.ssh/known_hosts doesn't have
+# github.com, ssh blocks on the yes/no prompt — fine interactively, fatal
+# in non-interactive contexts. Idempotent.
 mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 touch "$HOME/.ssh/known_hosts"

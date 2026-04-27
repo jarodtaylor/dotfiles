@@ -89,15 +89,19 @@ Keep this snapshot sacred. Never overwrite it.
    brew bundle check --file="$(chezmoi source-path)/Brewfile"
    ```
 
-8. Induce drift, confirm capture works:
+8. Induce AI tool drift, confirm capture works:
 
    ```bash
-   brew install cowsay
-   dots sync --dry-run   # expect to see +cowsay in preview
+   echo "test drift" > ~/.claude/TESTING_SYNC_DRIFT.md
+   dots sync --dry-run   # expect to see TESTING_SYNC_DRIFT.md in preview
    dots sync             # commits
-   brew uninstall cowsay
+   rm ~/.claude/TESTING_SYNC_DRIFT.md
    dots sync             # commits removal
    ```
+
+   `dots sync` only captures AI tool drift (`~/.claude`, `~/.codex`,
+   `~/.cursor`). Brewfile changes are hand-edited; verify those
+   separately with `brew bundle check` and `dots apply`.
 
 9. If everything passes, take a new checkpoint snapshot (e.g.
    `post-cp3-bootstrap`) and revert to baseline to keep the baseline

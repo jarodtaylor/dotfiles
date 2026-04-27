@@ -80,32 +80,37 @@ cmd_sync() {
     shift
   done
 
-  # Update already-tracked AI tool files from live state.
+  # Source paths (under repo root) and target paths (under $HOME) for the
+  # AI tool dirs we sync. re-add is scoped to target paths so the Brewfile
+  # is never auto-touched; git operations are scoped to the matching source
+  # paths so unrelated in-progress edits elsewhere in the repo are not
+  # swept into a `state sync` commit.
+  local sync_paths=(home/dot_claude home/dot_codex home/dot_cursor)
+  local re_add_targets=("$HOME/.claude" "$HOME/.codex" "$HOME/.cursor")
+
   # Using `re-add` (not `add`) so template files stay templates and we
   # don't get prompted every sync about "downgrading" .tmpl to plain.
   # Trade-off: brand-new files (e.g. a new skill) are NOT auto-captured.
   # To start tracking new paths, run `chezmoi add <path>` explicitly once,
   # then subsequent `dots sync` runs will keep them updated.
-  log_info "updating tracked AI tool files..."
   if [ "$dry_run" = "1" ]; then
-    log_debug "(dry-run) would: chezmoi re-add ~/.claude ~/.codex ~/.cursor"
-  else
-    chezmoi re-add "$HOME/.claude" "$HOME/.codex" "$HOME/.cursor" 2>&1 | grep -vE '^$' || true
+    log_info "(dry-run) previewing AI tool drift..."
+    chezmoi --dry-run -v re-add "${re_add_targets[@]}" 2>&1 | grep -vE '^$' || true
+    log_info "dry-run: no changes made"
+    return 0
   fi
 
+  log_info "updating tracked AI tool files..."
+  chezmoi re-add "${re_add_targets[@]}" 2>&1 | grep -vE '^$' || true
+
   cd "$DOTS_REPO_DIR" || exit 1
-  if git diff --quiet && git diff --cached --quiet; then
+  if git diff --quiet -- "${sync_paths[@]}" && git diff --cached --quiet -- "${sync_paths[@]}"; then
     log_ok "no drift — repo is in sync"
     return 0
   fi
 
   log_info "drift detected:"
-  git --no-pager diff --stat HEAD | sed 's/^/  /'
-
-  if [ "$dry_run" = "1" ]; then
-    log_info "dry-run: stopping here"
-    return 0
-  fi
+  git --no-pager diff --stat HEAD -- "${sync_paths[@]}" | sed 's/^/  /'
 
   if [ "$no_commit" = "1" ]; then
     log_info "--no-commit: leaving changes unstaged"
@@ -113,9 +118,9 @@ cmd_sync() {
   fi
 
   local summary
-  summary="$(git diff --stat HEAD | tail -1)"
-  git add -A
-  git commit -m "state sync $(date +%Y-%m-%d): $summary"
+  summary="$(git diff --stat HEAD -- "${sync_paths[@]}" | tail -1)"
+  git add -- "${sync_paths[@]}"
+  git commit -m "state sync $(date +%Y-%m-%d): $summary" -- "${sync_paths[@]}"
 
   if [ "$do_push" = "1" ]; then
     log_info "pushing to origin..."

@@ -9,5 +9,8 @@
 # `sudo -v` can fail if sudo_local references a PAM module that's missing
 # (e.g. pam_watchid.so.2 on Macs / VMs without Apple Watch support). Don't
 # abort the whole apply on a PAM glitch — fall back to per-command prompts.
-sudo -v || echo "(sudo priming failed — individual commands may prompt)" >&2
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+if sudo -v; then
+  while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+else
+  echo "(sudo priming failed — individual commands may prompt)" >&2
+fi

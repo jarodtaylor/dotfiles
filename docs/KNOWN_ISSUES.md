@@ -46,14 +46,17 @@ primed). The Brewfile groups these together so they fire back-to-back
 at the end of `brew bundle install` instead of being scattered across
 a 30-minute run:
 
-- `docker-desktop`
-- `karabiner-elements`
-- `microsoft-outlook`, `microsoft-teams`
 - `adobe-creative-cloud`
 - `blackhole-2ch`
+- `docker-desktop`
+- `karabiner-elements`
+- `microsoft-auto-update`
+- `microsoft-teams`
 - `zoom`
 
 Plan for ~7 password prompts at the end of the first bootstrap.
+(Microsoft Outlook is now installed via the App Store, so it doesn't
+appear here.)
 
 ### 1Password authorization timeout
 
