@@ -77,11 +77,6 @@ for file in "$ZDOTDIR"/functions/cli/*.zsh; do
   [[ -r "$file" ]] && source "$file"
 done
 
-# Source system utilities (optional - these could be chezmoi scripts instead)
-for file in "$ZDOTDIR"/functions/system/*.zsh; do
-  [[ -r "$file" ]] && source "$file"
-done
-
 # ##########################################
 # ZSH-ABBR                                 #
 # ##########################################

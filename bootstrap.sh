@@ -123,4 +123,4 @@ log "running: chezmoi init --apply --branch $BRANCH $REPO_USER"
 chezmoi init --apply --verbose --branch "$BRANCH" "$REPO_USER"
 
 ok "bootstrap complete"
-log "next: open a new shell; run 'dot doctor' to verify everything is green"
+log "next: open a new shell; run 'dots doctor' to verify everything is green"
