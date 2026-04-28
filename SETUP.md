@@ -139,7 +139,107 @@ Expect everything green. If anything warns or errors, see
 [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) or follow the hint in the
 warning itself.
 
-## 6. Optional: restart
+## 6. Post-bootstrap setup (manual)
+
+The bootstrap installs apps and applies configs. Several things still
+need human hands — most are once-per-machine. Work through these in
+order; the whole pass is usually 15–30 minutes.
+
+### 6a. Sign into Mac App Store, then re-apply
+
+If you skipped App Store sign-in during bootstrap, every `mas "..."`
+entry in the Brewfile failed silently. Open the App Store app, sign
+in with your Apple ID, then:
+
+```bash
+dots apply
+```
+
+The next `brew bundle install` picks them up.
+
+### 6b. Sign into apps that need accounts
+
+The Brewfile installs the apps; you still log in by hand. In this
+setup, account-required apps include:
+
+- **Dev tools** — Cursor, GitHub Desktop, Postman, VS Code (if used)
+- **Chat & meetings** — Slack, Discord, Telegram, Microsoft Teams, Zoom
+- **AI tools** — ChatGPT, Claude, Granola
+- **Productivity** — Notion, Obsidian, Spotify
+- **Creative** — Adobe Creative Cloud (sign in, then install the apps you actually use via the launcher)
+
+> Forkers: replace this list with whatever GUI apps your own Brewfile
+> installs that need credentials.
+
+### 6c. Grant macOS permissions
+
+Apps that hook into UI events, screen capture, audio devices, or
+kernel extensions need explicit grants in System Settings →
+**Privacy & Security**. Each app prompts on first launch and hands
+you off to the right pane; drag the app into the toggle list and
+re-launch.
+
+In this setup:
+
+| App | Permission(s) |
+|---|---|
+| Raycast | Accessibility, Screen Recording, Input Monitoring |
+| CleanShot X | Screen Recording, Accessibility |
+| Karabiner-Elements | Input Monitoring + **kernel extension approval** (one-time; requires reboot after Allow) |
+| Aerospace | Accessibility |
+| Shortcat | Accessibility |
+| BlackHole-2ch | Audio device kext approval |
+
+> Forkers: anything that automates UI, captures the screen, or hooks
+> keyboard/mouse/audio will need similar grants. Check each app's
+> first-run prompts.
+
+### 6d. Configure "Open at Login" for utilities
+
+System Settings → **General → Login Items**, or each app's own
+"Launch at login" toggle. Enable as desired:
+
+- Raycast (Settings → General → "Launch Raycast at login")
+- CleanShot X (Settings → General → "Launch at login")
+- Aerospace (Settings → "Start at login")
+- 1Password (auto-enabled after install; verify it's on)
+
+> Forkers: this is whatever menu-bar / utility apps you want
+> auto-launching.
+
+### 6e. Manual installs (not in the Brewfile)
+
+A few packages are deliberately excluded from the Brewfile because
+they need SSH credentials, manual licensing, or have flaky unattended
+installs. Run these by hand once 1Password's SSH agent is active:
+
+```bash
+# elco — private GitHub tap (SSH-only; needs 1P agent live)
+brew tap elc-online/tap git@github.com:elc-online/homebrew-tap.git
+brew install elc-online/tap/elco
+
+# ExpressVPN — cask's LaunchDaemon install is historically flaky
+open https://www.expressvpn.com/latest
+```
+
+See [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) §"Post-bootstrap
+manual installs" for the full rationale.
+
+> Forkers: list anything your Brewfile *can't* handle (private taps,
+> flaky casks, apps needing manual licensing or config before install).
+
+### 6f. Optional: GitHub CLI authentication
+
+If you use `gh`:
+
+```bash
+gh auth login
+```
+
+The 1Password SSH agent handles `git push` over SSH; `gh`'s HTTPS API
+calls need their own token.
+
+## 7. Optional: restart
 
 Once, to ensure login items and brew services pick up cleanly.
 
