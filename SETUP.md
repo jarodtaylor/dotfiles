@@ -194,18 +194,33 @@ In this setup:
 > keyboard/mouse/audio will need similar grants. Check each app's
 > first-run prompts.
 
-### 6d. Configure "Open at Login" for utilities
+### 6d. First-launch (and Open-at-Login) for utilities
 
-System Settings → **General → Login Items**, or each app's own
-"Launch at login" toggle. Enable as desired:
+Several apps don't auto-start after `brew bundle install` — macOS
+won't register them as Login Items until you open them at least
+once. Open each, grant any permission prompts (see 6c), then their
+"start at login" preference (or the equivalent in `~/.config/...`)
+takes effect on subsequent reboots.
 
-- Raycast (Settings → General → "Launch Raycast at login")
-- CleanShot X (Settings → General → "Launch at login")
-- Aerospace (Settings → "Start at login")
-- 1Password (auto-enabled after install; verify it's on)
+- **Aerospace** — `open -a Aerospace`. Grant Accessibility when
+  prompted. The config at `~/.config/aerospace/aerospace.toml`
+  already sets `start-at-login = true`, so it'll auto-start after
+  the first manual launch.
+- **Karabiner-Elements** — `open -a 'Karabiner-Elements'`. Approve
+  the kernel extension in System Settings → Privacy & Security
+  (one-time, requires a reboot). Config at
+  `~/.config/karabiner/karabiner.json` is already shipped (Caps Lock
+  → Control, Right Cmd → Hyper, etc.).
+- **Sketchybar** — `brew services start sketchybar` (or just open
+  any app — Aerospace's `after-startup-command` already launches it
+  via `exec-and-forget sketchybar`).
+- **Raycast** — Settings → General → "Launch Raycast at login"
+- **CleanShot X** — Settings → General → "Launch at login"
+- **1Password** — auto-enabled after install; verify it's on
 
 > Forkers: this is whatever menu-bar / utility apps you want
-> auto-launching.
+> auto-launching. Most need to be opened once before macOS treats
+> their "start at login" toggle as effective.
 
 ### 6e. Manual installs (not in the Brewfile)
 
