@@ -1,13 +1,20 @@
 BINARY_NAME = apple_menu
-FRAMEWORKS = -framework Cocoa -framework SwiftUI -framework MediaPlayer -framework CoreAudio
+SWIFT_PRODUCT = AppleMenu
 
-bin/$(BINARY_NAME): apple_menu.swift | bin
-	swiftc $< $(FRAMEWORKS) -o $@
+# Source layout is a Swift Package (Package.swift + Sources/AppleMenu/...),
+# so build via `swift build` rather than a flat swiftc invocation.
+# The SPM product is `AppleMenu`; we copy it to bin/apple_menu so the
+# Lua items (which reference bin/apple_menu) keep working.
+all: bin/$(BINARY_NAME)
+
+bin/$(BINARY_NAME): | bin
+	swift build -c release
+	cp .build/release/$(SWIFT_PRODUCT) $@
 
 bin:
-	mkdir -p bin
+	mkdir -p $@
 
 clean:
-	rm -rf bin
+	rm -rf bin .build
 
-.PHONY: clean 
+.PHONY: all clean
