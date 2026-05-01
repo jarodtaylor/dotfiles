@@ -211,9 +211,14 @@ takes effect on subsequent reboots.
   (one-time, requires a reboot). Config at
   `~/.config/karabiner/karabiner.json` is already shipped (Caps Lock
   → Control, Right Cmd → Hyper, etc.).
-- **Sketchybar** — `brew services start sketchybar` (or just open
-  any app — Aerospace's `after-startup-command` already launches it
-  via `exec-and-forget sketchybar`).
+- **Sketchybar** — auto-launches when Aerospace starts (via
+  Aerospace's `after-startup-command`). If the bar is empty or you
+  rebuild helpers later, force a reload:
+  `pkill sketchybar; sketchybar &` — or use Karabiner **Hyper+S+R**
+  (Right Cmd+S then R) which runs the full
+  `aerospace reload-config && pkill sketchybar && sketchybar` chord.
+  Aerospace's `after-startup-command` only fires once at Aerospace
+  startup; it does *not* monitor or respawn sketchybar.
 - **Raycast** — Settings → General → "Launch Raycast at login"
 - **CleanShot X** — Settings → General → "Launch at login"
 - **1Password** — auto-enabled after install; verify it's on
