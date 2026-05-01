@@ -28,6 +28,12 @@
 **/*.pem
 .fetch
 
+# Project-local AI artifacts (anchored at repo root so we don't accidentally
+# ignore home/dot_claude/CLAUDE.md, which IS chezmoi-managed and stays tracked)
+/CLAUDE.md
+/.claude/
+/docs/superpowers/
+
 # From LazyVim
 tt.*
 .tests
