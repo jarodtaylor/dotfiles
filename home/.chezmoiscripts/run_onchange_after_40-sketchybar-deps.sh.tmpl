@@ -1,0 +1,63 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+{{ template "scripts/script_eval_brew" . }}
+{{ template "scripts/script_helper" . }}
+
+# Sketchybar one-time dependencies that aren't packaged in Brewfile:
+#   1. Build C helpers in ~/.config/sketchybar/helpers/
+#      (cpu_load, network_load, memory_load, hdd_load, apple_menu, menus)
+#   2. Install sketchybar-app-font.ttf (for app glyphs in the bar)
+#   3. Install SbarLua module (Lua bindings — required by init.lua)
+#
+# Re-runs whenever this script's content changes (chezmoi content-hash).
+# Each step has its own idempotence guard so re-runs are cheap.
+#
+# After first install, restart sketchybar to pick up everything:
+#   pkill sketchybar; sketchybar &    # kill + relaunch
+# Or via Karabiner Hyper+S+R (binds to: aerospace reload-config &&
+# pkill sketchybar && sleep 0.5 && sketchybar). Aerospace's
+# `after-startup-command` only fires when Aerospace itself starts;
+# it does NOT watch sketchybar and respawn it on death.
+#
+# Reference: https://github.com/FelixKratz/dotfiles/blob/main/install_sketchybar.sh
+
+SKETCHYBAR_CFG="$HOME/.config/sketchybar"
+FONT_PATH="$HOME/Library/Fonts/sketchybar-app-font.ttf"
+APP_FONT_URL="https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v2.0.5/sketchybar-app-font.ttf"
+
+if [ ! -d "$SKETCHYBAR_CFG" ]; then
+  log_warning "sketchybar config not found at $SKETCHYBAR_CFG; skipping"
+  exit 0
+fi
+
+# 1. Build C helpers (idempotent — make rebuilds only what's stale)
+if [ -f "$SKETCHYBAR_CFG/helpers/makefile" ]; then
+  log_info "Building sketchybar helpers (event_providers + menus)..."
+  ( cd "$SKETCHYBAR_CFG/helpers" && make )
+fi
+
+# 2. Install sketchybar-app-font
+mkdir -p "$(dirname "$FONT_PATH")"
+if [ -f "$FONT_PATH" ]; then
+  log_info "sketchybar-app-font.ttf already present"
+else
+  log_info "Downloading sketchybar-app-font.ttf..."
+  curl -fsSL "$APP_FONT_URL" -o "$FONT_PATH"
+fi
+
+# 3. Install SbarLua. Test by attempting to require it; if that succeeds,
+# the .so is already on Lua's package path and we can skip the build.
+if lua -e 'require("sketchybar")' 2>/dev/null; then
+  log_info "SbarLua already installed"
+else
+  log_info "Installing SbarLua..."
+  TMP_DIR="$(mktemp -d)"
+  trap 'rm -rf "$TMP_DIR"' EXIT
+  git clone --depth 1 https://github.com/FelixKratz/SbarLua.git "$TMP_DIR/SbarLua"
+  ( cd "$TMP_DIR/SbarLua" && make install )
+fi
+
+log_info "Sketchybar deps ready. Restart sketchybar to apply:"
+log_info "  pkill sketchybar; sketchybar &    (or use Karabiner Hyper+S+R)"

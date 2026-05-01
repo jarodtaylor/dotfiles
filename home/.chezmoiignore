@@ -10,6 +10,13 @@ LICENSE
 README.md
 install.sh
 
+# Brewfile is a source-only artifact — read via $(chezmoi source-path)/Brewfile
+# by bootstrap, `dots apply`, `dots doctor`, and the install-packages script.
+# Applying it to ~/Brewfile serves no purpose AND causes `dots sync` to silently
+# revert updates: `chezmoi re-add` inside sync would copy stale ~/Brewfile back
+# over the freshly-dumped source, undoing the brew bundle dump. (CP-3 finding.)
+Brewfile
+
 # macOS flies
 **/.DS_Store
 .CFUserTextEncoding
@@ -23,10 +30,6 @@ install.sh
 
 # Editor
 .vscode/
-.config/Code/User/settings.json
-.config/Code/User/keybindings.json
-.config/Code/User/extensions-list.txt
-.config/Code/User/snippets/
 
 # Vim / NeoVim files
 .viminfo
@@ -34,3 +37,154 @@ install.sh
 
 # Obsidian
 ~/.obsidian/workspace.json
+
+# =============================================================================
+# AI tool runtime state — captured by `dots sync` but filtered here so chezmoi
+# does not track caches, logs, session databases, telemetry, or ephemeral state.
+# Keep this list aggressive; when in doubt, ignore it.
+# =============================================================================
+
+# --- ~/.claude ---
+.claude/cache/**
+.claude/history.jsonl
+.claude/projects/**
+.claude/sessions/**
+.claude/statsig/**
+.claude/todos/**
+.claude/ide/**
+.claude/file-history/**
+.claude/session-env/**
+.claude/shell-snapshots/**
+.claude/telemetry/**
+.claude/backups/**
+.claude/paste-cache/**
+.claude/security_warnings_state_*.json
+.claude/mcp-needs-auth-cache.json
+.claude/stats-cache.json
+.claude/plugins/marketplaces/**
+.claude/plugins/cache/**
+.claude/plugins/data/**
+.claude/plugins/install-counts-cache.json
+.claude/plugins/blocklist.json
+.claude/cchubber-*
+.claude/cchubber-report.html
+.claude/debug/**
+.claude/chrome/**
+.claude/get-shit-done/**
+.claude/gsd-file-manifest.json
+.claude/downloads/**
+.claude/tasks/**
+.claude/teams/**
+.claude/package.json
+.claude/image-cache/**
+.claude/plans/**                    # user/project-specific work artifacts, not dotfiles
+
+# Nested-project skills — treat as independent projects, not dotfiles.
+# Any skill that has its own .git or is multi-hundred-MB goes here:
+.claude/skills/gstack/**
+
+# Gstack also installs symlinks in ~/.claude/skills/ pointing into
+# ~/.claude/skills/gstack/. These would be broken on any machine that
+# hasn't cloned gstack separately. Install gstack to recreate them.
+.claude/skills/plan-devex-review/**
+.claude/skills/open-gstack-browser/**
+.claude/skills/design-review/**
+.claude/skills/gstack-upgrade/**
+.claude/skills/setup-deploy/**
+.claude/skills/freeze/**
+.claude/skills/cso/**
+.claude/skills/retro/**
+.claude/skills/qa/**
+.claude/skills/qa-only/**
+.claude/skills/plan-ceo-review/**
+.claude/skills/design-consultation/**
+.claude/skills/canary/**
+.claude/skills/design-shotgun/**
+.claude/skills/plan-eng-review/**
+.claude/skills/guard/**
+.claude/skills/office-hours/**
+.claude/skills/health/**
+.claude/skills/plan-design-review/**
+.claude/skills/checkpoint/**
+.claude/skills/devex-review/**
+.claude/skills/ship/**
+.claude/skills/autoplan/**
+.claude/skills/careful/**
+.claude/skills/pair-agent/**
+.claude/skills/learn/**
+.claude/skills/document-release/**
+.claude/skills/unfreeze/**
+.claude/skills/setup-browser-cookies/**
+.claude/skills/investigate/**
+.claude/skills/review/**
+.claude/skills/land-and-deploy/**
+.claude/skills/codex/**
+.claude/skills/browse/**
+.claude/skills/design-html/**
+.claude/skills/benchmark/**
+.claude/skills/connect-chrome/**
+
+# Generic filters for things that shouldn't ride in dotfiles even in smaller
+# skills (node modules, build output, nested git repos, lockfiles, native
+# binaries, compiled objects):
+.claude/skills/**/node_modules/**
+.claude/skills/**/dot_git/**
+.claude/skills/**/.git/**
+.claude/skills/**/dist/**
+.claude/skills/**/build/**
+.claude/skills/**/target/**
+.claude/skills/**/.next/**
+.claude/skills/**/.turbo/**
+.claude/skills/**/bun.lock
+.claude/skills/**/package-lock.json
+.claude/skills/**/pnpm-lock.yaml
+.claude/skills/**/*.node
+.claude/skills/**/*.dylib
+.claude/skills/**/*.so
+
+# ~/.claude.json — rebuilt by Claude Code on first launch; no need to track.
+.claude.json
+.claude.json.backup
+
+# --- ~/.codex ---
+.codex/.tmp/**
+.codex/cache/**
+.codex/log/**
+.codex/logs_*.sqlite
+.codex/models_cache.json
+.codex/session_index.jsonl
+.codex/sessions/**
+.codex/shell_snapshots/**
+.codex/state_*.sqlite*
+.codex/plugins/cache/**             # cached plugin code; re-fetchable on new machine
+.codex/tmp/**
+.codex/.personality_migration
+.codex/gsd-file-manifest.json
+.codex/get-shit-done/**
+
+# --- ~/.gemini ---
+# Skip entirely. Gemini holds OAuth creds that expire/refresh, plus minimal
+# config that's cheap to re-establish on re-auth. Not worth the ceremony
+# of templating every sensitive file via 1Password.
+.gemini/**
+
+# --- ~/.cursor ---
+.cursor/workspaceStorage/**
+.cursor/logs/**
+.cursor/CachedData/**
+.cursor/extensions/**
+.cursor/User/globalStorage/**
+.cursor/User/workspaceStorage/**
+.cursor/projects/**                 # workspace/project state
+.cursor/get-shit-done/**            # GSD tool state
+.cursor/ai-tracking/**              # telemetry
+.cursor/prompt_history.json         # runtime
+.cursor/ide_state.json              # runtime
+.cursor/gsd-file-manifest.json
+.cursor/argv.json                   # machine-specific launch args
+
+# Misc noise across all tools
+.claude/.DS_Store
+.codex/.DS_Store
+.gemini/.DS_Store
+.cursor/.DS_Store
