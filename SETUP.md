@@ -219,7 +219,11 @@ takes effect on subsequent reboots.
   `aerospace reload-config && pkill sketchybar && sketchybar` chord.
   Aerospace's `after-startup-command` only fires once at Aerospace
   startup; it does *not* monitor or respawn sketchybar.
-- **Raycast** — Settings → General → "Launch Raycast at login"
+- **Raycast** — Settings → General → "Launch Raycast at login".
+  Cmd+Space is freed from Spotlight by `30-macos-defaults`, but the
+  release only fully applies after a logout/login. If Cmd+Space still
+  triggers Spotlight after first launch, log out and back in (or
+  reboot once) and Raycast will claim it.
 - **CleanShot X** — Settings → General → "Launch at login"
 - **1Password** — auto-enabled after install; verify it's on
 

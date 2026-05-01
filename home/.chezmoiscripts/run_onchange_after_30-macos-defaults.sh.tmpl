@@ -60,10 +60,25 @@ defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool fa
 defaults write com.apple.WindowManager HideDesktop -bool true
 
 # -----------------------------------------------------------------------------
+# Disable Spotlight hotkeys (free Cmd+Space and Cmd+Opt+Space for Raycast)
+# -----------------------------------------------------------------------------
+# Symbolic hotkey 64 = "Show Spotlight search" (Cmd+Space)
+# Symbolic hotkey 65 = "Show Finder search window" (Cmd+Opt+Space)
+# Setting `enabled = false` releases the binding so Raycast can claim it.
+# `value` is preserved so the original combo is restored if re-enabled.
+# NOTE: needs a log-out / log-in (or reboot) to fully take effect — macOS
+# caches symbolic hotkey state in the WindowServer process.
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 \
+  "<dict><key>enabled</key><false/><key>value</key><dict><key>type</key><string>standard</string><key>parameters</key><array><integer>32</integer><integer>49</integer><integer>1048576</integer></array></dict></dict>"
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 65 \
+  "<dict><key>enabled</key><false/><key>value</key><dict><key>type</key><string>standard</string><key>parameters</key><array><integer>32</integer><integer>49</integer><integer>1572864</integer></array></dict></dict>"
+
+# -----------------------------------------------------------------------------
 # Reload affected services
 # -----------------------------------------------------------------------------
 # `killall` is non-fatal so the script doesn't die in a VM where some
 # of these UI services aren't running anyway.
+killall cfprefsd 2>/dev/null || true   # flush prefs cache for symbolichotkeys
 killall Dock 2>/dev/null || true
 killall Finder 2>/dev/null || true
 killall SystemUIServer 2>/dev/null || true
