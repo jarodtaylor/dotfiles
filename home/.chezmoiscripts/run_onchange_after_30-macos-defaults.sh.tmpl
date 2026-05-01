@@ -48,6 +48,18 @@ defaults write com.apple.dock tilesize -int 36
 defaults write NSGlobalDomain _HIHideMenuBar -bool true
 
 # -----------------------------------------------------------------------------
+# Window manager / Desktop (Sonoma+)
+# -----------------------------------------------------------------------------
+# Disable "Click wallpaper to reveal desktop" — stops clicks on any
+# exposed desktop edge from hiding all your windows. Aerospace + tiling
+# workflows rely on click-through behavior; this gets in the way.
+defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
+
+# Hide desktop icons (Files, Folders pinned to the desktop) — keeps the
+# wallpaper clean. Pairs naturally with Aerospace's tiled workspace.
+defaults write com.apple.WindowManager HideDesktop -bool true
+
+# -----------------------------------------------------------------------------
 # Reload affected services
 # -----------------------------------------------------------------------------
 # `killall` is non-fatal so the script doesn't die in a VM where some
