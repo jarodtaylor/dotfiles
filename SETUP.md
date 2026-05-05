@@ -211,14 +211,16 @@ takes effect on subsequent reboots.
   (one-time, requires a reboot). Config at
   `~/.config/karabiner/karabiner.json` is already shipped (Caps Lock
   → Control, Right Cmd → Hyper, etc.).
-- **Sketchybar** — auto-launches when Aerospace starts (via
-  Aerospace's `after-startup-command`). If the bar is empty or you
-  rebuild helpers later, force a reload:
-  `pkill sketchybar; sketchybar &` — or use Karabiner **Hyper+S+R**
-  (Right Cmd+S then R) which runs the full
-  `aerospace reload-config && pkill sketchybar && sketchybar` chord.
-  Aerospace's `after-startup-command` only fires once at Aerospace
-  startup; it does *not* monitor or respawn sketchybar.
+- **Sketchybar** — preferred: `brew services start sketchybar` (one-time
+  to register, persists across reboots; subsequent reloads via
+  `brew services restart sketchybar`). Aerospace's
+  `after-startup-command` will also spawn sketchybar foreground when
+  Aerospace itself starts, but only fires once on Aerospace launch — it
+  doesn't monitor or respawn sketchybar after death. Alternatives:
+  `pkill sketchybar; sketchybar &` for an ad-hoc relaunch, or the
+  Karabiner **Hyper+S+R** chord (Right Cmd+S then R) which runs
+  `aerospace reload-config && pkill sketchybar && sketchybar` for a
+  full Aerospace + sketchybar reload.
 - **Raycast** — Settings → General → "Launch Raycast at login".
   Cmd+Space is freed from Spotlight by `30-macos-defaults`, but the
   release only fully applies after a logout/login. If Cmd+Space still

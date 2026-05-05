@@ -14,12 +14,16 @@ set -eufo pipefail
 # Re-runs whenever this script's content changes (chezmoi content-hash).
 # Each step has its own idempotence guard so re-runs are cheap.
 #
-# After first install, restart sketchybar to pick up everything:
-#   pkill sketchybar; sketchybar &    # kill + relaunch
-# Or via Karabiner Hyper+S+R (binds to: aerospace reload-config &&
-# pkill sketchybar && sleep 0.5 && sketchybar). Aerospace's
-# `after-startup-command` only fires when Aerospace itself starts;
-# it does NOT watch sketchybar and respawn it on death.
+# After first install, start (or restart) sketchybar to pick up everything.
+# Preferred:
+#   brew services start sketchybar     # registers + persists across reboots
+#   brew services restart sketchybar   # for subsequent reloads
+# Ad-hoc alternative:
+#   pkill sketchybar; sketchybar &     # kill + foreground-relaunch
+# Or use the Karabiner Hyper+S+R chord (aerospace reload-config &&
+# pkill sketchybar && sleep 0.5 && sketchybar) for a full reload.
+# Aerospace's `after-startup-command` only fires once when Aerospace
+# itself starts; it does NOT watch sketchybar and respawn it on death.
 #
 # Reference: https://github.com/FelixKratz/dotfiles/blob/main/install_sketchybar.sh
 
@@ -60,4 +64,4 @@ else
 fi
 
 log_info "Sketchybar deps ready. Restart sketchybar to apply:"
-log_info "  pkill sketchybar; sketchybar &    (or use Karabiner Hyper+S+R)"
+log_info "  brew services restart sketchybar   (or Karabiner Hyper+S+R)"
