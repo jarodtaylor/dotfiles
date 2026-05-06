@@ -34,6 +34,14 @@
 /.claude/
 /docs/superpowers/
 
+# Sketchybar helper build artifacts. These are compiled by `make` when
+# `run_onchange_after_40-sketchybar-deps.sh.tmpl` runs on each machine —
+# they should NEVER live in source. Two paths existed historically
+# (executable_<name> and bin/executable_<name>); both excluded.
+home/dot_config/sketchybar/helpers/event_providers/*/bin/
+home/dot_config/sketchybar/helpers/menus/bin/
+home/dot_config/sketchybar/helpers/event_providers/apple_menu/.build/
+
 # From LazyVim
 tt.*
 .tests
