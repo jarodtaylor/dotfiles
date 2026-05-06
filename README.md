@@ -37,7 +37,7 @@ After bootstrap finishes, walk through [`SETUP.md` §6
 Post-bootstrap setup](SETUP.md#6-post-bootstrap-setup-manual) — sign
 into apps, grant macOS permissions (Accessibility, Screen Recording,
 kext approvals), and install the handful of packages excluded from the
-Brewfile (elco, ExpressVPN). Usually 15–30 minutes.
+Brewfile (ExpressVPN).
 
 ## Daily workflow
 

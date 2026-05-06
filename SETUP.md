@@ -240,12 +240,8 @@ they need SSH credentials, manual licensing, or have flaky unattended
 installs. Run these by hand once 1Password's SSH agent is active:
 
 ```bash
-# elco — private GitHub tap (SSH-only; needs 1P agent live)
-brew tap elc-online/tap git@github.com:elc-online/homebrew-tap.git
-brew install elc-online/tap/elco
-
 # ExpressVPN — cask's LaunchDaemon install is historically flaky
-open https://www.expressvpn.com/latest
+open https://www.expressvpn.com/latests
 ```
 
 See [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) §"Post-bootstrap

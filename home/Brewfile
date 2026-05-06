@@ -9,8 +9,6 @@
 #   - 1password + 1password-cli: install preflight from 1password.com before
 #     running bootstrap. NOT installed via brew to avoid duplicate `op`
 #     binaries and ensure the CLI-integration grant attaches cleanly.
-#   - elco + elc-online/tap: private GitHub tap; needs SSH auth that
-#     isn't wired during bootstrap. Manual post-bootstrap install.
 #
 # Layout:
 #   1. Taps

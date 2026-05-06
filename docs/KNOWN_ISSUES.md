@@ -15,18 +15,6 @@ A few things are deliberately **not** in the Brewfile (Brewfile is
 hand-edited; nothing auto-captures into it). Install these by hand
 after bootstrap:
 
-### elco (private GitHub tap)
-
-`elco` lives in `elc-online/homebrew-tap`, a private repo requiring
-SSH auth. At bootstrap time the 1Password SSH agent isn't reliably
-wired up through every shell, so a tap over SSH can fail. Install
-manually after bootstrap:
-
-```bash
-brew tap elc-online/tap git@github.com:elc-online/homebrew-tap.git
-brew install elc-online/tap/elco
-```
-
 ### ExpressVPN
 
 The `expressvpn` cask installs a LaunchDaemon that's historically
