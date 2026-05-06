@@ -106,8 +106,14 @@ Then proceed.
 ### Run
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/bootstrap.sh | bash
+bash <(curl -fsSL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/bootstrap.sh)
 ```
+
+> ⚠️ Always use `bash <(curl …)` — process substitution — not `curl … | bash`.
+> The pipe form gives bash a non-TTY stdin, which makes the Homebrew
+> installer fail with a misleading "Need sudo access" error: it tries
+> to prompt for your password and can't, because there's no terminal
+> attached to its stdin.
 
 For pre-merge testing against a branch:
 

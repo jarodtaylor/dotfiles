@@ -21,8 +21,13 @@ Prereqs — see [`SETUP.md`](SETUP.md) for detail:
 Then:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/bootstrap.sh | bash
+bash <(curl -fsSL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/bootstrap.sh)
 ```
+
+> ⚠️ Use `bash <(curl …)` — process substitution — not `curl … | bash`.
+> The pipe form gives bash a non-TTY stdin, which makes Homebrew's
+> installer fail with a misleading "Need sudo access" error because
+> it can't prompt for your password.
 
 That:
 
