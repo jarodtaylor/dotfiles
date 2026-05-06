@@ -18,11 +18,11 @@ log_info "Applying macOS defaults..."
 # -----------------------------------------------------------------------------
 # Trackpad / Mouse — secondary click = right click
 # -----------------------------------------------------------------------------
-defaults write -g com.apple.mouse.scaling -float 1.5
-defaults write -g com.apple.sound.beep.flash -int 0
-defaults write -g com.apple.springing.delay -float 0.5
-defaults write -g com.apple.springing.enabled -bool 1
-defaults write -g com.apple.trackpad.forceClick -bool 1
+defaults write NSGlobalDomain com.apple.mouse.scaling -float 1.5
+defaults write NSGlobalDomain com.apple.sound.beep.flash -int 0
+defaults write NSGlobalDomain com.apple.springing.delay -float 0.5
+defaults write NSGlobalDomain com.apple.springing.enabled -bool true
+defaults write NSGlobalDomain com.apple.trackpad.forceClick -bool true
 
 # -----------------------------------------------------------------------------
 # Keyboard — fast key repeat, short initial delay
