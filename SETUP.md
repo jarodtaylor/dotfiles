@@ -112,12 +112,9 @@ curl -fsSL https://raw.githubusercontent.com/jarodtaylor/dotfiles/main/bootstrap
 For pre-merge testing against a branch:
 
 ```bash
-CHEZMOI_BRANCH=design/chezmoi-ironclad bash <(curl -fsSL \
-  https://raw.githubusercontent.com/jarodtaylor/dotfiles/design/chezmoi-ironclad/bootstrap.sh)
+CHEZMOI_BRANCH=branch-name bash <(curl -fsSL \
+  https://raw.githubusercontent.com/jarodtaylor/dotfiles/branch-name/bootstrap.sh)
 ```
-
-Walkaway time: 30–60 minutes.
-
 **Expect a burst of password prompts near the end.** Adobe, Docker Desktop,
 Karabiner Elements, Microsoft Outlook, Microsoft Teams, Zoom, and
 BlackHole all ship pkg installers that trigger macOS Authorization Services
