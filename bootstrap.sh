@@ -119,8 +119,12 @@ else
 fi
 
 # --- init + apply ---
-log "running: chezmoi init --apply --branch $BRANCH $REPO_USER"
-chezmoi init --apply --verbose --branch "$BRANCH" "$REPO_USER"
+# `--ssh` clones via git@github.com:USER/dotfiles.git instead of the HTTPS
+# default, so subsequent `git push` from the source dir authenticates via
+# the 1Password SSH agent (no PAT prompt). Requires the 1Password "Use the
+# SSH agent" toggle to be enabled — see SETUP.md §2a.
+log "running: chezmoi init --apply --ssh --branch $BRANCH $REPO_USER"
+chezmoi init --apply --ssh --verbose --branch "$BRANCH" "$REPO_USER"
 
 ok "bootstrap complete"
 log "next: open a new shell; run 'dots doctor' to verify everything is green"
