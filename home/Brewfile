@@ -36,8 +36,6 @@ tap "olets/tap"
 brew "age"
 # Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
-# Toolchain of the web
-brew "biome"
 # Resource monitor. C++ version and continuation of bashtop and bpytop
 brew "btop"
 # Versatile and fast Unicode/ASCII/ANSI graphics renderer
@@ -46,8 +44,6 @@ brew "chafa"
 brew "chezmoi"
 # Console Matrix
 brew "cmatrix"
-# Modern diagram scripting language that turns text to diagrams
-brew "d2"
 # Good-lookin' diffs with diff-highlight and more
 brew "diff-so-fancy"
 # Load/unload environment variables based on $PWD
@@ -62,8 +58,6 @@ brew "fd"
 brew "ffmpeg"
 # Command-line fuzzy finder written in Go
 brew "fzf"
-# Gatsby command-line interface
-brew "gatsby-cli"
 # GitHub command-line tool
 brew "gh"
 # Distributed revision control system
@@ -157,50 +151,27 @@ brew "olets/tap/zsh-autosuggestions-abbreviations-strategy"
 # -----------------------------------------------------------------------------
 # OpenAI's official ChatGPT desktop app
 cask "chatgpt"
-# Anthropic's official Claude AI desktop app
 cask "claude"
-# Screen capturing tool
 cask "cleanshot"
-# Write, edit, and chat about your code with AI
 cask "cursor"
-# Voice and text chat software
 cask "discord"
-# Web browser
 cask "firefox@developer-edition"
-# Fonts
 cask "font-fira-code-nerd-font"
 cask "font-fira-sans"
 cask "font-jetbrains-mono-nerd-font"
 cask "font-sf-mono"
 cask "font-symbols-only-nerd-font"
-# Terminal emulator that uses platform-native UI and GPU acceleration
 cask "ghostty"
-# Desktop client for GitHub repositories
 cask "github"
-# Web browser
 cask "google-chrome"
-# AI-powered notepad for meetings
-cask "granola"
-# App to write, plan, collaborate, and get organised
 cask "notion"
-# Knowledge base that works on top of a local folder of plain text Markdown files
 cask "obsidian"
-# Collaboration platform for API development
 cask "postman"
-# Control your tools with a few keystrokes
 cask "raycast"
-# Tool that provides consistent, highly configurable symbols for apps
 cask "sf-symbols"
-# App that enables mouse-free UI interaction
-cask "shortcat"
-# Music streaming service
 cask "spotify"
-# Messaging app with a focus on speed and security
 cask "telegram"
-# Virtual machines UI using QEMU
 cask "utm"
-# Open-source code editor
-cask "visual-studio-code"
 
 # Tap-qualified casks
 # AeroSpace is an i3-like tiling window manager for macOS
