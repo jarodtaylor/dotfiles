@@ -81,9 +81,11 @@ defaults write com.apple.WindowManager HideDesktop -bool true
 # -----------------------------------------------------------------------------
 # Disable Spotlight hotkeys (free Cmd+Space and Cmd+Opt+Space for Raycast)
 # -----------------------------------------------------------------------------
-/usr/libexec/PlistBuddy -c "Set :AppleSymbolicHotKeys:64:enabled false" ~/Library/Preferences/com.apple.symbolichotkeys.plist
+# Disable Spotlight (Cmd+Space)
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 "<dict><key>enabled</key><false/></dict>"
 
-/usr/libexec/PlistBuddy -c "Set :AppleSymbolicHotKeys:65:enabled false" ~/Library/Preferences/com.apple.symbolichotkeys.plist
+# Disable Spotlight Window (Cmd+Opt+Space)
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 65 "<dict><key>enabled</key><false/></dict>"
 
 # -----------------------------------------------------------------------------
 # Disable "Are you sure you want to open this application?" dialog
