@@ -141,11 +141,6 @@ Short version:
   Claude/Codex auth tokens. No secrets on disk outside of 1Password-served
   templates.
 
-> The original spec ([`docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md`](docs/superpowers/specs/2026-04-16-chezmoi-ironclad-design.md))
-> proposed a hybrid model with machine-authoritative Brewfile auto-capture
-> and a daily launchd sync agent. That was scoped out — see the spec's
-> "Design history" banner.
-
 ## Key layout
 
 ```
