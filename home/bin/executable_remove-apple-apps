@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# remove-apple-apps — opt-in helper to delete Apple's pre-installed
+# user-removable apps. NOT a chezmoi script; run manually once per
+# machine when you're sure.
+#
+# Usage:
+#   ~/bin/remove-apple-apps         # remove the apps below
+#   ~/bin/remove-apple-apps --dry   # preview only
+#
+# What this removes (all reinstallable from the App Store if you
+# change your mind):
+#   - GarageBand
+#   - iMovie
+#   - Keynote
+#   - Numbers
+#   - Pages
+#
+# What this does NOT remove (system apps locked behind SIP — would
+# require `csrutil disable`, which is not recommended):
+#   Mail, Calendar, Contacts, Reminders, Notes, Music, Photos,
+#   FaceTime, Messages, Maps, Stocks, News, Books, Podcasts, ...
+
+set -euo pipefail
+
+if [ -t 1 ]; then
+  C_RESET=$'\033[0m'; C_GREEN=$'\033[32m'; C_YELLOW=$'\033[33m'; C_DIM=$'\033[2m'
+else
+  C_RESET=''; C_GREEN=''; C_YELLOW=''; C_DIM=''
+fi
+
+DRY_RUN=0
+if [ "${1:-}" = "--dry" ] || [ "${1:-}" = "--dry-run" ]; then
+  DRY_RUN=1
+fi
+
+apps=(
+  "GarageBand"
+  "iMovie"
+  "Keynote"
+  "Numbers"
+  "Pages"
+)
+
+removed=0
+skipped=0
+for app in "${apps[@]}"; do
+  app_path="/Applications/${app}.app"
+  if [ -d "$app_path" ]; then
+    if [ "$DRY_RUN" = "1" ]; then
+      printf "%s(dry-run)%s would remove %s\n" "$C_DIM" "$C_RESET" "$app_path"
+    else
+      printf "%s⚠%s removing %s ...\n" "$C_YELLOW" "$C_RESET" "$app_path"
+      sudo rm -rf "$app_path"
+      removed=$((removed + 1))
+    fi
+  else
+    printf "%s•%s %s (not installed; skipping)\n" "$C_DIM" "$C_RESET" "$app"
+    skipped=$((skipped + 1))
+  fi
+done
+
+if [ "$DRY_RUN" = "1" ]; then
+  printf "%s✓%s dry-run complete\n" "$C_GREEN" "$C_RESET"
+else
+  printf "%s✓%s done — %d removed, %d not installed\n" "$C_GREEN" "$C_RESET" "$removed" "$skipped"
+fi

@@ -1,0 +1,269 @@
+#!/usr/bin/env bash
+# dots — personal dotfiles management CLI
+#
+# Commands:
+#   sync    Capture AI tool drift into repo, optionally commit/push
+#   apply   chezmoi apply + brew bundle --cleanup
+#   doctor  Multi-layer health check
+#   edit    Open the repo in $EDITOR
+#   help    Show this help
+#
+# See README.md and docs/TESTING.md in the dotfiles repo for context.
+
+set -euo pipefail
+
+DOTS_SOURCE_DIR="$(chezmoi source-path 2>/dev/null || echo "$HOME/.local/share/chezmoi/home")"
+# chezmoi source-path already resolves .chezmoiroot, so $DOTS_SOURCE_DIR is e.g. ~/.local/share/chezmoi/home
+DOTS_REPO_DIR="$(dirname "$DOTS_SOURCE_DIR")"
+
+# --- Logging ---
+if [ -t 1 ]; then
+  C_RESET=$'\033[0m'; C_BLUE=$'\033[34m'; C_GREEN=$'\033[32m'
+  C_YELLOW=$'\033[33m'; C_RED=$'\033[31m'; C_DIM=$'\033[2m'
+else
+  C_RESET=''; C_BLUE=''; C_GREEN=''; C_YELLOW=''; C_RED=''; C_DIM=''
+fi
+
+log_info()  { printf "%s➜%s %s\n" "$C_BLUE"   "$C_RESET" "$*"; }
+log_ok()    { printf "%s✓%s %s\n" "$C_GREEN"  "$C_RESET" "$*"; }
+log_warn()  { printf "%s⚠%s %s\n" "$C_YELLOW" "$C_RESET" "$*"; }
+log_err()   { printf "%s✗%s %s\n" "$C_RED"    "$C_RESET" "$*" >&2; }
+log_debug() { [ "${DOTS_VERBOSE:-0}" = "1" ] && printf "%s  %s%s\n" "$C_DIM" "$*" "$C_RESET" || true; }
+
+# --- Usage ---
+usage() {
+  cat <<'USAGE'
+dots — personal dotfiles management CLI
+
+Usage:
+  dots <command> [flags]
+
+Commands:
+  sync          Capture AI tool drift into repo, optionally commit/push
+  apply         chezmoi apply + brew bundle --cleanup
+  doctor        Multi-layer health check
+  edit          Open the repo in $EDITOR
+  help          Show this help
+
+Common flags:
+  --dry-run     Preview without writing
+  --no-commit   sync: capture but don't auto-commit
+  --push        sync: push to origin after commit
+  -v,--verbose  apply: show chezmoi per-file diffs (default is quiet)
+                sync:  show underlying commands
+
+Examples:
+  dots sync --dry-run      # Preview what would be captured
+  dots sync --push         # Capture + commit + push
+  dots doctor              # Show system health
+  dots apply               # Reconcile machine with repo (quiet)
+  dots apply -v            # Same, with chezmoi diffs
+USAGE
+}
+
+cmd_help() { usage; }
+
+# --- sync ---
+# Capture machine-authoritative state (AI tool dirs) into the repo.
+# Brewfile is hand-edited — add new `brew`/`cask` lines to home/Brewfile
+# yourself; this command does not touch it.
+cmd_sync() {
+  local dry_run=0 no_commit=0 do_push=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --dry-run)    dry_run=1 ;;
+      --no-commit)  no_commit=1 ;;
+      --push)       do_push=1 ;;
+      -v|--verbose) export DOTS_VERBOSE=1 ;;
+      *) log_warn "unknown flag: $1" ;;
+    esac
+    shift
+  done
+
+  # Source paths (under repo root) and target paths (under $HOME) for the
+  # AI tool dirs we sync. re-add is scoped to target paths so the Brewfile
+  # is never auto-touched; git operations are scoped to the matching source
+  # paths so unrelated in-progress edits elsewhere in the repo are not
+  # swept into a `state sync` commit.
+  local sync_paths=(home/dot_claude home/dot_codex home/dot_cursor)
+  local re_add_targets=("$HOME/.claude" "$HOME/.codex" "$HOME/.cursor")
+
+  # Using `re-add` (not `add`) so template files stay templates and we
+  # don't get prompted every sync about "downgrading" .tmpl to plain.
+  # Trade-off: brand-new files (e.g. a new skill) are NOT auto-captured.
+  # To start tracking new paths, run `chezmoi add <path>` explicitly once,
+  # then subsequent `dots sync` runs will keep them updated.
+  if [ "$dry_run" = "1" ]; then
+    log_info "(dry-run) previewing AI tool drift..."
+    chezmoi --dry-run -v re-add "${re_add_targets[@]}" 2>&1 | grep -vE '^$' || true
+    log_info "dry-run: no changes made"
+    return 0
+  fi
+
+  log_info "updating tracked AI tool files..."
+  chezmoi re-add "${re_add_targets[@]}" 2>&1 | grep -vE '^$' || true
+
+  cd "$DOTS_REPO_DIR" || exit 1
+  if git diff --quiet -- "${sync_paths[@]}" && git diff --cached --quiet -- "${sync_paths[@]}"; then
+    log_ok "no drift — repo is in sync"
+    return 0
+  fi
+
+  log_info "drift detected:"
+  git --no-pager diff --stat HEAD -- "${sync_paths[@]}" | sed 's/^/  /'
+
+  if [ "$no_commit" = "1" ]; then
+    log_info "--no-commit: leaving changes unstaged"
+    return 0
+  fi
+
+  local summary
+  summary="$(git diff --stat HEAD -- "${sync_paths[@]}" | tail -1)"
+  git add -- "${sync_paths[@]}"
+  git commit -m "state sync $(date +%Y-%m-%d): $summary" -- "${sync_paths[@]}"
+
+  if [ "$do_push" = "1" ]; then
+    log_info "pushing to origin..."
+    git push
+    log_ok "pushed"
+  fi
+
+  log_ok "sync complete"
+}
+
+# --- apply ---
+cmd_apply() {
+  local dry_run=0 verbose=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --dry-run)    dry_run=1 ;;
+      -v|--verbose) verbose=1; export DOTS_VERBOSE=1 ;;
+      *) log_warn "unknown flag: $1" ;;
+    esac
+    shift
+  done
+
+  # chezmoi's -v prints colored per-file diffs which are overwhelming on
+  # big applies. Opt in via `dots apply -v`. --dry-run implies -v (diffs are
+  # the whole point of a preview).
+  local chezmoi_flags=()
+  if [ "$verbose" = "1" ] || [ "$dry_run" = "1" ]; then
+    chezmoi_flags+=(-v)
+  fi
+  if [ "$dry_run" = "1" ]; then
+    chezmoi_flags+=(--dry-run)
+  fi
+
+  log_info "chezmoi apply..."
+  # Package install is handled by run_onchange_before_10-install-packages.sh.tmpl
+  # inside `chezmoi apply`, content-hashed off the Brewfile. We do NOT also
+  # call `brew bundle install` here — that would re-attempt failing MAS / cask
+  # entries on every apply and double-print "Using X" for already-installed
+  # items. If you manually `brew uninstall`ed something and want it back,
+  # run `brew bundle install --file="$(chezmoi source-path)/Brewfile"`
+  # or touch the Brewfile to re-trigger the run_onchange hash.
+  chezmoi apply "${chezmoi_flags[@]}"
+
+  if [ "$dry_run" = "0" ]; then
+    log_info "brew bundle cleanup..."
+    brew bundle cleanup --file="$DOTS_SOURCE_DIR/Brewfile" --force || \
+      log_warn "brew bundle cleanup reported issues; non-fatal"
+  else
+    log_info "(dry-run) would run: brew bundle cleanup"
+  fi
+
+  log_ok "apply complete"
+}
+
+# --- doctor ---
+cmd_doctor() {
+  local fail=0
+
+  echo
+  log_info "== chezmoi =="
+  if chezmoi doctor 2>&1 | tail -20; then
+    log_ok "chezmoi doctor ran"
+  else
+    log_err "chezmoi doctor reported issues"
+    fail=1
+  fi
+
+  echo
+  log_info "== Homebrew =="
+  if brew bundle check --file="$DOTS_SOURCE_DIR/Brewfile" --verbose; then
+    log_ok "Brewfile in sync with installed state"
+  else
+    log_warn "Brewfile drift — run 'dots apply' to install missing, or hand-edit home/Brewfile"
+    fail=1
+  fi
+
+  echo
+  log_info "== Source repo =="
+  local repo_status
+  repo_status="$(git -C "$DOTS_REPO_DIR" status --porcelain)"
+  if [ -z "$repo_status" ]; then
+    log_ok "repo clean, nothing uncommitted"
+  else
+    log_warn "uncommitted changes in repo:"
+    echo "$repo_status"
+    fail=1
+  fi
+
+  echo
+  log_info "== 1Password =="
+  if command -v op >/dev/null 2>&1; then
+    if op whoami >/dev/null 2>&1; then
+      log_ok "1Password CLI signed in ($(op whoami 2>/dev/null | awk '/^Email:/ {print $2}'))"
+    else
+      log_warn "1Password CLI installed but not signed in (run 'op signin')"
+      fail=1
+    fi
+  else
+    log_warn "1Password CLI not installed"
+    fail=1
+  fi
+
+  echo
+  log_info "== AI tool directories =="
+  local tool_dir
+  for tool_dir in "$HOME/.claude" "$HOME/.codex" "$HOME/.cursor"; do
+    if [ -d "$tool_dir" ]; then
+      log_ok "$(basename "$tool_dir") exists"
+    else
+      log_warn "$(basename "$tool_dir") missing"
+    fi
+  done
+
+  echo
+  if [ "$fail" = "0" ]; then
+    log_ok "All checks passed."
+  else
+    log_warn "Some checks flagged attention (see above)."
+  fi
+  return "$fail"
+}
+
+# --- edit ---
+cmd_edit() { "${EDITOR:-vi}" "$DOTS_REPO_DIR"; }
+
+# --- dispatch ---
+main() {
+  local cmd="${1:-help}"
+  shift || true
+
+  case "$cmd" in
+    sync)           cmd_sync "$@" ;;
+    apply)          cmd_apply "$@" ;;
+    doctor)         cmd_doctor "$@" ;;
+    edit)           cmd_edit "$@" ;;
+    help|-h|--help) cmd_help ;;
+    *)
+      log_err "Unknown command: $cmd"
+      echo
+      usage
+      exit 64
+      ;;
+  esac
+}
+
+main "$@"

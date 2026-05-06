@@ -1,100 +1,46 @@
-# 🚀 SketchyBar Lua Configuration
+# SketchyBar config
 
-A modern, feature-rich configuration for [SketchyBar](https://felixkratz.github.io/SketchyBar) using the Lua plugin system. This configuration provides a clean, informative, and customizable menu bar experience for macOS.
+A Lua-driven [SketchyBar](https://felixkratz.github.io/SketchyBar) setup: a
+macOS menu bar with system stats, media controls, and space/workspace
+indicators. Uses the [SbarLua](https://github.com/FelixKratz/SbarLua)
+binding so the whole config is Lua, not shell.
 
-## ✨ Features
-
-- 🎨 **Modern Design**
-  - Clean and minimal aesthetic with blur effects
-  - Fully customizable colors and transparency
-  - Rounded corners with dynamic borders
-  - Consistent spacing and padding system
-
-- 📊 **System Monitoring**
-  - Real-time CPU usage tracking
-  - Memory utilization metrics
-  - Network traffic monitoring (up/down)
-  - Battery status with charging indicators
-  - Disk usage tracking
-
-- 🎵 **Media Controls**
-  - Current track information
-  - Dynamic album artwork display
-  - Media player controls
-  - Support for multiple players:
-    - Spotify
-    - Music
-    - Brave Browser
-
-- 🔔 **Smart Notifications**
-  - Homebrew updates counter
-  - Mail notifications
-  - Message indicators
-  - System alerts
-  - Volume and audio device controls
-
-- 🖥️ **Workspace Management**
-  - Dynamic space indicators
-  - Active application tracking
-  - Custom application icons
-  - Window management integration
-  - Space labels and navigation
-
-## 🛠️ Prerequisites
+## Prerequisites
 
 - macOS
-- [Homebrew](https://brew.sh)
-- [Lua](https://www.lua.org)
-- [SketchyBar](https://felixkratz.github.io/SketchyBar)
+- [SketchyBar](https://felixkratz.github.io/SketchyBar) (`brew install felixkratz/formulae/sketchybar`)
 - [SbarLua](https://github.com/FelixKratz/SbarLua)
+- Lua (`brew install lua`)
 
-## 📦 Key Components
+All three are in the Brewfile; `dots apply` installs them.
 
-### Core Files
-- `sketchybarrc` - Main entry point (Lua)
-- `init.lua` - Initial configuration and module loading
-- `bar.lua` - Bar appearance and behavior settings
-- `colors.lua` - Color scheme definitions
-- `settings.lua` - General configuration settings
-- `icons.lua` - Icon definitions (SF Symbols/NerdFont)
+## Layout
 
-### Modules
-- **System Widgets** - CPU, Memory, Battery, Network monitoring
-- **Media Controls** - Music player integration and controls
-- **Space Management** - Workspace organization and navigation
-- **Application Tracking** - Active window and application monitoring
-- **Notification Center** - System and application notifications
+- `sketchybarrc` — shebang + entry point that SbarLua invokes
+- `init.lua` — loads modules in order
+- `bar.lua` — top-bar appearance (height, padding, blur, color)
+- `colors.lua` — palette (one place to rethemed)
+- `settings.lua` — shared constants (font sizes, paddings)
+- `icons.lua` — symbol map for SF Symbols / Nerd Font
+- `items/` — individual widgets (battery, cpu, media, spaces, etc.)
+- `helpers/` — native C event providers + utilities
+- `terminal/` — notched terminal integration
 
-## 🎨 Customization
+## Customizing
 
-The configuration is highly modular and customizable through:
-- Color schemes
-- Font selections
-- Icon sets (SF Symbols or NerdFont)
-- Layout adjustments
-- Widget behavior
-- Event triggers
+Most tweaks live in `colors.lua`, `settings.lua`, and `icons.lua`. Widget
+behavior is in `items/*.lua`. Restart the bar after edits:
 
-## 🔧 Event System
+```bash
+brew services restart sketchybar
+```
 
-Built-in C-based event providers for:
-- CPU monitoring
-- Memory usage
-- Network traffic
-- Disk usage
-- Weather information
+## References
 
-## 📚 Additional Resources
+- [SketchyBar docs](https://felixkratz.github.io/SketchyBar/config/getting-started)
+- [SbarLua repo](https://github.com/FelixKratz/SbarLua)
 
-- [SketchyBar Documentation](https://felixkratz.github.io/SketchyBar/config/getting-started)
-- [Lua Documentation](https://www.lua.org/docs.html)
-- [SbarLua Wiki](https://github.com/FelixKratz/SbarLua/wiki)
+## Credits
 
-## 🙏 Credits
-
-- [SketchyBar](https://felixkratz.github.io/SketchyBar) by Felix Kratz
-- [SbarLua](https://github.com/FelixKratz/SbarLua) by Felix Kratz
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Both SketchyBar and SbarLua are by Felix Kratz. This directory's license
+is in `LICENSE`.

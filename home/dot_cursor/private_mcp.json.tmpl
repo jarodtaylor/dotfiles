@@ -1,0 +1,51 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "-e",
+        "GITHUB_TOOLSETS=issues,pull_requests",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{{ onepasswordRead "op://Personal/GitHub PAT - cursor mcp/notesPlain" }}"
+      }
+    },
+    "github-actions": {
+      "command": "node",
+      "args": [
+        "{{ .chezmoi.homeDir }}/Code/personal/github-actions-mcp-server/dist/index.js"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{{ onepasswordRead "op://Personal/GitHub PAT - cursor mcp/notesPlain" }}"
+      }
+    },
+    "heroku": {
+      "url": "https://mcp.heroku.com/mcp"
+    },
+    "postgres-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@henkey/postgres-mcp-server",
+        "--connection-string",
+        "postgresql://{{ .chezmoi.username }}@localhost:5432/postgres"
+      ]
+    },
+    "Pieces": {
+      "url": "http://localhost:39300/model_context_protocol/2024-11-05/sse"
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["-y", "shadcn@canary", "registry:mcp"],
+      "env": {
+        "REGISTRY_URL": "https://tweakcn.com/r/themes/registry.json"
+      }
+    }
+  }
+}
