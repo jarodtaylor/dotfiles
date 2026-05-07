@@ -66,6 +66,12 @@ Brewfile
 .claude/plugins/data/**
 .claude/plugins/install-counts-cache.json
 .claude/plugins/blocklist.json
+# Resolved runtime state — Claude Code rewrites these as plugins auto-update.
+# Declarative source-of-truth for which plugins to enable lives in
+# settings.json.tmpl (`enabledPlugins` + `extraKnownMarketplaces`); these
+# files are regenerable caches and should not be tracked.
+.claude/plugins/installed_plugins.json
+.claude/plugins/known_marketplaces.json
 .claude/cchubber-*
 .claude/cchubber-report.html
 .claude/debug/**
