@@ -175,7 +175,7 @@ dots doctor                                         # multi-layer health check
 
 - [`SETUP.md`](SETUP.md) — detailed new-machine walkthrough
 - [`docs/ADD_AI_TOOL.md`](docs/ADD_AI_TOOL.md) — onboarding a new AI tool: classify, ignore, secrets
-- [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) — known rough edges (password prompts, manual installs, etc.)
+- [`docs/GOTCHAS.md`](docs/GOTCHAS.md) — rough edges and workarounds (password prompts, manual installs, etc.)
 
 ## Inspiration
 
