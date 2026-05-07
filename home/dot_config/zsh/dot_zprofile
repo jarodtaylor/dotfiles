@@ -10,3 +10,7 @@ fi
 # Editors
 export EDITOR="nvim"
 export VISUAL="nvim"
+
+# Orbstack
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+
