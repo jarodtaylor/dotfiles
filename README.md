@@ -174,7 +174,7 @@ dots doctor                                         # multi-layer health check
 ## Related docs
 
 - [`SETUP.md`](SETUP.md) — detailed new-machine walkthrough
-- [`docs/AUDITING.md`](docs/AUDITING.md) — how to decide sync vs. ignore for a new AI tool
+- [`docs/ADD_AI_TOOL.md`](docs/ADD_AI_TOOL.md) — onboarding a new AI tool: classify, ignore, secrets
 - [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) — known rough edges (password prompts, manual installs, etc.)
 
 ## Inspiration
