@@ -16,13 +16,17 @@ set -eufo pipefail
 log_info "Applying macOS defaults..."
 
 # -----------------------------------------------------------------------------
-# Trackpad / Mouse — secondary click = right click
+# Trackpad / Mouse
 # -----------------------------------------------------------------------------
 defaults write NSGlobalDomain com.apple.mouse.scaling -float 1.5
 defaults write NSGlobalDomain com.apple.sound.beep.flash -int 0
 defaults write NSGlobalDomain com.apple.springing.delay -float 0.5
 defaults write NSGlobalDomain com.apple.springing.enabled -bool true
 defaults write NSGlobalDomain com.apple.trackpad.forceClick -bool true
+
+# Enable Secondary Click for Mouse/Trackpad 
+defaults write com.apple.AppleMultitouchMouse MouseButtonMode -string "TwoButton"
+defaults write MouseButtonMode -string "TwoButton"
 
 # -----------------------------------------------------------------------------
 # Keyboard — fast key repeat, short initial delay
@@ -60,6 +64,9 @@ defaults write com.apple.finder FXEnableExtensionChangeWarning -bool true
 # Note: this only auto-hides the system menu bar; it still appears on
 # hover at the top edge. Sketchybar runs as its own statusbar app.
 defaults write NSGlobalDomain _HIHideMenuBar -bool true
+
+# Always show volume/sound control in menubar
+defaults -currentHost write com.apple.controlcenter Sound -int 18
 
 # -----------------------------------------------------------------------------
 # Disable swipe navigation with scrolls (conflicts with trackpad gestures)
@@ -101,6 +108,10 @@ killall cfprefsd 2>/dev/null || true   # flush prefs cache for symbolichotkeys
 killall Dock 2>/dev/null || true
 killall Finder 2>/dev/null || true
 killall SystemUIServer 2>/dev/null || true
+killall ControlCenter 2>/dev/null || true
+
+log_info "restarting bluetoothd which requires sudo"
+sudo killall bluetoothd 2>/dev/null || true
 
 log_info "macOS defaults applied."
 log_info "  • Caps Lock → Control: handled by Karabiner config (~/.config/karabiner/karabiner.json)"
