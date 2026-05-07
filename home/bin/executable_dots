@@ -39,7 +39,7 @@ Usage:
   dots <command> [flags]
 
 Commands:
-  sync          Capture AI tool drift into repo, optionally commit/push
+  sync          Capture AI tool drift into the source repo (no auto-commit)
   apply         chezmoi apply + brew bundle --cleanup
   doctor        Multi-layer health check
   edit          Open the repo in $EDITOR
@@ -47,17 +47,15 @@ Commands:
 
 Common flags:
   --dry-run                  Preview without writing
-  --no-commit                sync: capture but don't auto-commit
-  --push                     sync: push to origin after commit
-  --allow-template-drift     sync: continue when .tmpl drift is present
-                             (re-add cannot capture it; commit non-template
-                             drift only and leave .tmpl edits for later)
+  --allow-template-drift     sync: capture non-template drift only when
+                             .tmpl files are also drifted (re-add cannot
+                             capture .tmpl drift — edit those manually)
   -v,--verbose               apply: show chezmoi per-file diffs (default is quiet)
                              sync:  show underlying commands
 
 Examples:
   dots sync --dry-run      # Preview what would be captured
-  dots sync --push         # Capture + commit + push
+  dots sync                # Capture drift; review with `git diff` before commit
   dots doctor              # Show system health
   dots apply               # Reconcile machine with repo (quiet)
   dots apply -v            # Same, with chezmoi diffs
@@ -71,12 +69,10 @@ cmd_help() { usage; }
 # Brewfile is hand-edited — add new `brew`/`cask` lines to home/Brewfile
 # yourself; this command does not touch it.
 cmd_sync() {
-  local dry_run=0 no_commit=0 do_push=0 allow_template_drift=0
+  local dry_run=0 allow_template_drift=0
   while [ $# -gt 0 ]; do
     case "$1" in
       --dry-run)              dry_run=1 ;;
-      --no-commit)            no_commit=1 ;;
-      --push)                 do_push=1 ;;
       --allow-template-drift) allow_template_drift=1 ;;
       -v|--verbose)           export DOTS_VERBOSE=1 ;;
       *) log_warn "unknown flag: $1" ;;
@@ -86,9 +82,9 @@ cmd_sync() {
 
   # Source paths (under repo root) and target paths (under $HOME) for the
   # AI tool dirs we sync. re-add is scoped to target paths so the Brewfile
-  # is never auto-touched; git operations are scoped to the matching source
-  # paths so unrelated in-progress edits elsewhere in the repo are not
-  # swept into a `state sync` commit.
+  # is never auto-touched; sync only updates source files — committing and
+  # pushing are explicit user actions so each change gets a real diff review
+  # and a real commit message.
   local sync_paths=(home/dot_claude home/dot_codex home/dot_cursor)
   local re_add_targets=("$HOME/.claude" "$HOME/.codex" "$HOME/.cursor")
 
@@ -152,26 +148,9 @@ cmd_sync() {
     return 0
   fi
 
-  log_info "drift detected:"
+  log_info "captured drift:"
   git --no-pager diff --stat HEAD -- "${sync_paths[@]}" | sed 's/^/  /'
-
-  if [ "$no_commit" = "1" ]; then
-    log_info "--no-commit: leaving changes unstaged"
-    return 0
-  fi
-
-  local summary
-  summary="$(git diff --stat HEAD -- "${sync_paths[@]}" | tail -1)"
-  git add -- "${sync_paths[@]}"
-  git commit -m "state sync $(date +%Y-%m-%d): $summary" -- "${sync_paths[@]}"
-
-  if [ "$do_push" = "1" ]; then
-    log_info "pushing to origin..."
-    git push
-    log_ok "pushed"
-  fi
-
-  log_ok "sync complete"
+  log_ok "sync complete — review with 'git diff' and commit when ready"
 }
 
 # --- apply ---
