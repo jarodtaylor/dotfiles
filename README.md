@@ -58,7 +58,9 @@ dots apply                                  # `brew bundle cleanup` uninstalls i
 # Adding an AI tool customization (skill, agent, plugin):
 # ... edit ~/.claude/skills/whatever.md ...
 dots sync                                   # capture drift into source repo
-git diff && git commit && git push          # review, commit, push
+cd "$(chezmoi source-path)/.."              # navigate to the repo
+git diff                                    # review what was captured
+git add . && git commit -m "..." && git push
 ```
 
 The Brewfile is hand-edited on purpose — the friction prevents package

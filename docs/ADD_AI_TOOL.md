@@ -56,6 +56,7 @@ For each auth/token file:
 ```bash
 dots sync --dry-run                 # preview
 dots sync                           # capture into source repo
+cd "$(chezmoi source-path)/.."      # navigate to the repo (sync doesn't cd you)
 git diff                            # review
 
 # Sanity check: no obvious secret patterns leaked
