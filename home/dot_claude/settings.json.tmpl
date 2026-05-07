@@ -3,6 +3,10 @@
   "env": {
     "ENABLE_TOOL_SEARCH": "true"
   },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Read",
@@ -69,10 +73,6 @@
       "Bash(curl:* | bash:*)"
     ],
     "defaultMode": "auto"
-  },
-  "attribution": {
-    "commit": "",
-    "pr": ""
   },
   "hooks": {
     "Notification": [
@@ -195,44 +195,51 @@
     "sentry-mcp@sentry-mcp": true,
     "ui-ux-pro-max@ui-ux-pro-max-skill": true,
     "consensus@claude-consensus": true,
-    "last30days@last30days-skill": true
+    "last30days@last30days-skill": true,
+    "ralph-loop@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "openai-codex": {
       "source": {
         "source": "github",
         "repo": "openai/codex-plugin-cc"
-      }
+      },
+      "autoUpdate": true
     },
     "sentry-mcp": {
       "source": {
         "source": "github",
         "repo": "getsentry/sentry-mcp"
-      }
+      },
+      "autoUpdate": true
     },
     "ui-ux-pro-max-skill": {
       "source": {
         "source": "github",
         "repo": "nextlevelbuilder/ui-ux-pro-max-skill"
-      }
+      },
+      "autoUpdate": true
     },
     "last30days-skill": {
       "source": {
         "source": "github",
         "repo": "mvanhorn/last30days-skill"
-      }
+      },
+      "autoUpdate": true
     },
     "claude-consensus": {
       "source": {
         "source": "github",
         "repo": "AltimateAI/claude-consensus"
-      }
+      },
+      "autoUpdate": true
     },
     "designer-skills": {
       "source": {
         "source": "github",
         "repo": "Owl-Listener/designer-skills"
-      }
+      },
+      "autoUpdate": true
     }
   },
   "showThinkingSummaries": true,
