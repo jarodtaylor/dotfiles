@@ -149,7 +149,6 @@ brew "olets/tap/zsh-autosuggestions-abbreviations-strategy"
 # -----------------------------------------------------------------------------
 # Casks — UI
 # -----------------------------------------------------------------------------
-# OpenAI's official ChatGPT desktop app
 cask "chatgpt"
 cask "claude"
 cask "cleanshot"
