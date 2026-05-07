@@ -34,6 +34,8 @@ tap "olets/tap"
 # -----------------------------------------------------------------------------
 # Simple, modern, secure file encryption
 brew "age"
+# Browser automation CLI for AI agents. Fast native Rust CLI.
+brew "agent-browser"
 # Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
 # Resource monitor. C++ version and continuation of bashtop and bpytop
