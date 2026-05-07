@@ -83,7 +83,9 @@ defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool fa
 
 # Hide desktop icons (Files, Folders pinned to the desktop) — keeps the
 # wallpaper clean. Pairs naturally with Aerospace's tiled workspace.
-defaults write com.apple.WindowManager HideDesktop -bool true
+defaults write com.apple.WindowManager StandardHideDesktop -bool true
+defaults write com.apple.WindowManager StandardHideDesktopIcons -bool true
+defaults write com.apple.WindowManager StageManagerHideWidgets -bool true
 
 # -----------------------------------------------------------------------------
 # Disable Spotlight hotkeys (free Cmd+Space and Cmd+Opt+Space for Raycast)
