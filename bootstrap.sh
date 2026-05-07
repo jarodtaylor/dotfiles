@@ -103,7 +103,7 @@ fi
 # native "fetch from a command at apply time" option, so we materialize
 # the 1Password-held age key to ~/.config/chezmoi/key.txt (0600). 1P
 # stays authoritative; this file is a derived cache. Rotation is a
-# manual `op read > key.txt` until we script it. See KNOWN_ISSUES.md.
+# manual `op read > key.txt` until we script it. See docs/GOTCHAS.md.
 mkdir -p "$HOME/.config/chezmoi"
 chmod 700 "$HOME/.config/chezmoi"
 if [ -s "$HOME/.config/chezmoi/key.txt" ]; then

@@ -57,8 +57,10 @@ dots apply                                  # `brew bundle cleanup` uninstalls i
 
 # Adding an AI tool customization (skill, agent, plugin):
 # ... edit ~/.claude/skills/whatever.md ...
-dots sync                                   # capture into repo (commit)
-dots sync --push                            # ... and push to origin
+dots sync                                   # capture drift into source repo
+cd "$(chezmoi source-path)/.."              # navigate to the repo
+git diff                                    # review what was captured
+git add . && git commit -m "..." && git push
 ```
 
 The Brewfile is hand-edited on purpose — the friction prevents package
@@ -74,7 +76,7 @@ sprawl. `dots sync` only captures AI tool state (`~/.claude`, `~/.codex`,
 
 | Command | Purpose |
 |---|---|
-| `dots sync` | Capture AI tool drift into repo; commit (and optionally push) |
+| `dots sync` | Capture AI tool drift into the source repo (no auto-commit) |
 | `dots apply` | Reconcile machine with repo (`chezmoi apply` + `brew bundle`) |
 | `dots doctor` | Multi-layer health check |
 | `dots edit` | Open the source repo in `$EDITOR` |
@@ -88,16 +90,16 @@ the mapping is:
 | `dots` command | Equivalent chezmoi/brew/git invocations |
 |---|---|
 | `dots apply` | `chezmoi apply` (which triggers `brew bundle install` via `run_onchange_before_10-install-packages.sh.tmpl` when the Brewfile changes) + `brew bundle cleanup --force` |
-| `dots sync` | `chezmoi re-add ~/.claude ~/.codex ~/.cursor` + scoped `git commit` (only the three AI tool source paths) |
+| `dots sync` | `chezmoi re-add ~/.claude ~/.codex ~/.cursor`, with up-front detection of `.tmpl` drift (which `chezmoi re-add` silently skips) |
 | `dots doctor` | `chezmoi doctor` + `brew bundle check` + repo cleanliness + `op whoami` + AI tool dir presence |
 | `dots edit` | `$EDITOR $(chezmoi source-path)/..` |
 
 Plain `chezmoi apply`, `chezmoi diff`, `chezmoi re-add <path>`, etc.
 still work directly. The wrapper exists for keystroke economy and to
-bake in the right combination of commands — especially the scoped
-commit on `sync`, which only stages `home/dot_claude home/dot_codex
-home/dot_cursor` so unrelated in-progress edits don't get swept into a
-`state sync` commit.
+bake in the combinations that are easy to get wrong — especially
+surfacing template drift on `sync` so you don't get false-success
+("nothing changed") when `chezmoi re-add` quietly refused to touch a
+`.tmpl` file.
 
 ## Architecture
 
@@ -160,12 +162,22 @@ home/                                                chezmoi source root
 └── .chezmoi.toml.tmpl                               per-machine config, 1Password integration
 ```
 
+## Validating changes
+
+Fast-feedback checks before committing:
+
+```bash
+chezmoi execute-template < home/path/to/file.tmpl   # render a template
+shellcheck home/bin/executable_dots bootstrap.sh    # lint shell
+chezmoi apply --dry-run -v                          # preview apply (read-only)
+dots doctor                                         # multi-layer health check
+```
+
 ## Related docs
 
 - [`SETUP.md`](SETUP.md) — detailed new-machine walkthrough
-- [`docs/AUDITING.md`](docs/AUDITING.md) — how to decide sync vs. ignore for a new AI tool
-- [`docs/TESTING.md`](docs/TESTING.md) — Parallels VM workflow, dry-run recipes
-- [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) — known rough edges (password prompts, manual installs, etc.)
+- [`docs/ADD_AI_TOOL.md`](docs/ADD_AI_TOOL.md) — onboarding a new AI tool: classify, ignore, secrets
+- [`docs/GOTCHAS.md`](docs/GOTCHAS.md) — rough edges and workarounds (password prompts, manual installs, etc.)
 
 ## Inspiration
 

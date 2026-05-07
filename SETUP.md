@@ -139,7 +139,7 @@ dots doctor
 ```
 
 Expect everything green. If anything warns or errors, see
-[`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) or follow the hint in the
+[`docs/GOTCHAS.md`](docs/GOTCHAS.md) or follow the hint in the
 warning itself.
 
 ## 6. Post-bootstrap setup (manual)
@@ -247,7 +247,7 @@ installs. Run these by hand once 1Password's SSH agent is active:
 open https://www.expressvpn.com/latests
 ```
 
-See [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md) §"Post-bootstrap
+See [`docs/GOTCHAS.md`](docs/GOTCHAS.md) §"Post-bootstrap
 manual installs" for the full rationale.
 
 > Forkers: list anything your Brewfile *can't* handle (private taps,
