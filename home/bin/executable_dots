@@ -8,7 +8,7 @@
 #   edit    Open the repo in $EDITOR
 #   help    Show this help
 #
-# See README.md and docs/TESTING.md in the dotfiles repo for context.
+# See README.md in the dotfiles repo for context.
 
 set -euo pipefail
 
