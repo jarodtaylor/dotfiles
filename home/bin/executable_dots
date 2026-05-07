@@ -46,11 +46,14 @@ Commands:
   help          Show this help
 
 Common flags:
-  --dry-run     Preview without writing
-  --no-commit   sync: capture but don't auto-commit
-  --push        sync: push to origin after commit
-  -v,--verbose  apply: show chezmoi per-file diffs (default is quiet)
-                sync:  show underlying commands
+  --dry-run                  Preview without writing
+  --no-commit                sync: capture but don't auto-commit
+  --push                     sync: push to origin after commit
+  --allow-template-drift     sync: continue when .tmpl drift is present
+                             (re-add cannot capture it; commit non-template
+                             drift only and leave .tmpl edits for later)
+  -v,--verbose               apply: show chezmoi per-file diffs (default is quiet)
+                             sync:  show underlying commands
 
 Examples:
   dots sync --dry-run      # Preview what would be captured
@@ -68,13 +71,14 @@ cmd_help() { usage; }
 # Brewfile is hand-edited — add new `brew`/`cask` lines to home/Brewfile
 # yourself; this command does not touch it.
 cmd_sync() {
-  local dry_run=0 no_commit=0 do_push=0
+  local dry_run=0 no_commit=0 do_push=0 allow_template_drift=0
   while [ $# -gt 0 ]; do
     case "$1" in
-      --dry-run)    dry_run=1 ;;
-      --no-commit)  no_commit=1 ;;
-      --push)       do_push=1 ;;
-      -v|--verbose) export DOTS_VERBOSE=1 ;;
+      --dry-run)              dry_run=1 ;;
+      --no-commit)            no_commit=1 ;;
+      --push)                 do_push=1 ;;
+      --allow-template-drift) allow_template_drift=1 ;;
+      -v|--verbose)           export DOTS_VERBOSE=1 ;;
       *) log_warn "unknown flag: $1" ;;
     esac
     shift
@@ -88,11 +92,50 @@ cmd_sync() {
   local sync_paths=(home/dot_claude home/dot_codex home/dot_cursor)
   local re_add_targets=("$HOME/.claude" "$HOME/.codex" "$HOME/.cursor")
 
-  # Using `re-add` (not `add`) so template files stay templates and we
-  # don't get prompted every sync about "downgrading" .tmpl to plain.
+  # Detect template drift BEFORE re-add. `chezmoi re-add` silently skips
+  # .tmpl files (its --help: "chezmoi will not overwrite templates"). If we
+  # don't surface that, sync reports success while leaving template drift
+  # uncaptured — `dots apply` then keeps prompting forever.
+  #
+  # `chezmoi diff` does NOT recurse into directories by default; --recursive
+  # is required to see drift in files under the target dirs.
+  local drifted_files=()
+  while IFS= read -r relpath; do
+    [ -z "$relpath" ] && continue
+    drifted_files+=("$HOME/$relpath")
+  done < <(chezmoi diff --recursive "${re_add_targets[@]}" 2>/dev/null \
+           | grep -E '^diff --git a/' \
+           | sed -E 's|^diff --git a/([^ ]+) b/.*|\1|')
+
+  local drifted_templates=()
+  local target src
+  for target in "${drifted_files[@]}"; do
+    src="$(chezmoi source-path "$target" 2>/dev/null)" || continue
+    case "$src" in
+      *.tmpl) drifted_templates+=("$target") ;;
+    esac
+  done
+
+  if [ "${#drifted_templates[@]}" -gt 0 ] && [ "$allow_template_drift" = "0" ]; then
+    log_err "template drift detected — \`chezmoi re-add\` cannot capture this"
+    for target in "${drifted_templates[@]}"; do
+      printf '    %s\n' "$target" >&2
+      printf '      → %s\n' "$(chezmoi source-path "$target")" >&2
+    done
+    echo >&2
+    log_warn "Options:"
+    log_warn "  1. Edit the .tmpl files above to capture intentional changes,"
+    log_warn "     then re-run 'dots sync' (it will pick up non-template drift)"
+    log_warn "  2. Run 'chezmoi apply --force' to discard the destination drift"
+    log_warn "  3. Re-run with --allow-template-drift to commit non-template"
+    log_warn "     drift only and leave templates for later"
+    return 2
+  fi
+
+  # Using `re-add` (not `add`) so template files stay templates. Templates
+  # with drift are filtered above; re-add handles only plain files here.
   # Trade-off: brand-new files (e.g. a new skill) are NOT auto-captured.
-  # To start tracking new paths, run `chezmoi add <path>` explicitly once,
-  # then subsequent `dots sync` runs will keep them updated.
+  # To start tracking new paths, run `chezmoi add <path>` explicitly once.
   if [ "$dry_run" = "1" ]; then
     log_info "(dry-run) previewing AI tool drift..."
     chezmoi --dry-run -v re-add "${re_add_targets[@]}" 2>&1 | grep -vE '^$' || true
