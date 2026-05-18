@@ -117,11 +117,6 @@ description = "Verifies phase goal achievement through goal-backward analysis. C
 config_file = "{{ .chezmoi.homeDir }}/.codex/agents/gsd-verifier.toml"
 
 
-# GSD Hooks
-[[hooks]]
-event = "SessionStart"
-command = "node {{ .chezmoi.homeDir }}/.codex/hooks/gsd-check-update.js"
-
 [mcp_servers.uidotsh]
 url = "https://ui.sh/mcp?agent=codex"
 http_headers = { Authorization = "Bearer {{ onepasswordRead "op://Personal/ui.sh MCP/notesPlain" }}" }
