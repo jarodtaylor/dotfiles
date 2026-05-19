@@ -18,6 +18,9 @@ abbr cc="claude --effort max"
 abbr ccd="claude --effort max --chrome --dangerously-skip-permissions"
 abbr ccc="claude --effort max --chrome"
 
+# Rails 
+abbr brs="bin/rails server"
+
 # Ghostty
 abbr ghc="ghostty +show-config --default --docs | bat"
 

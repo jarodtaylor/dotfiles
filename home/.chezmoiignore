@@ -45,6 +45,7 @@ Brewfile
 # =============================================================================
 
 # --- ~/.claude ---
+.claude/**
 .claude/cache/**
 .claude/history.jsonl
 .claude/projects/**
@@ -153,6 +154,7 @@ Brewfile
 .claude.json.backup
 
 # --- ~/.codex ---
+.codex/**
 .codex/.tmp/**
 .codex/cache/**
 .codex/log/**
@@ -175,6 +177,7 @@ Brewfile
 .gemini/**
 
 # --- ~/.cursor ---
+.cursor/**
 .cursor/workspaceStorage/**
 .cursor/logs/**
 .cursor/CachedData/**
