@@ -1,11 +1,10 @@
 [user]
   name  = "Jarod Taylor"
   email = "jarodrtaylor@gmail.com"
-{{- if and (ne .ssh_key "") .ssh_key }}
-  signingkey = {{ .ssh_key }}
-{{- else }}
+  # Sign with the on-disk key file (chezmoi writes it from 1Password), not the
+  # 1Password SSH agent, so unattended commits work when the vault is locked.
+  # See docs/1password-ssh-signing-rca.md.
   signingkey = ~/.ssh/id
-{{- end }}
 
 {{- if stat (joinPath .chezmoi.homeDir ".config/git/config-work") }}
 [includeIf "gitdir:{{ .work_dir }}/"]
@@ -64,6 +63,10 @@
 {{- if lookPath "ssh-keygen" }}
   program = {{ lookPath "ssh-keygen" }}
 {{- end }}
+
+[gpg "ssh"]
+  # Verify SSH commit signatures locally against an allow-list of pubkeys.
+  allowedSignersFile = ~/.config/git/allowed_signers
 
 [filter "lfs"]
 	clean = git-lfs clean -- %f
