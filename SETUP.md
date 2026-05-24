@@ -272,9 +272,12 @@ Once, to ensure login items and brew services pick up cleanly.
 
 ## Troubleshooting
 
-**`op whoami` fails after restart.** The 1Password CLI session expired. Run
-`op signin` again. Chezmoi templates that read from op will fail until you
-do.
+**`op whoami` says "not signed in" / fails after restart.** With the 1Password
+app's CLI integration, `op` authenticates per-command via biometric and keeps no
+token session, so `op whoami` reports not-signed-in even though `op read` works.
+`chezmoi init`/`apply` probe with a real `op read`, so they work **without**
+`op signin`. You only need `op signin` (a token session) for `bootstrap.sh`'s
+preflight on a fresh machine, or if you've turned the app integration off.
 
 **`chezmoi apply` says "recipient mismatch" for age.** The public key
 embedded in `.chezmoi.toml.tmpl` doesn't match the private key in 1Password.

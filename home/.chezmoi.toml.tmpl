@@ -7,21 +7,29 @@
 {{-   end -}}
 {{- end -}}
 
-{{/* 1Password availability: `op` must be in PATH AND authenticated.
-     We probe via `op whoami` rather than an env var gate so this works
-     on a fresh machine without relying on shell-profile bootstrapping. */}}
+{{/* 1Password availability: probe with a real `op read`, NOT `op whoami`. With
+     the 1Password app's CLI integration, `op whoami` reports "not signed in"
+     whenever no token session is cached -- even though `op read` works via a
+     biometric prompt. The old whoami gate therefore disabled 1Password
+     (encryption + all data) until you ran `op signin`. This capability probe
+     matches how the rest of the dotfiles use `onepasswordRead` (ungated). It
+     reads the age-key entry (needed just below anyway), so op-availability is
+     coupled to that entry: if "Personal/Dotfiles Age Key" is renamed, ALL 1P
+     data falls back to empty, not just encryption. An empty probe is the
+     graceful fallback (fresh machine / op missing / entry renamed). Caveat:
+     like every `onepasswordRead` here, an interactive run may prompt for
+     biometric; a headless run with no cached session blocks on that prompt. */}}
 {{- $opSignedIn := false -}}
 {{- if lookPath "op" -}}
-{{-   $whoami := output "sh" "-c" "op whoami 2>/dev/null || true" | trim -}}
-{{-   if $whoami -}}
+{{-   $opProbe := output "sh" "-c" "op read 'op://Personal/Dotfiles Age Key/notesPlain' >/dev/null 2>&1 && echo ok || true" | trim -}}
+{{-   if eq $opProbe "ok" -}}
 {{-     $opSignedIn = true -}}
 {{-   end -}}
 {{- end -}}
 
-{{/* Derive the age recipient (public key) by reading the 1Password-backed
-     identity and piping through age-keygen -y. Falls back to empty string if
-     anything fails (op not signed in, age-keygen missing, entry renamed) — in
-     which case encryption is skipped and encrypted files won't decrypt. */}}
+{{/* Derive the age recipient (public key) from that same entry via age-keygen -y.
+     Empty if op can't read or age-keygen is missing -- encryption then skipped
+     and encrypted files won't decrypt. */}}
 {{- $ageRecipient := "" -}}
 {{- if $opSignedIn -}}
 {{-   $ageRecipient = output "sh" "-c" "op read 'op://Personal/Dotfiles Age Key/notesPlain' 2>/dev/null | age-keygen -y 2>/dev/null || true" | trim -}}

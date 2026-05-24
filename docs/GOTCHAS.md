@@ -119,6 +119,17 @@ and leave the user with two `op` binaries on PATH, where only one
 holds the CLI-integration entitlement. The symptom is cryptic:
 `op whoami` reports signed in but `onepasswordRead` templates fail.
 
+### `op whoami` says "not signed in" but `op read` works
+
+With CLI integration enabled (above), `op` authenticates per-command via the
+app's biometric prompt and keeps **no token session**, so `op whoami` reports
+"account is not signed in" even though `op read` / `onepasswordRead` succeed.
+chezmoi's config template (`home/.chezmoi.toml.tmpl`) therefore probes 1Password
+with a real `op read`, not `op whoami`, and `dots doctor` falls back the same
+way. You do **not** need `op signin` for `chezmoi init`/`apply` under
+integration; `op signin` (a token session) is only required by `bootstrap.sh`'s
+preflight on a fresh machine.
+
 ### Age identity: on-disk cache at `~/.config/chezmoi/key.txt`
 
 chezmoi's `[age]` config requires an identity **file path** —
