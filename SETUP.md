@@ -240,7 +240,7 @@ takes effect on subsequent reboots.
 
 A few packages are deliberately excluded from the Brewfile because
 they need SSH credentials, manual licensing, or have flaky unattended
-installs. Run these by hand once 1Password's SSH agent is active:
+installs. Run these by hand after bootstrap:
 
 ```bash
 # ExpressVPN — cask's LaunchDaemon install is historically flaky
@@ -261,8 +261,10 @@ If you use `gh`:
 gh auth login
 ```
 
-The 1Password SSH agent handles `git push` over SSH; `gh`'s HTTPS API
-calls need their own token.
+`git push`/`fetch` to GitHub over SSH uses the on-disk key files
+(`~/.ssh/id`, `~/.ssh/work_id`) — the 1Password SSH agent is bypassed for
+`github.com` and only serves other SSH hosts. `gh`'s HTTPS API calls still
+need their own token.
 
 ## 7. Optional: restart
 
