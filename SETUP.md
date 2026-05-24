@@ -103,6 +103,12 @@ op signin
 
 Then proceed.
 
+> **Why a token session here but not for daily use?** `bootstrap.sh`'s
+> preflight gates on `op whoami`, which needs a token session. Day-to-day,
+> `chezmoi init`/`apply` detect 1Password with an `op read` capability probe and
+> do **not** need `op signin` (see Troubleshooting → *`op whoami` says "not
+> signed in"*).
+
 ### Run
 
 ```bash
