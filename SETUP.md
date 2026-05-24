@@ -103,6 +103,12 @@ op signin
 
 Then proceed.
 
+> **Why a token session here but not for daily use?** `bootstrap.sh`'s
+> preflight gates on `op whoami`, which needs a token session. Day-to-day,
+> `chezmoi init`/`apply` detect 1Password with an `op read` capability probe and
+> do **not** need `op signin` (see Troubleshooting → *`op whoami` says "not
+> signed in"*).
+
 ### Run
 
 ```bash
@@ -240,7 +246,7 @@ takes effect on subsequent reboots.
 
 A few packages are deliberately excluded from the Brewfile because
 they need SSH credentials, manual licensing, or have flaky unattended
-installs. Run these by hand once 1Password's SSH agent is active:
+installs. Run these by hand after bootstrap:
 
 ```bash
 # ExpressVPN — cask's LaunchDaemon install is historically flaky
@@ -261,8 +267,10 @@ If you use `gh`:
 gh auth login
 ```
 
-The 1Password SSH agent handles `git push` over SSH; `gh`'s HTTPS API
-calls need their own token.
+`git push`/`fetch` to GitHub over SSH uses the on-disk key files
+(`~/.ssh/id`, `~/.ssh/work_id`) — the 1Password SSH agent is bypassed for
+`github.com` and only serves other SSH hosts. `gh`'s HTTPS API calls still
+need their own token.
 
 ## 7. Optional: restart
 
@@ -272,9 +280,12 @@ Once, to ensure login items and brew services pick up cleanly.
 
 ## Troubleshooting
 
-**`op whoami` fails after restart.** The 1Password CLI session expired. Run
-`op signin` again. Chezmoi templates that read from op will fail until you
-do.
+**`op whoami` says "not signed in" / fails after restart.** With the 1Password
+app's CLI integration, `op` authenticates per-command via biometric and keeps no
+token session, so `op whoami` reports not-signed-in even though `op read` works.
+`chezmoi init`/`apply` probe with a real `op read`, so they work **without**
+`op signin`. You only need `op signin` (a token session) for `bootstrap.sh`'s
+preflight on a fresh machine, or if you've turned the app integration off.
 
 **`chezmoi apply` says "recipient mismatch" for age.** The public key
 embedded in `.chezmoi.toml.tmpl` doesn't match the private key in 1Password.

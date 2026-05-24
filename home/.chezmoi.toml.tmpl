@@ -7,26 +7,25 @@
 {{-   end -}}
 {{- end -}}
 
-{{/* 1Password availability: `op` must be in PATH AND authenticated.
-     We probe via `op whoami` rather than an env var gate so this works
-     on a fresh machine without relying on shell-profile bootstrapping. */}}
-{{- $opSignedIn := false -}}
-{{- if lookPath "op" -}}
-{{-   $whoami := output "sh" "-c" "op whoami 2>/dev/null || true" | trim -}}
-{{-   if $whoami -}}
-{{-     $opSignedIn = true -}}
-{{-   end -}}
-{{- end -}}
-
-{{/* Derive the age recipient (public key) by reading the 1Password-backed
-     identity and piping through age-keygen -y. Falls back to empty string if
-     anything fails (op not signed in, age-keygen missing, entry renamed) — in
-     which case encryption is skipped and encrypted files won't decrypt. */}}
+{{/* 1Password + age availability: derive the age recipient with a SINGLE real
+     `op read`, NOT `op whoami`. Under the 1Password app's CLI integration
+     `op whoami` reports "not signed in" with no cached session even though
+     `op read` works via a biometric prompt, so the old whoami gate disabled
+     1Password (encryption + all data) until you ran `op signin`. The read is
+     piped straight through `age-keygen -y`, so only the PUBLIC recipient is ever
+     captured -- never the raw secret. A non-empty recipient means op is
+     reachable: enable encryption + 1P data. Empty is the graceful fallback
+     (fresh machine, op missing, age-keygen missing, or "Personal/Dotfiles Age
+     Key" renamed) -- note this couples ALL 1P data to that one entry + age-keygen,
+     which are required infra here anyway. Caveat: like every `onepasswordRead`
+     here, an interactive run may prompt for biometric; a headless run with no
+     cached session blocks on that prompt. */}}
 {{- $ageRecipient := "" -}}
-{{- if $opSignedIn -}}
+{{- if lookPath "op" -}}
 {{-   $ageRecipient = output "sh" "-c" "op read 'op://Personal/Dotfiles Age Key/notesPlain' 2>/dev/null | age-keygen -y 2>/dev/null || true" | trim -}}
 {{- end -}}
-{{- $ageAvailable := ne $ageRecipient "" -}}
+{{- $opAvailable := ne $ageRecipient "" -}}
+{{- $ageAvailable := $opAvailable -}}
 
 {{- if $ageAvailable }}
 encryption = "age"
@@ -44,7 +43,7 @@ recipient = {{ $ageRecipient | quote }}
 [data]
 brew_prefix = {{ $brew_prefix | quote }}
 ageAvailable = {{ $ageAvailable }}
-{{- if $opSignedIn }}
+{{- if $opAvailable }}
 ssh_key = "{{- onepasswordRead "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" -}}"
 work_ssh_key = "{{- onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" -}}"
 work_email = "{{- onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/email" -}}"
