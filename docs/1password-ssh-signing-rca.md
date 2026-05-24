@@ -1,9 +1,9 @@
 # RCA / Investigation Brief — 1Password SSH commit-signing fails when unattended
 
-**Status:** Open — handoff to a dedicated investigation session.
+**Status:** Resolved 2026-05-24 (see §10). Originally an open handoff to a dedicated investigation session.
 **Owner machine:** Jarod's Mac (darwin). The fix lands in **dotfiles / 1Password settings**, NOT in any project repo — this issue reproduces across every repo on the machine.
 **Written:** 2026-05-24, by the agenthq session that kept hitting it during GSD plan-phase work.
-**Scope of this doc:** give the investigating agent enough grounded detail to characterize the trigger precisely and choose a fix. It is NOT a prescription — the solution options need evaluation + a decision from Jarod.
+**Scope of this doc:** give the investigating agent enough grounded detail to characterize the trigger precisely and choose a fix. The investigation brief (§§1–9) was written before the fix and is NOT a prescription; the chosen solution and verification are recorded in §10 (Resolution).
 
 ---
 
@@ -126,7 +126,7 @@ printf 'test' | ssh-keygen -Y sign -n git -f <(ssh-add -L | grep 'ssh_key$' || s
 
 - [ ] A `git commit` succeeds **with Jarod away from the keyboard** (no Touch ID / approval needed in the moment) — either signed via a non-interactive path, or gracefully unsigned, per the chosen option.
 - [ ] Interactive signing (when Jarod *is* present) still works and stays attributable.
-- [ ] SSH **auth** (clone/fetch/push to GitHub) still works via 1Password.
+- [x] SSH **auth** (clone/fetch/push) works headless: GitHub via the on-disk key (1Password bypassed for github.com per §10); all other hosts still use the 1Password agent.
 - [ ] The fix is captured in the **chezmoi source** so it survives `chezmoi apply`.
 - [ ] The exact trigger (auto-lock vs per-use approval vs update) is documented so the behavior is understood, not just patched.
 
