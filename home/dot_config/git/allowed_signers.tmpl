@@ -1,0 +1,9 @@
+{{- if ne .ssh_key "" -}}
+# Maps signing identities to their public keys so `git log --show-signature` can
+# verify SSH-signed commits locally. Public keys only -- safe to commit.
+# Managed by chezmoi; keys come from the 1Password-backed chezmoi data.
+jarodrtaylor@gmail.com {{ .ssh_key }}
+{{- if ne .work_ssh_key "" }}
+jartaylo@estee.com {{ .work_ssh_key }}
+{{- end }}
+{{ end -}}

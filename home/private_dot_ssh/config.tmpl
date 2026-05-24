@@ -3,16 +3,17 @@
 # This won't be added again if you remove it.
 Include ~/.orbstack/ssh/config
 
-Host *
-  AddKeysToAgent yes
-  UseKeychain yes
-  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-
+# GitHub: authenticate from the on-disk key files (chezmoi writes them from
+# 1Password) with "IdentityAgent none", so clone/fetch/push work unattended even
+# when the 1Password vault is locked. These host-specific blocks MUST stay above
+# the "Host *" wildcard: ssh uses the first value it finds for each option, so a
+# later block cannot override IdentityAgent once "Host *" sets it.
 Host github.com
   HostName github.com
   User git
   PreferredAuthentications publickey
   IdentitiesOnly yes
+  IdentityAgent none
   IdentityFile ~/.ssh/id
 
 Host github.com-work
@@ -20,8 +21,14 @@ Host github.com-work
   User git
   PreferredAuthentications publickey
   IdentitiesOnly yes
+  IdentityAgent none
   IdentityFile ~/.ssh/work_id
 
 Host ezra
   HostName OpenClaw-Agent.local
   User openclaw
+
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
