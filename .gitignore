@@ -32,6 +32,7 @@
 # ignore home/dot_claude/CLAUDE.md, which IS chezmoi-managed and stays tracked)
 /CLAUDE.md
 /.claude/
+/.compound-engineering/
 /docs/superpowers/
 
 # Sketchybar helper build artifacts. These are compiled by `make` when

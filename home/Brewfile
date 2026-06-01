@@ -36,6 +36,8 @@ tap "olets/tap"
 brew "age"
 # Browser automation CLI for AI agents. Fast native Rust CLI.
 brew "agent-browser"
+# Code searching, linting, rewriting at large scale
+brew "ast-grep"
 # Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
 # Resource monitor. C++ version and continuation of bashtop and bpytop
