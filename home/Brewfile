@@ -116,6 +116,8 @@ brew "starship"
 brew "swaks"
 # Change macOS audio source from the command-line
 brew "switchaudio-osx"
+# Syncthing (using for synching Obsidian Vaults with AI Agents on other machines)
+brew "syncthing"
 # General purpose fuzzy finder TUI
 brew "television"
 # Official tldr client written in Rust

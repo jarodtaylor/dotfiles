@@ -28,6 +28,12 @@ Host ezra
   HostName OpenClaw-Agent.local
   User openclaw
 
+Host silas
+  HostName 100.76.142.125
+  User root
+  SetEnv TERM=xterm-256color
+  LocalForward 9119 127.0.0.1:9119
+
 Host *
   AddKeysToAgent yes
   UseKeychain yes

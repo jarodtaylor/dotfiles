@@ -21,6 +21,9 @@ abbr ccc="claude --effort max --chrome"
 # Rails 
 abbr brs="bin/rails server"
 
+# Obsidian Vault 
+abbr para="cd ~/Obsidian\ Vaults/PARA/"
+
 # Ghostty
 abbr ghc="ghostty +show-config --default --docs | bat"
 
