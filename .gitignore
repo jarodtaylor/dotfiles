@@ -34,6 +34,8 @@
 /.claude/
 /.compound-engineering/
 /docs/superpowers/
+/docs/ideation/
+/docs/plans/
 
 # Sketchybar helper build artifacts. These are compiled by `make` when
 # `run_onchange_after_40-sketchybar-deps.sh.tmpl` runs on each machine —
