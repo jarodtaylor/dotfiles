@@ -22,10 +22,26 @@
      cached session blocks on that prompt. */}}
 {{- $ageRecipient := "" -}}
 {{- if lookPath "op" -}}
-{{-   $ageRecipient = output "sh" "-c" "op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' 2>/dev/null | age-keygen -y 2>/dev/null || true" | trim -}}
+{{-   if or (env "OP_SERVICE_ACCOUNT_TOKEN") (stdinIsATTY) -}}
+{{-     $ageRecipient = output "sh" "-c" "op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' 2>/dev/null | age-keygen -y 2>/dev/null || true" | trim -}}
+{{-   end -}}
 {{- end -}}
 {{- $opAvailable := ne $ageRecipient "" -}}
 {{- $ageAvailable := $opAvailable -}}
+
+{{/* Auth mode: a service-account token (exported only in SSH sessions, see
+     dot_zshenv) makes chezmoi's onepasswordRead resolve headlessly. Local
+     interactive runs have no token -> default desktop (biometric) integration,
+     unchanged. A headless run with neither a token nor a TTY fails fast
+     instead of hanging on a prompt no one can answer. Placed before [age];
+     never between [data] and [[data.profiles]] (it would be swallowed). */}}
+{{- if env "OP_SERVICE_ACCOUNT_TOKEN" }}
+[onepassword]
+mode = "service"
+{{- else if not stdinIsATTY }}
+[onepassword]
+prompt = false
+{{- end }}
 
 {{- if $ageAvailable }}
 encryption = "age"
