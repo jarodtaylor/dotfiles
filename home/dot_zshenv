@@ -19,6 +19,16 @@ export CODEDIR="$HOME/Code"
 # 1Password SSH Agent
 export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 
+# 1Password service-account token — SSH sessions only.
+# Over SSH there's no reachable Touch ID, so export the service-account token
+# (materialized to a 0600 file by bootstrap) to let op/chezmoi resolve secrets
+# headlessly. Dual guard: SSH-only, and only the first shell pays the read
+# (children inherit via the environment). Local shells never carry the token,
+# so they fall back to biometric desktop integration.
+if [[ -n "$SSH_CONNECTION" && -z "$OP_SERVICE_ACCOUNT_TOKEN" && -r "$HOME/.config/op/token" ]]; then
+  export OP_SERVICE_ACCOUNT_TOKEN="$(<"$HOME/.config/op/token")"
+fi
+
 # Zim configuration
 export ZIM_HOME="${XDG_CACHE_HOME}/zim"
 export ZIM_CONFIG_FILE="${XDG_CONFIG_HOME}/zsh/.zimrc"
