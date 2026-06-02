@@ -112,10 +112,28 @@ else
   log "fetching age identity from 1Password → ~/.config/chezmoi/key.txt"
   if ! op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' \
         > "$HOME/.config/chezmoi/key.txt"; then
-    die "failed to fetch age key from 1Password (Personal vault)."
+    die "failed to fetch age key from 1Password (Dotfiles vault)."
   fi
   chmod 600 "$HOME/.config/chezmoi/key.txt"
   ok "age identity pinned"
+fi
+
+# --- 1Password service-account token (optional) → on-disk cache ---
+# Lets op/chezmoi resolve secrets headlessly over SSH (no Touch ID). The token
+# is the bootstrap credential for the Dotfiles vault, so it can't be fetched via
+# op — it's provisioned once, by hand (dot_zshenv exports it only in SSH
+# sessions). 1Password is authoritative; this 0600 file is a cache. Optional:
+# without it, local biometric still works and only remote headless op is
+# unavailable. Mirrors the age-key cache above. See docs/GOTCHAS.md.
+mkdir -p "$HOME/.config/op"
+chmod 700 "$HOME/.config/op"
+if [ -s "$HOME/.config/op/token" ]; then
+  chmod 600 "$HOME/.config/op/token"
+  ok "1Password service-account token present at ~/.config/op/token"
+else
+  warn "no 1Password service-account token at ~/.config/op/token; remote headless op unavailable."
+  warn "to enable: mint a token scoped to the Dotfiles vault, write it history-safe"
+  warn "  to ~/.config/op/token (chmod 600). See docs/GOTCHAS.md."
 fi
 
 # --- init + apply ---
