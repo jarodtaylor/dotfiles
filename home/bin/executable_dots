@@ -234,7 +234,16 @@ cmd_doctor() {
   echo
   log_info "== 1Password =="
   if command -v op >/dev/null 2>&1; then
-    if op whoami >/dev/null 2>&1; then
+    if [ -n "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]; then
+      # Service-token mode (remote/SSH). Report VALIDITY, not mere presence: a
+      # revoked/expired/stale token leaves the var set but every op call fails.
+      if op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' >/dev/null 2>&1; then
+        log_ok "1Password service-account token valid (Dotfiles vault reachable)"
+      else
+        log_warn "OP_SERVICE_ACCOUNT_TOKEN set but Dotfiles unreadable (token revoked/expired, or vault not provisioned)"
+        fail=1
+      fi
+    elif op whoami >/dev/null 2>&1; then
       log_ok "1Password CLI signed in ($(op whoami 2>/dev/null | awk '/^Email:/ {print $2}'))"
     elif op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' >/dev/null 2>&1; then
       log_ok "1Password CLI available via app integration (no token session)"
