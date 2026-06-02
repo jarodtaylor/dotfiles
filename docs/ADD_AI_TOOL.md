@@ -41,12 +41,12 @@ check loop in `cmd_doctor`. Add `"$HOME/.newtool"` to both.
 
 For each auth/token file:
 
-1. Create a Secure Note in `Personal` named e.g. `NewTool auth`. Paste the
+1. Create a Secure Note in `Dotfiles` named e.g. `NewTool auth`. Paste the
    plaintext file contents into `notesPlain`.
 2. Replace the captured file with a `.tmpl` calling `onepasswordRead`:
 
    ```go-template
-   {{ onepasswordRead "op://Personal/NewTool auth/notesPlain" }}
+   {{ onepasswordRead "op://Dotfiles/NewTool auth/notesPlain" }}
    ```
 
 3. Delete the plaintext file from `home/dot_newtool/` before committing.

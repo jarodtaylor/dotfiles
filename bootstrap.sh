@@ -110,7 +110,7 @@ if [ -s "$HOME/.config/chezmoi/key.txt" ]; then
   ok "age identity already present at ~/.config/chezmoi/key.txt"
 else
   log "fetching age identity from 1Password → ~/.config/chezmoi/key.txt"
-  if ! op read 'op://Personal/Dotfiles Age Key/notesPlain' \
+  if ! op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' \
         > "$HOME/.config/chezmoi/key.txt"; then
     die "failed to fetch age key from 1Password (Personal vault)."
   fi

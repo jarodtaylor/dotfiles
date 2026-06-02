@@ -236,7 +236,7 @@ cmd_doctor() {
   if command -v op >/dev/null 2>&1; then
     if op whoami >/dev/null 2>&1; then
       log_ok "1Password CLI signed in ($(op whoami 2>/dev/null | awk '/^Email:/ {print $2}'))"
-    elif op read 'op://Personal/Dotfiles Age Key/notesPlain' >/dev/null 2>&1; then
+    elif op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' >/dev/null 2>&1; then
       log_ok "1Password CLI available via app integration (no token session)"
     else
       log_warn "1Password CLI installed but not reachable (unlock 1Password, or run 'op signin')"

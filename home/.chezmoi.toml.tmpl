@@ -22,7 +22,7 @@
      cached session blocks on that prompt. */}}
 {{- $ageRecipient := "" -}}
 {{- if lookPath "op" -}}
-{{-   $ageRecipient = output "sh" "-c" "op read 'op://Personal/Dotfiles Age Key/notesPlain' 2>/dev/null | age-keygen -y 2>/dev/null || true" | trim -}}
+{{-   $ageRecipient = output "sh" "-c" "op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' 2>/dev/null | age-keygen -y 2>/dev/null || true" | trim -}}
 {{- end -}}
 {{- $opAvailable := ne $ageRecipient "" -}}
 {{- $ageAvailable := $opAvailable -}}
@@ -44,9 +44,9 @@ recipient = {{ $ageRecipient | quote }}
 brew_prefix = {{ $brew_prefix | quote }}
 ageAvailable = {{ $ageAvailable }}
 {{- if $opAvailable }}
-ssh_key = "{{- onepasswordRead "op://Personal/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" -}}"
-work_ssh_key = "{{- onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/public_key" -}}"
-work_email = "{{- onepasswordRead "op://Personal/orsplwhcmkbfmxdwbf6udvpjvu/email" -}}"
+ssh_key = "{{- onepasswordRead "op://Dotfiles/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" -}}"
+work_ssh_key = "{{- onepasswordRead "op://Dotfiles/orsplwhcmkbfmxdwbf6udvpjvu/public_key" -}}"
+work_email = "{{- onepasswordRead "op://Dotfiles/orsplwhcmkbfmxdwbf6udvpjvu/email" -}}"
 onepassword_available = true
 {{- else }}
 ssh_key = ""
