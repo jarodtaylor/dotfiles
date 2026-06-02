@@ -60,9 +60,9 @@ recipient = {{ $ageRecipient | quote }}
 brew_prefix = {{ $brew_prefix | quote }}
 ageAvailable = {{ $ageAvailable }}
 {{- if $opAvailable }}
-ssh_key = "{{- onepasswordRead "op://Dotfiles/4ytcjbe2ui6iz5sjfe7fn54jea/public_key" -}}"
-work_ssh_key = "{{- onepasswordRead "op://Dotfiles/orsplwhcmkbfmxdwbf6udvpjvu/public_key" -}}"
-work_email = "{{- onepasswordRead "op://Dotfiles/orsplwhcmkbfmxdwbf6udvpjvu/email" -}}"
+ssh_key = "{{- onepasswordRead "op://Dotfiles/ssh_key/public_key" -}}"
+work_ssh_key = "{{- onepasswordRead "op://Dotfiles/work_ssh_key/public_key" -}}"
+work_email = "{{- onepasswordRead "op://Dotfiles/work_ssh_key/email" -}}"
 onepassword_available = true
 {{- else }}
 ssh_key = ""
