@@ -171,6 +171,15 @@ chezmoi's config switches to `[onepassword] mode = "service"` when the token
 is present. Local interactive runs have no token and keep biometric desktop
 integration.
 
+**Why `dots apply` runs `chezmoi apply --init`**: chezmoi bakes `[onepassword]
+mode` at config-render (`init`) time and only *reads* it on a plain `apply`.
+Because the same M5 is used both locally (no token) and over SSH (token),
+`dots apply` and `dots sync` pass `--init` so the config re-renders from the
+current session's env every run — service mode over SSH, default biometric
+locally. A bare `chezmoi apply` reuses the last-baked mode and will hard-error
+if the session changed (`account` mode + token set, or `service` mode + no
+token). Use `dots apply` (or `chezmoi apply --init`) for the auth switch.
+
 **Security posture**: same on-disk-cache model as the age key — 1Password is
 authoritative, the file is a derived cache. The token is a long-lived bearer
 (network-reachable), so scope it `read_items`-only and mint it with an
