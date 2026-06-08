@@ -24,9 +24,14 @@ export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/
 # (materialized to a 0600 file by bootstrap) to let op/chezmoi resolve secrets
 # headlessly. Dual guard: SSH-only, and only the first shell pays the read
 # (children inherit via the environment). Local shells never carry the token,
-# so they fall back to biometric desktop integration.
-if [[ -n "$SSH_CONNECTION" && -z "$OP_SERVICE_ACCOUNT_TOKEN" && -r "$HOME/.config/op/token" ]]; then
-  export OP_SERVICE_ACCOUNT_TOKEN="$(<"$HOME/.config/op/token")"
+# so they fall back to biometric desktop integration. The token is a long-lived
+# bearer, so refuse to load it from anything looser than 0600 (perm-drift guard).
+if [[ -n "$SSH_CONNECTION" && -z "$OP_SERVICE_ACCOUNT_TOKEN" && -f "$HOME/.config/op/token" ]]; then
+  if [[ "$(stat -f '%Lp' "$HOME/.config/op/token" 2>/dev/null)" == "600" ]]; then
+    export OP_SERVICE_ACCOUNT_TOKEN="$(<"$HOME/.config/op/token")"
+  else
+    print -ru2 -- "warning: ~/.config/op/token is not 0600; refusing to load the 1Password service-account token (rotate it if it may have been exposed)."
+  fi
 fi
 
 # Zim configuration
