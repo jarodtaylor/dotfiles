@@ -13,7 +13,7 @@
         "ghcr.io/github/github-mcp-server"
       ],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "{{ onepasswordRead "op://Personal/GitHub PAT - cursor mcp/notesPlain" }}"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{{ onepasswordRead "op://Dotfiles/GitHub PAT - cursor mcp/notesPlain" }}"
       }
     },
     "github-actions": {
@@ -22,7 +22,7 @@
         "{{ .chezmoi.homeDir }}/Code/personal/github-actions-mcp-server/dist/index.js"
       ],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "{{ onepasswordRead "op://Personal/GitHub PAT - cursor mcp/notesPlain" }}"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{{ onepasswordRead "op://Dotfiles/GitHub PAT - cursor mcp/notesPlain" }}"
       }
     },
     "heroku": {
@@ -54,7 +54,7 @@
     "uidotsh": {
       "url": "https://ui.sh/mcp?agent=cursor",
       "headers": {
-        "Authorization": "Bearer {{ onepasswordRead "op://Personal/ui.sh MCP/notesPlain" }}"
+        "Authorization": "Bearer {{ onepasswordRead "op://Dotfiles/ui.sh MCP/notesPlain" }}"
       }
     }
   }

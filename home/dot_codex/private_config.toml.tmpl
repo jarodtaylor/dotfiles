@@ -119,7 +119,7 @@ config_file = "{{ .chezmoi.homeDir }}/.codex/agents/gsd-verifier.toml"
 
 [mcp_servers.uidotsh]
 url = "https://ui.sh/mcp?agent=codex"
-http_headers = { Authorization = "Bearer {{ onepasswordRead "op://Personal/ui.sh MCP/notesPlain" }}" }
+http_headers = { Authorization = "Bearer {{ onepasswordRead "op://Dotfiles/ui.sh MCP/notesPlain" }}" }
 
 [mcp_servers.uidotsh.tools.uidotsh_fetch]
 approval_mode = "approve"

@@ -97,8 +97,12 @@ The fix is either:
 
 1. Use the tool from an interactive terminal where `op` works (most
    dotfiles operations are user-initiated anyway), or
-2. For truly automated flows, use a 1Password service account and
-   `OP_SERVICE_ACCOUNT_TOKEN` (not configured in this repo).
+2. For remote/headless flows, this repo configures a 1Password service
+   account: `dot_zshenv` exports `OP_SERVICE_ACCOUNT_TOKEN` (from the
+   `~/.config/op/token` cache) **only when `$SSH_CONNECTION` is set**, so
+   `op`/`chezmoi` resolve secrets headlessly over SSH while local shells stay
+   on biometric. See "1Password service-account token" below for setup +
+   rotation.
 
 ---
 
@@ -148,11 +152,51 @@ cache.
 re-run:
 
 ```bash
-op read 'op://Personal/Dotfiles Age Key/notesPlain' \
+op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' \
   > ~/.config/chezmoi/key.txt
 chmod 600 ~/.config/chezmoi/key.txt
 ```
 
 If you lose the local cache (e.g., after `rm -rf ~/.config/chezmoi/`),
 re-run `bootstrap.sh` — it detects the missing file and re-fetches.
+
+### 1Password service-account token: `~/.config/op/token`
+
+Remote (SSH) sessions have no reachable Touch ID, so `op` can't
+biometric-prompt. A 1Password **service account** scoped to the read-only
+`Dotfiles` vault provides a headless path. The token lives at
+`~/.config/op/token` (`0600`); `dot_zshenv` exports it as
+`OP_SERVICE_ACCOUNT_TOKEN` **only when `$SSH_CONNECTION` is set**, and
+chezmoi's config switches to `[onepassword] mode = "service"` when the token
+is present. Local interactive runs have no token and keep biometric desktop
+integration.
+
+**Why `dots apply` runs `chezmoi apply --init`**: chezmoi bakes `[onepassword]
+mode` at config-render (`init`) time and only *reads* it on a plain `apply`.
+Because the same M5 is used both locally (no token) and over SSH (token),
+`dots apply` and `dots sync` pass `--init` so the config re-renders from the
+current session's env every run — service mode over SSH, default biometric
+locally. A bare `chezmoi apply` reuses the last-baked mode and will hard-error
+if the session changed (`account` mode + token set, or `service` mode + no
+token). Use `dots apply` (or `chezmoi apply --init`) for the auth switch.
+
+**Security posture**: same on-disk-cache model as the age key — 1Password is
+authoritative, the file is a derived cache. The token is a long-lived bearer
+(network-reachable), so scope it `read_items`-only and mint it with an
+`--expires-in` cadence.
+
+**Setup / rotation**: the token is the bootstrap credential, so it can't be
+`op read` — provision it by hand, history-safe (never as a command argument,
+since `dot_zshenv` enables `SAVEHIST`):
+
+```bash
+# In 1Password: mint a service-account token scoped to Dotfiles (read-only,
+# with an expiry), then write it without it touching shell history:
+read -rs OP_TOK && printf '%s' "$OP_TOK" > ~/.config/op/token && unset OP_TOK
+chmod 600 ~/.config/op/token
+```
+
+Rotate on the expiry cadence. A token that ever lands in shell history or
+logs must be **rotated**, not just deleted. `dots doctor` reports whether a
+present token actually works (validity, not just presence).
 

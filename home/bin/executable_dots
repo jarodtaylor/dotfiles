@@ -99,7 +99,7 @@ cmd_sync() {
   while IFS= read -r relpath; do
     [ -z "$relpath" ] && continue
     drifted_files+=("$HOME/$relpath")
-  done < <(chezmoi diff --recursive "${re_add_targets[@]}" 2>/dev/null \
+  done < <(chezmoi diff --init --recursive "${re_add_targets[@]}" 2>/dev/null \
            | grep -E '^diff --git a/' \
            | sed -E 's|^diff --git a/([^ ]+) b/.*|\1|')
 
@@ -176,7 +176,14 @@ cmd_apply() {
     chezmoi_flags+=(--dry-run)
   fi
 
-  log_info "chezmoi apply..."
+  # --init re-renders the config from .chezmoi.toml.tmpl against THIS session's
+  # env before applying. Required for the 1Password auth switch: chezmoi bakes
+  # [onepassword] mode at config-render time and only READS it on a plain apply.
+  # With --init, an SSH session (token set) bakes service mode (headless) and a
+  # local session (no token, TTY) bakes the default biometric mode. A bare
+  # `chezmoi apply` reuses the last-baked mode and errors if the session type
+  # changed. See docs/GOTCHAS.md.
+  log_info "chezmoi apply (--init re-renders config for this session)..."
   # Package install is handled by run_onchange_before_10-install-packages.sh.tmpl
   # inside `chezmoi apply`, content-hashed off the Brewfile. We do NOT also
   # call `brew bundle install` here — that would re-attempt failing MAS / cask
@@ -184,7 +191,7 @@ cmd_apply() {
   # items. If you manually `brew uninstall`ed something and want it back,
   # run `brew bundle install --file="$(chezmoi source-path)/Brewfile"`
   # or touch the Brewfile to re-trigger the run_onchange hash.
-  chezmoi apply "${chezmoi_flags[@]}"
+  chezmoi apply --init "${chezmoi_flags[@]}"
 
   if [ "$dry_run" = "0" ]; then
     log_info "brew bundle cleanup..."
@@ -234,9 +241,18 @@ cmd_doctor() {
   echo
   log_info "== 1Password =="
   if command -v op >/dev/null 2>&1; then
-    if op whoami >/dev/null 2>&1; then
+    if [ -n "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]; then
+      # Service-token mode (remote/SSH). Report VALIDITY, not mere presence: a
+      # revoked/expired/stale token leaves the var set but every op call fails.
+      if op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' >/dev/null 2>&1; then
+        log_ok "1Password service-account token valid (Dotfiles vault reachable)"
+      else
+        log_warn "OP_SERVICE_ACCOUNT_TOKEN set but Dotfiles unreadable (token revoked/expired, or vault not provisioned)"
+        fail=1
+      fi
+    elif op whoami >/dev/null 2>&1; then
       log_ok "1Password CLI signed in ($(op whoami 2>/dev/null | awk '/^Email:/ {print $2}'))"
-    elif op read 'op://Personal/Dotfiles Age Key/notesPlain' >/dev/null 2>&1; then
+    elif op read 'op://Dotfiles/Dotfiles Age Key/notesPlain' >/dev/null 2>&1; then
       log_ok "1Password CLI available via app integration (no token session)"
     else
       log_warn "1Password CLI installed but not reachable (unlock 1Password, or run 'op signin')"
