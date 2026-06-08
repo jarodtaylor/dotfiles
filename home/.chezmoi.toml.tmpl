@@ -60,9 +60,14 @@ recipient = {{ $ageRecipient | quote }}
 brew_prefix = {{ $brew_prefix | quote }}
 ageAvailable = {{ $ageAvailable }}
 {{- if $opAvailable }}
-ssh_key = "{{- onepasswordRead "op://Dotfiles/ssh_key/public_key" -}}"
-work_ssh_key = "{{- onepasswordRead "op://Dotfiles/work_ssh_key/public_key" -}}"
-work_email = "{{- onepasswordRead "op://Dotfiles/work_ssh_key/email" -}}"
+{{/* Read via raw `op` (self-selects the service token, like the age line
+     above) — NOT chezmoi's onepasswordRead, whose [onepassword] mode is always
+     `account` during config render and hard-errors when a token is set. These
+     vars currently have no downstream consumers; candidate for removal once
+     confirmed unused. */}}
+ssh_key = "{{ output "sh" "-c" "op read 'op://Dotfiles/ssh_key/public_key' 2>/dev/null || true" | trim }}"
+work_ssh_key = "{{ output "sh" "-c" "op read 'op://Dotfiles/work_ssh_key/public_key' 2>/dev/null || true" | trim }}"
+work_email = "{{ output "sh" "-c" "op read 'op://Dotfiles/work_ssh_key/email' 2>/dev/null || true" | trim }}"
 onepassword_available = true
 {{- else }}
 ssh_key = ""
