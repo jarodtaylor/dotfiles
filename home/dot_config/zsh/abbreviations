@@ -74,3 +74,7 @@ abbr rgfzf="rg --line-number --no-heading . | fzf --ansi"
 
 abbr fdfzf="fd --type f | fzf --preview 'bat --color=always {}'"
 
+# tmux — attach to (or create) the per-host "main" session. -d detaches any other
+# viewport so it takes over full-size when you hop devices (no screen clamping).
+abbr ta="tmux attach -d -t main || tmux new -s main"
+

@@ -2,3 +2,41 @@
 type = "git-repo"
 url = "https://github.com/catppuccin/zsh-syntax-highlighting.git"
 refreshPeriod = "168h"
+
+# --- tmux plugins (vendored; sourced from dot_config/tmux/tmux.conf) ---
+# Vendored to ~/.config/tmux/plugins/<name>/ so one tmux.conf works under
+# chezmoi here and a plain dotfiles repo on the VPS (no chezmoi-only paths
+# in the config). vim-tmux-navigator is intentionally NOT vendored — its
+# tmux side is a handful of stable bind-key lines written inline in tmux.conf.
+
+# catppuccin/tmux — PINNED to v2.3.0 (it shipped breaking v2 syntax, so a
+# moving target would break the status line). The key matches catppuccin's
+# upstream clone path (repo root holds catppuccin.tmux under tmux/), so
+# `run ~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux` resolves.
+# Pinned entries omit refreshPeriod — the shallow tag clone is frozen.
+[".config/tmux/plugins/catppuccin/tmux"]
+type = "git-repo"
+url = "https://github.com/catppuccin/tmux.git"
+
+[".config/tmux/plugins/catppuccin/tmux".clone]
+args = ["--branch", "v2.3.0", "--depth", "1"]
+
+# tmux-menus — discoverability popup (pure POSIX/tmux script, no build step,
+# no Python, no submodules). Unpinned: stable and self-contained.
+[".config/tmux/plugins/tmux-menus"]
+type = "git-repo"
+url = "https://github.com/jaclu/tmux-menus.git"
+refreshPeriod = "168h"
+
+# tmux-resurrect — save/restore sessions, windows, panes across reboots.
+[".config/tmux/plugins/tmux-resurrect"]
+type = "git-repo"
+url = "https://github.com/tmux-plugins/tmux-resurrect.git"
+refreshPeriod = "168h"
+
+# tmux-continuum — automatic save + restore-on-start. MUST be sourced last in
+# tmux.conf (after catppuccin) so its status-right save hook is not overwritten.
+[".config/tmux/plugins/tmux-continuum"]
+type = "git-repo"
+url = "https://github.com/tmux-plugins/tmux-continuum.git"
+refreshPeriod = "168h"
