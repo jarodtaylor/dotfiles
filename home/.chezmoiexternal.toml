@@ -10,9 +10,9 @@ refreshPeriod = "168h"
 # tmux side is a handful of stable bind-key lines written inline in tmux.conf.
 
 # catppuccin/tmux — PINNED to v2.3.0 (it shipped breaking v2 syntax, so a
-# moving target would break the status line). The key matches catppuccin's
-# upstream clone path (repo root holds catppuccin.tmux under tmux/), so
-# `run ~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux` resolves.
+# moving target would break the status line). The key below IS the clone
+# destination dir; catppuccin.tmux sits at the repo root, so the full path
+# `~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux` resolves.
 # Pinned entries omit refreshPeriod — the shallow tag clone is frozen.
 [".config/tmux/plugins/catppuccin/tmux"]
 type = "git-repo"
