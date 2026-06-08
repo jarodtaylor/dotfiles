@@ -8,7 +8,7 @@ return {
   "saghen/blink.cmp",
   opts = {
     keymap = {
-      ["<C-space>"] = {},
+      ["<C-space>"] = false,
     },
   },
 }
