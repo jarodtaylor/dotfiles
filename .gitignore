@@ -36,6 +36,7 @@
 /docs/superpowers/
 /docs/ideation/
 /docs/plans/
+/docs/brainstorms/
 
 # Sketchybar helper build artifacts. These are compiled by `make` when
 # `run_onchange_after_40-sketchybar-deps.sh.tmpl` runs on each machine —
