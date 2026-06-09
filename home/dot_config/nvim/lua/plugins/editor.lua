@@ -1,19 +1,24 @@
--- Inside the snacks.nvim Explorer, <C-h> can't reach the left tmux pane the way
--- it does from a normal buffer. The Explorer is a split-layout picker with a
--- hidden "root" window: vim-tmux-navigator's <C-h> runs `wincmd h`, which lands
--- in that root, and snacks immediately bounces focus back into the editor with
--- `wincmd l`. The window number changed, so vim-tmux-navigator concludes it
--- moved within Neovim and never forwards the keystroke to tmux. (<C-l/j/k> don't
--- pass through the root, so they already work.) Fix: in the Explorer only, send
--- <C-h> straight to tmux, bypassing the `wincmd h` that gets bounced. The
--- Explorer is pinned leftmost, so "left" is unambiguously the tmux pane beside it.
+-- <C-h> from the snacks.nvim Explorer can't reach the left tmux pane the way it
+-- does from a normal buffer. The Explorer is a split-layout picker with a hidden
+-- "root" window: vim-tmux-navigator's <C-h> runs `wincmd h`, lands in that root,
+-- and snacks bounces focus back into the editor with `wincmd l`. The window
+-- number changed, so the navigator concludes it moved within Neovim and never
+-- forwards to tmux. (<C-l/j/k> don't pass through the root, so they already work.)
+--
+-- Fix: rebind <C-h> on the picker list buffer to go straight to the left tmux
+-- pane, bypassing the bounced `wincmd h`. This attaches to every picker's list
+-- window, not just the Explorer — but that's harmless: from any list-window left
+-- edge the normal navigator would forward to tmux anyway, so the result matches.
+-- The augroup's clear=true keeps a re-source (`:Lazy reload`) from stacking
+-- duplicate autocmds (and thus duplicate buffer-local maps).
 vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("snacks_picker_tmux_nav", { clear = true }),
   pattern = "snacks_picker_list",
   callback = function(ev)
     if vim.env.TMUX then
       vim.keymap.set("n", "<C-h>", function()
         vim.fn.system("tmux select-pane -L")
-      end, { buffer = ev.buf, desc = "Tmux navigate left (snacks explorer)" })
+      end, { buffer = ev.buf, desc = "Tmux navigate left (snacks picker list)" })
     end
   end,
 })
