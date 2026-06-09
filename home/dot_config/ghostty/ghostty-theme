@@ -49,6 +49,6 @@ background = #11111B
 foreground = #cdd6f4
 cursor-color = #f5e0dc
 selection-background = #353749
-cursor-text = 11111b
-selection-foreground = cdd6f4
-split-divider-color = 313244selection-foreground = #cdd6f4
+cursor-text = #11111b
+selection-foreground = #cdd6f4
+split-divider-color = #313244
