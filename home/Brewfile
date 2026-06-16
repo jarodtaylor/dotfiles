@@ -24,9 +24,10 @@
 # -----------------------------------------------------------------------------
 # Taps
 # -----------------------------------------------------------------------------
-tap "felixkratz/formulae"
-tap "nikitabobko/tap"
-tap "olets/tap"
+tap "felixkratz/formulae", trusted: true
+tap "nikitabobko/tap", trusted: true
+tap "olets/tap", trusted: true
+tap "AlexsJones/llmfit", trusted: true
 
 
 # -----------------------------------------------------------------------------
@@ -76,6 +77,8 @@ brew "jq"
 brew "lazygit"
 # Postgres C API library
 brew "libpq"
+# Check LLMs for current hardware
+brew "llmfit"
 # Package manager for the Lua programming language
 brew "luarocks"
 # Mac App Store command-line interface
@@ -134,6 +137,8 @@ brew "tree-sitter"
 brew "wget"
 # Blazing fast terminal file manager written in Rust, based on async I/O
 brew "yazi"
+# command-line audio/video downloader 
+brew "yt-dlp"
 # Zsh plugin manager
 brew "zimfw"
 # Shell extension to navigate your filesystem faster
@@ -144,6 +149,8 @@ brew "zsh"
 # Tap-qualified brews
 # A window border system for macOS
 brew "felixkratz/formulae/borders"
+# Find LLM models that run on current hardware
+brew "AlexsJones/llmfit/llmfit"
 # Custom macOS statusbar with shell plugin, interaction and graph support
 brew "felixkratz/formulae/sketchybar"
 # Auto-expanding abbreviations manager for zsh. Version 6.x

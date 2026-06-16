@@ -1,0 +1,18 @@
+# Web search backend (one is enough; Brave is the cheapest)
+BRAVE_API_KEY={{ onepasswordRead "op://Deftloom/Brave Search API Key/credential" }}
+
+# Optional sources
+SCRAPECREATORS_API_KEY={{ onepasswordRead "op://Deftloom/Scrape Creators API Key/credential" }}
+INCLUDE_SOURCES=tiktok,instagram
+
+# X / Twitter via browser cookies — pinned to Chrome (where you're logged in).
+# Chrome decryption uses macOS Keychain (one-time "Always Allow" prompt).
+# auto = Firefox→Safari→Chrome; pinned to chrome avoids grabbing stale Firefox cookies.
+FROM_BROWSER=chrome
+
+# OpenRouter for Perplexity runs 
+OPENROUTER_API_KEY={{ onepasswordRead "op://Deftloom/OpenRouter API Key/credential" }}
+
+# Keeps the first-run setup wizard from re-triggering on each invocation.
+SETUP_COMPLETE=true
+

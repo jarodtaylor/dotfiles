@@ -44,3 +44,5 @@ export SAVEHIST=10000                # Maximum events in history file
 
 # sentry
 fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
+
+export LAST30DAYS_MEMORY_DIR="$HOME/Obsidian-Vaults/PARA/00-Inbox/last30days/"
