@@ -133,6 +133,8 @@ brew "tmux"
 brew "tree"
 # Incremental parsing library
 brew "tree-sitter"
+# Python package and project manager, written in Rust
+brew "uv"
 # Internet file retriever
 brew "wget"
 # Blazing fast terminal file manager written in Rust, based on async I/O
