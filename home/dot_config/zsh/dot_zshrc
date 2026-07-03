@@ -5,6 +5,7 @@
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
+export PATH=/Users/jarod/.opencode/bin:$PATH
 
 if [[ -e /opt/homebrew/bin/mise ]]; then
   eval "$(mise activate zsh)"
