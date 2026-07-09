@@ -65,6 +65,10 @@
 {{- end }}
 
 [gpg "ssh"]
+  # Sign/verify through a wrapper that drops SSH_AUTH_SOCK, so ssh-keygen uses the on-disk
+  # key (~/.ssh/id) and never contacts the (possibly-locked) 1Password agent — fixes the
+  # intermittent unattended "communication with agent failed". See docs/1password-ssh-signing-rca.md §11.
+  program = {{ .chezmoi.homeDir }}/bin/git-ssh-sign
   # Verify SSH commit signatures locally against an allow-list of pubkeys.
   allowedSignersFile = ~/.config/git/allowed_signers
 

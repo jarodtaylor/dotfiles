@@ -1,0 +1,19 @@
+#!/bin/bash
+# git SSH commit-signing program — referenced by `gpg.ssh.program` in ~/.config/git/config.
+#
+# Forces signing to use the ON-DISK key (~/.ssh/id) by dropping SSH_AUTH_SOCK, so `ssh-keygen -Y sign`
+# never contacts the 1Password SSH agent. This fixes the intermittent
+#     error: ... Couldn't sign message (signer): communication with agent failed?
+# that blocks `git commit` whenever the 1Password vault is locked (unattended / away-from-keyboard).
+#
+# WHY THIS IS NEEDED (the gap the 2026-05-24 RCA fix left): pointing `user.signingkey` at the on-disk
+# private key was necessary but not sufficient — `ssh-keygen -Y sign -f ~/.ssh/id` STILL probes
+# SSH_AUTH_SOCK, and hard-fails (rather than falling back to the file) when the agent is momentarily
+# unhealthy (locked / mid-update). Removing the socket for the signing call closes that gap.
+#
+# Interactive SSH AUTH is unaffected: git only invokes this program for signing/verifying commit
+# signatures, never for transport (clone/fetch/push still use the ssh config's IdentityAgent). Signature
+# VERIFICATION (`-Y verify`) also flows through here and needs no agent (it uses allowed_signers on disk).
+#
+# See docs/1password-ssh-signing-rca.md §11.
+exec env -u SSH_AUTH_SOCK /usr/bin/ssh-keygen "$@"

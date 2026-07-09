@@ -171,3 +171,28 @@ Same keys/fingerprints → GitHub "Verified" status and commit attribution uncha
 - **Work signing not exercised end-to-end here** (`~/Code/work` absent on this machine); components proven individually — first real run is Jarod's next commit in a work repo.
 
 **Activation:** live stopgap (rendered targets written directly to the live files — **no `chezmoi apply`**, per the M1 freeze) **and** committed to source. A normal `chezmoi apply` at the M5 cutover reconciles cleanly (`chezmoi diff` is currently empty). Note: `chezmoi apply`/`diff` themselves prompt for 1Password because they render the `onepasswordRead` key templates — expected, and unrelated to git signing/auth.
+
+---
+
+## 11. Recurrence + durable fix (2026-07-09) — the on-disk key still probed the agent
+
+**§10 was necessary but NOT sufficient.** `git commit` runs `ssh-keygen -Y sign -f ~/.ssh/id`, and ssh-keygen — even when handed the on-disk **private key file** — still probes `SSH_AUTH_SOCK` (the 1Password agent) and **hard-fails** ("communication with agent failed") when the agent is momentarily unhealthy (locked / mid-update), instead of falling back to the file. §10's verification blanked `SSH_AUTH_SOCK`, which **masked exactly this**. So in real unattended operation (socket still set → pointed at a locked agent) it recurred.
+
+**Recurrence:** 2026-07-09, blocking an agent-os `docs(decisions)` commit. Confirmed **intermittent** via `GIT_TRACE=1`: git ran precisely `ssh-keygen -Y sign -n git -f /Users/jarod/.ssh/id …` and a probe *succeeded* seconds after the same command failed. The isolated `ssh-keygen -Y sign -f ~/.ssh/id` signed fine both with the socket blanked and (that moment) with it set — so the differentiator is the agent's **transient health at the instant of the call**, not the key path.
+
+**Root cause (confirmed):** signing hard-depends on the agent being reachable at the moment of the call, because ssh-keygen consults `SSH_AUTH_SOCK` even for a **file** key. The only way to make signing agent-independent is to remove the socket from the signing call's environment.
+
+**The fix — a signing-program wrapper that drops `SSH_AUTH_SOCK`:**
+
+| Change | chezmoi source file | Effect |
+|---|---|---|
+| new wrapper: `exec env -u SSH_AUTH_SOCK /usr/bin/ssh-keygen "$@"` | `home/bin/executable_git-ssh-sign` (→ `~/bin/git-ssh-sign`) | signing/verifying never sees the agent |
+| `program = ~/bin/git-ssh-sign` under `[gpg "ssh"]` | `home/dot_config/git/config.tmpl` | git routes `-Y sign` / `-Y verify` through the wrapper |
+
+Interactive SSH **auth** is untouched — git only invokes `gpg.ssh.program` for signing/verifying, never for transport (clone/fetch/push still use the ssh config's on-disk-key path from §10). Verification (`-Y verify`) needs no agent either (allowed_signers is on disk). Same key/fingerprint → same GitHub "Verified".
+
+**Verification (2026-07-09):** with the 1Password agent socket **present** (the previously-failing condition), `git commit` → `run_command: ~/bin/git-ssh-sign -Y sign -f /Users/jarod/.ssh/id …` → **no agent contact**, signed, `show-signature` = `Good "git" signature … ED25519 SHA256:Zz1/…B4`.
+
+**Activation:** live stopgap (wrapper written to `~/bin/git-ssh-sign` + `program` added to the live `~/.config/git/config` directly — works immediately, no `chezmoi apply` / 1Password prompt) **and** committed to the chezmoi source. `chezmoi apply` later reconciles (renders `program` to the same absolute path via `{{ .chezmoi.homeDir }}`).
+
+**Supersedes:** the §8 acceptance gap ("a commit succeeds with Jarod away from the keyboard") is now actually met — the wrapper bypasses all three §4 candidate triggers **unconditionally**, at the signing-**program** layer rather than the key-**path** layer §10 fixed. (Pre-existing no-op `[gpg] program = ssh-keygen` still flagged for a future cleanup — untouched to keep this change tight.)
