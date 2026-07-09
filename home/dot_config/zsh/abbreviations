@@ -18,6 +18,9 @@ abbr cc="claude --effort max"
 abbr ccd="claude --effort max --chrome --dangerously-skip-permissions"
 abbr ccc="claude --effort max --chrome"
 
+# Grok and Cursor both use `agent` as the exec command for their CLI. Force agent to only exec Cursor. Grok Build can be exec'd with `grok`
+abbr agent="cursor-agent"
+
 # Rails 
 abbr brs="bin/rails server"
 

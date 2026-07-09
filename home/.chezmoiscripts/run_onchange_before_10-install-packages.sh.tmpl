@@ -9,7 +9,6 @@ set -eufo pipefail
 # Hashes so chezmoi re-runs this script when its inputs change.
 # Brewfile hash: {{ include "Brewfile" | sha256sum }}
 # Mise config hash: {{ includeTemplate "dot_config/mise/config.toml.tmpl" | sha256sum }}
-# Default npm packages hash: {{ includeTemplate "dot_config/mise/dot_default-npm-packages.tmpl" | sha256sum }}
 # Default gems hash: {{ includeTemplate "dot_config/mise/dot_default-gems.tmpl" | sha256sum }}
 
 BREWFILE="{{ .chezmoi.sourceDir }}/Brewfile"
