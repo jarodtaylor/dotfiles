@@ -36,6 +36,12 @@ Host silas
   User root
   SetEnv TERM=xterm-256color
   LocalForward 9119 127.0.0.1:9119
+  # Unattended-agent host: auth from the on-disk key like the github blocks
+  # above (1P agent auto-locks overnight and can't sign the auth challenge —
+  # 2026-07-10 overnight run; see docs/1password-ssh-signing-rca.md §7 scope).
+  IdentitiesOnly yes
+  IdentityAgent none
+  IdentityFile ~/.ssh/id
 
 Host hermes
   HostName {{ onepasswordRead "op://Dotfiles/Tailscale Hosts/hermes"}}
