@@ -14,6 +14,11 @@ fi
 eval "$(direnv hook zsh)"
 
 # ########################################
+# API KEYS & SECRETS                     #
+# ########################################
+[[ -f ~/.config/zsh/secrets ]] && source ~/.config/zsh/secrets
+
+# ########################################
 # ENVIRONMENT VARIABLES                  #
 # ########################################
 

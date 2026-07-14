@@ -16,6 +16,8 @@ zmodule zsh-users/zsh-completions --name zsh-completions --fpath src            
 
 zmodule completion                                                                  #Enables and configures smart and extensive tab completion. (must be sourced after all modules that add completion definitions)
 
+zmodule antoineco/zim-zoxide
+
 zmodule zsh-users/zsh-syntax-highlighting                                           #Fish-like syntax highlighting for Zsh.
 
 zmodule zsh-users/zsh-history-substring-search                                      #Fish-like history search (up arrow) for Zsh.

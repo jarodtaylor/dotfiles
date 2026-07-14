@@ -28,7 +28,8 @@ tap "felixkratz/formulae", trusted: true
 tap "nikitabobko/tap", trusted: true
 tap "olets/tap", trusted: true
 tap "AlexsJones/llmfit", trusted: true
-
+tap "pinecone-io/tap", trusted: true
+tap "kbrdn1/tap", trusted: true
 
 # -----------------------------------------------------------------------------
 # Core CLI (brews)
@@ -53,6 +54,8 @@ brew "cmatrix"
 brew "diff-so-fancy"
 # Load/unload environment variables based on $PWD
 brew "direnv"
+# TUI file manager with rich previews, inline images, bulk actions, and trash support
+brew "elio"
 # Modern, maintained replacement for ls
 brew "eza"
 # Like neofetch, but much faster because written mostly in C
@@ -69,6 +72,8 @@ brew "gh"
 brew "git"
 # Syntax-highlighting pager for git and diff output
 brew "git-delta"
+# Git worktree CLI
+brew "gwm"
 # CLI for Heroku
 brew "heroku"
 # Lightweight and flexible command-line JSON processor
@@ -105,6 +110,8 @@ brew "portaudio"
 brew "postgresql@15", restart_service: :changed
 # Persistent key-value database, with built-in net interface
 brew "redis"
+# SVG Rendering and Preview tool (used in Elio for previewing SVG)
+brew "resvg"
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # Install various Ruby versions and implementations
@@ -167,7 +174,6 @@ brew "olets/tap/zsh-autosuggestions-abbreviations-strategy"
 cask "chatgpt"
 cask "claude"
 cask "cleanshot"
-cask "codex"
 cask "cursor"
 cask "discord"
 cask "firefox@developer-edition"
@@ -192,6 +198,7 @@ cask "utm"
 # Tap-qualified casks
 # AeroSpace is an i3-like tiling window manager for macOS
 cask "nikitabobko/tap/aerospace"
+cask "pinecone-io/tap/pinecone"
 
 
 # -----------------------------------------------------------------------------
