@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.config/zsh/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # PATH modifications must happen BEFORE `mise activate` because mise
 # captures PATH once at activate-time and its precmd hook resets PATH
 # to that snapshot plus mise-managed tools on every prompt. Anything
@@ -127,3 +134,5 @@ unset __conda_setup
 # <<< conda initialize <<<
 
 . "$HOME/.local/share/../bin/env"
+
+[[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh

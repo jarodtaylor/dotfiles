@@ -6,13 +6,13 @@
 
 config-file = ghostty-theme
 
-window-padding-x = 0
-window-padding-y = 0
+window-padding-x = 5
+window-padding-y = 10,0
 
 font-family = "JetBrainsMono Nerd Font"
 font-size = 14
 font-thicken = true
-# adjust-cell-height = 1%
+adjust-cell-height = 10%
 
 background-opacity = 0.70
 background-blur-radius = 20
@@ -25,17 +25,18 @@ background-blur-radius = 20
 # This will default to the background color.
 # unfocused-split-fill = 
 
-# macos-titlebar-style = hidden
+macos-titlebar-style = hidden
 # window-decoration = false
 # window-vsync = false
 window-save-state = always
 window-step-resize = true
 window-inherit-font-size = true
-window-padding-color = extend-always
+window-padding-x = 5,0
+window-padding-y = 10,0
+# when adding padding to x or y, extend will keep prompt bg color from extending
+window-padding-color = extend
 # window-padding-balance = true
 
-clipboard-read = allow
-clipboard-write = allow
 
 
 # Background color for the window titlebar. This only takes effect if

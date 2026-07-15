@@ -16,7 +16,9 @@ zmodule zsh-users/zsh-completions --name zsh-completions --fpath src            
 
 zmodule completion                                                                  #Enables and configures smart and extensive tab completion. (must be sourced after all modules that add completion definitions)
 
-zmodule antoineco/zim-zoxide
+zmodule antoineco/zim-zoxide                                                        #Sets up the Zsh shell integration for zoxide
+
+zmodule romkatv/powerlevel10k --use degit                                           #Zsh Prompt Theme
 
 zmodule zsh-users/zsh-syntax-highlighting                                           #Fish-like syntax highlighting for Zsh.
 
